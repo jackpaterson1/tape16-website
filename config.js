@@ -15,7 +15,7 @@ window.TAPE16_SITE_CONFIG = {
   fullDownloadUrl: "REPLACE_WITH_FULL_DOWNLOAD_URL",
   // Base URL where licensing/auto_issue_webhook.py is hosted.
   // Example: "https://licenses.tape16.com"
-  serialApiBaseUrl: "REPLACE_WITH_SERIAL_API_BASE_URL",
+  serialApiBaseUrl: "https://tape16-webhook.onrender.com",
   // Optional dedicated support API. If empty, serialApiBaseUrl is used.
-  supportApiBaseUrl: "REPLACE_WITH_SUPPORT_API_BASE_URL",
+  supportApiBaseUrl: "https://tape16-webhook.onrender.com",
 };
