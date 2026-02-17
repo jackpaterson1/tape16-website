@@ -1,6 +1,6 @@
 window.TAPE16_SITE_CONFIG = {
   // Replace this with your live checkout URL (Stripe / Gumroad / Paddle / etc).
-  buyNowUrl: "REPLACE_WITH_CHECKOUT_URL",
+  buyNowUrl: "https://buy.stripe.com/5kQ6oH85L7e571u2TQ1ck00",
   // Stripe direct checkout-session flow (recommended for Stripe).
   stripeCheckoutEnabled: false,
   // Optional custom endpoint path if different from default.
