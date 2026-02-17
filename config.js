@@ -11,6 +11,8 @@ window.TAPE16_SITE_CONFIG = {
   stripeCancelUrl: "",
   // Point this to your demo build asset.
   demoDownloadUrl: "https://github.com/jackpaterson1/Tape-16/releases/latest/download/TAPE-16-Demo-macOS.dmg",
+  // Point this to your full-license build asset.
+  fullDownloadUrl: "REPLACE_WITH_FULL_DOWNLOAD_URL",
   // Base URL where licensing/auto_issue_webhook.py is hosted.
   // Example: "https://licenses.tape16.com"
   serialApiBaseUrl: "REPLACE_WITH_SERIAL_API_BASE_URL",

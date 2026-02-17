@@ -26,6 +26,8 @@ const bugSubmitBtn = document.getElementById("bug-submit-btn");
 const featureForm = document.getElementById("feature-request-form");
 const featureStatus = document.getElementById("feature-form-status");
 const featureSubmitBtn = document.getElementById("feature-submit-btn");
+const fullDownloadLink = document.getElementById("full-download-link");
+const downloadPageDemoLink = document.getElementById("download-page-demo-link");
 
 function configUrl(value) {
   if (typeof value !== "string") return "";
@@ -103,6 +105,18 @@ if (demoLink) {
   const hasDemoUrl =
     typeof config.demoDownloadUrl === "string" && config.demoDownloadUrl.length > 0;
   demoLink.href = hasDemoUrl ? config.demoDownloadUrl : fallbackDemoUrl;
+}
+
+if (fullDownloadLink) {
+  const fallbackFullUrl = "https://github.com/jackpaterson1/Tape-16/releases/latest";
+  const fullUrl = configUrl(config.fullDownloadUrl);
+  fullDownloadLink.href = fullUrl || fallbackFullUrl;
+}
+
+if (downloadPageDemoLink) {
+  const fallbackDemoUrl = "https://github.com/jackpaterson1/Tape-16/releases/latest";
+  const demoUrl = configUrl(config.demoDownloadUrl);
+  downloadPageDemoLink.href = demoUrl || fallbackDemoUrl;
 }
 
 function setSerialStatus(message, isError) {
