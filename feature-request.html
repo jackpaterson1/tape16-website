@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TAPE 16 | Request Feature</title>
+    <title>TAPE 16 | Feature Requests</title>
     <meta
       name="description"
-      content="Submit TAPE 16 feature requests with optional screenshots, references, and attachments."
+      content="Send TAPE 16 feature ideas with optional references and attachments."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -42,7 +42,7 @@
       <section class="bug-report" id="feature-request">
         <h2>Request A Feature</h2>
         <p>
-          Tell us what you want next and how it should work in your workflow.
+          Tell us what you want next and how it should fit into your recording workflow.
         </p>
         <form id="feature-request-form" class="bug-form" enctype="multipart/form-data">
           <label>
@@ -63,11 +63,11 @@
           </label>
           <label class="bug-full">
             Feature Summary
-            <input id="feature-summary" name="summary" type="text" required placeholder="Short feature summary" />
+            <input id="feature-summary" name="summary" type="text" required placeholder="Short description of the feature" />
           </label>
           <label class="bug-full">
             Details
-            <textarea id="feature-details" name="details" rows="6" placeholder="What problem does this solve? How should it behave?"></textarea>
+            <textarea id="feature-details" name="details" rows="6" placeholder="What problem does this solve, and how should it behave?"></textarea>
           </label>
           <label class="bug-full">
             Attachments (optional, up to 5 files / 25MB total)
@@ -79,7 +79,7 @@
               accept=".png,.jpg,.jpeg,.gif,.webp,.txt,.log,.zip,.dmp,.crash,.json,.wav,.pdf"
             />
           </label>
-          <button class="btn btn-primary bug-submit" type="submit" id="feature-submit-btn">Submit Feature Request</button>
+          <button class="btn btn-primary bug-submit" type="submit" id="feature-submit-btn">Send Feature Request</button>
         </form>
         <p id="feature-form-status" class="serial-status" role="status" aria-live="polite"></p>
       </section>

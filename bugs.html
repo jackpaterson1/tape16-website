@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TAPE 16 | Report Bugs</title>
+    <title>TAPE 16 | Bug Reports</title>
     <meta
       name="description"
-      content="Submit TAPE 16 bug reports with optional screenshots, logs, and crash attachments."
+      content="Report TAPE 16 issues with optional screenshots, logs, and crash attachments."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -40,9 +40,9 @@
       </section>
 
       <section class="bug-report" id="bugs">
-        <h2>Submit Bug Report</h2>
+        <h2>Report A Bug</h2>
         <p>
-          Send an issue directly with optional screenshots, logs, or crash files.
+          Share what went wrong and we will use it to improve the next builds.
         </p>
         <form id="bug-report-form" class="bug-form" enctype="multipart/form-data">
           <label>
@@ -63,11 +63,11 @@
           </label>
           <label class="bug-full">
             Summary
-            <input id="bug-summary" name="summary" type="text" required placeholder="Short issue summary" />
+            <input id="bug-summary" name="summary" type="text" required placeholder="Short description of the issue" />
           </label>
           <label class="bug-full">
             Details
-            <textarea id="bug-details" name="details" rows="6" placeholder="What happened? Steps to reproduce?"></textarea>
+            <textarea id="bug-details" name="details" rows="6" placeholder="What happened, and how can we reproduce it?"></textarea>
           </label>
           <label class="bug-full">
             Attachments (optional, up to 5 files / 25MB total)
@@ -79,7 +79,7 @@
               accept=".png,.jpg,.jpeg,.gif,.webp,.txt,.log,.zip,.dmp,.crash,.json,.wav"
             />
           </label>
-          <button class="btn btn-primary bug-submit" type="submit" id="bug-submit-btn">Submit Bug</button>
+          <button class="btn btn-primary bug-submit" type="submit" id="bug-submit-btn">Send Bug Report</button>
         </form>
         <p id="bug-form-status" class="serial-status" role="status" aria-live="polite"></p>
       </section>
