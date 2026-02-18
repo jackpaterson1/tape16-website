@@ -12,7 +12,7 @@ window.TAPE16_SITE_CONFIG = {
   // Point this to your demo build asset.
   demoDownloadUrl: "https://github.com/jackpaterson1/Tape-16/releases/latest/download/TAPE-16-Demo-macOS.dmg",
   // Point this to your full-license build asset.
-  fullDownloadUrl: "REPLACE_WITH_FULL_DOWNLOAD_URL",
+  fullDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.8.5/TAPE-16-v0.8.5-macOS.dmg",
   // Base URL where licensing/auto_issue_webhook.py is hosted.
   // Example: "https://licenses.tape16.com"
   serialApiBaseUrl: "https://tape16-webhook.onrender.com",
