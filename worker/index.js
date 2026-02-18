@@ -1,4 +1,17 @@
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
+const GENERIC_RESEND_MESSAGE = "If a matching purchase exists, the serial email has been sent.";
+
+const CHECKOUT_EVENT_TYPES = new Set([
+  "checkout.session.completed",
+  "checkout.session.async_payment_succeeded",
+]);
+
+const REFUND_EVENT_TYPES = new Set([
+  "charge.refunded",
+  "charge.refund.updated",
+  "refund.created",
+  "refund.updated",
+]);
 
 export default {
   async fetch(request, env, ctx) {
@@ -55,26 +68,48 @@ async function handleStripeWebhook(request, env, origin, ctx) {
     return json({ ok: false, error: "Invalid JSON payload" }, 400, origin, env);
   }
 
-  const allowed = new Set([
-    "checkout.session.completed",
-    "checkout.session.async_payment_succeeded",
-  ]);
-  if (!allowed.has(event?.type)) {
-    return json({ ok: true, ignored: true, eventType: event?.type || null }, 200, origin, env);
+  const eventType = cleanString(event?.type);
+  if (CHECKOUT_EVENT_TYPES.has(eventType)) {
+    return await handleCheckoutEvent(event, env, origin, ctx);
   }
 
+  if (REFUND_EVENT_TYPES.has(eventType)) {
+    return await handleRefundEvent(event, env, origin);
+  }
+
+  return json({ ok: true, ignored: true, eventType: eventType || null }, 200, origin, env);
+}
+
+async function handleCheckoutEvent(event, env, origin, ctx) {
   const session = event?.data?.object || {};
   const processed = await issueOrReuseSerial({
     orderId: session.id,
     email: readSessionEmail(session),
     source: event.type,
+    paymentIntentId: cleanString(session.payment_intent),
     env,
   });
 
   if (!processed.ok) {
     return json({ ok: false, error: processed.error || "Unable to process checkout session" }, 400, origin, env);
   }
+
   console.log(`[stripe processed] order=${processed.order.orderId} issued=${processed.issued}`);
+
+  if (processed.order.revoked === true) {
+    return json(
+      {
+        ok: true,
+        issued: false,
+        orderId: processed.order.orderId,
+        emailQueued: false,
+        revoked: true,
+      },
+      200,
+      origin,
+      env,
+    );
+  }
 
   const order = processed.order;
   const emailSend = sendSerialEmail({
@@ -99,6 +134,106 @@ async function handleStripeWebhook(request, env, origin, ctx) {
   );
 }
 
+async function handleRefundEvent(event, env, origin) {
+  const eventType = cleanString(event?.type);
+  const object = event?.data?.object || {};
+
+  if (!shouldRevokeFromRefundEvent(eventType, object)) {
+    return json({ ok: true, ignored: true, eventType, reason: "refund_not_final" }, 200, origin, env);
+  }
+
+  const paymentIntentId = await resolveRefundPaymentIntent(eventType, object, env);
+  if (!paymentIntentId) {
+    return json({ ok: true, ignored: true, eventType, reason: "no_payment_intent" }, 200, origin, env);
+  }
+
+  const orderId = await findOrderIdByPaymentIntent(env, paymentIntentId);
+  if (!orderId) {
+    return json(
+      { ok: true, ignored: true, eventType, reason: "no_matching_order", paymentIntentId },
+      200,
+      origin,
+      env,
+    );
+  }
+
+  const revoked = await revokeOrder(env, orderId, `refund:${eventType}`);
+  return json({ ok: true, revoked, orderId, paymentIntentId }, 200, origin, env);
+}
+
+function shouldRevokeFromRefundEvent(eventType, object) {
+  if (eventType.startsWith("charge.")) {
+    const amountRefunded = Number(object?.amount_refunded || 0);
+    return object?.refunded === true || amountRefunded > 0;
+  }
+
+  if (eventType.startsWith("refund.")) {
+    return cleanString(object?.status) === "succeeded";
+  }
+
+  return false;
+}
+
+async function resolveRefundPaymentIntent(eventType, object, env) {
+  const directPaymentIntent = cleanString(object?.payment_intent);
+  if (directPaymentIntent) return directPaymentIntent;
+
+  const chargeId = cleanString(object?.charge || (eventType.startsWith("charge.") ? object?.id : ""));
+  if (!chargeId || !env.STRIPE_SECRET_KEY) return "";
+
+  const response = await fetch(
+    `https://api.stripe.com/v1/charges/${encodeURIComponent(chargeId)}`,
+    { headers: stripeAuthHeaders(env.STRIPE_SECRET_KEY) },
+  );
+  if (!response.ok) return "";
+
+  const charge = await response.json().catch(() => null);
+  return cleanString(charge?.payment_intent);
+}
+
+async function findOrderIdByPaymentIntent(env, paymentIntentId) {
+  const cleanPaymentIntent = cleanString(paymentIntentId);
+  if (!cleanPaymentIntent) return "";
+
+  const mappedOrderId = cleanString(await env.ORDERS_KV.get(paymentIntentKey(cleanPaymentIntent)));
+  if (mappedOrderId) return mappedOrderId;
+
+  const recoveredOrderId = await recoverOrderIdFromPaymentIntent(env, cleanPaymentIntent);
+  if (!recoveredOrderId) return "";
+
+  await env.ORDERS_KV.put(paymentIntentKey(cleanPaymentIntent), recoveredOrderId);
+  return recoveredOrderId;
+}
+
+async function recoverOrderIdFromPaymentIntent(env, paymentIntentId) {
+  if (!env.STRIPE_SECRET_KEY) return "";
+
+  const endpoint =
+    `https://api.stripe.com/v1/checkout/sessions?payment_intent=${encodeURIComponent(paymentIntentId)}&limit=1`;
+  const response = await fetch(endpoint, { headers: stripeAuthHeaders(env.STRIPE_SECRET_KEY) });
+  if (!response.ok) return "";
+
+  const body = await response.json().catch(() => null);
+  const firstSession = body?.data?.[0];
+  return cleanString(firstSession?.id);
+}
+
+async function revokeOrder(env, orderId, reason) {
+  const order = await readOrder(env, orderId);
+  if (!order) return false;
+  if (order.revoked === true) return false;
+
+  const updated = {
+    ...order,
+    revoked: true,
+    revokedAt: new Date().toISOString(),
+    revokedReason: cleanString(reason) || "refund",
+  };
+  await env.ORDERS_KV.put(orderKey(orderId), JSON.stringify(updated));
+  console.log(`[serial revoked] order=${orderId} reason=${updated.revokedReason}`);
+  return true;
+}
+
 async function handleResendSerial(request, env, origin, ctx) {
   let payload = {};
   try {
@@ -120,21 +255,16 @@ async function handleResendSerial(request, env, origin, ctx) {
   }
 
   if (!order) {
-    return json(
-      { ok: true, message: "If a matching purchase exists, the serial email has been sent." },
-      200,
-      origin,
-      env,
-    );
+    return json({ ok: true, message: GENERIC_RESEND_MESSAGE }, 200, origin, env);
+  }
+
+  if (order.revoked === true) {
+    console.log(`[resend blocked revoked] order=${order.orderId} email=${email}`);
+    return json({ ok: true, message: GENERIC_RESEND_MESSAGE }, 200, origin, env);
   }
 
   if (cleanEmail(order.email) !== email) {
-    return json(
-      { ok: true, message: "If a matching purchase exists, the serial email has been sent." },
-      200,
-      origin,
-      env,
-    );
+    return json({ ok: true, message: GENERIC_RESEND_MESSAGE }, 200, origin, env);
   }
 
   const sent = await sendSerialEmail({
@@ -148,7 +278,7 @@ async function handleResendSerial(request, env, origin, ctx) {
   return json(
     {
       ok: true,
-      message: "If a matching purchase exists, the serial email has been sent.",
+      message: GENERIC_RESEND_MESSAGE,
       emailQueued: sent,
     },
     200,
@@ -202,15 +332,19 @@ async function handleCreateCheckoutSession(request, env, origin) {
   return json({ ok: true, url: stripeBody.url, id: stripeBody.id }, 200, origin, env);
 }
 
-async function issueOrReuseSerial({ orderId, email, source, env }) {
+async function issueOrReuseSerial({ orderId, email, source, paymentIntentId, env }) {
   const cleanOrderId = cleanString(orderId);
   const cleanOrderEmail = cleanEmail(email);
+  const cleanPaymentIntentId = cleanString(paymentIntentId);
   if (!cleanOrderId || !cleanOrderEmail) {
     return { ok: false, error: "Missing order ID or customer email" };
   }
 
   const existing = await readOrder(env, cleanOrderId);
   if (existing) {
+    if (cleanPaymentIntentId) {
+      await env.ORDERS_KV.put(paymentIntentKey(cleanPaymentIntentId), existing.orderId);
+    }
     return { ok: true, issued: false, order: existing };
   }
 
@@ -219,9 +353,16 @@ async function issueOrReuseSerial({ orderId, email, source, env }) {
     email: cleanOrderEmail,
     serial: createSerial(),
     source,
+    paymentIntentId: cleanPaymentIntentId || null,
+    revoked: false,
+    revokedAt: null,
+    revokedReason: null,
     createdAt: new Date().toISOString(),
   };
   await env.ORDERS_KV.put(orderKey(cleanOrderId), JSON.stringify(order));
+  if (cleanPaymentIntentId) {
+    await env.ORDERS_KV.put(paymentIntentKey(cleanPaymentIntentId), cleanOrderId);
+  }
   return { ok: true, issued: true, order };
 }
 
@@ -243,6 +384,7 @@ async function recoverOrderFromStripe(env, orderId) {
     orderId: session.id,
     email: recoveredEmail,
     source: "manual_recovery",
+    paymentIntentId: cleanString(session.payment_intent),
     env,
   });
   return out.ok ? out.order : null;
@@ -255,12 +397,12 @@ async function sendSerialEmail({ env, to, serial, orderId, ctx }) {
 
   const send = async () => {
     const html = buildSerialHtml(serial, orderId);
-  const text = [
-    "Thanks for purchasing TAPE 16.",
-    "",
-    `Serial: ${serial}`,
-    `Order ID: ${orderId}`,
-  ].join("\n");
+    const text = [
+      "Thanks for purchasing TAPE 16.",
+      "",
+      `Serial: ${serial}`,
+      `Order ID: ${orderId}`,
+    ].join("\n");
 
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -315,6 +457,10 @@ async function readOrder(env, orderId) {
 
 function orderKey(orderId) {
   return `order:${orderId}`;
+}
+
+function paymentIntentKey(paymentIntentId) {
+  return `pi:${paymentIntentId}`;
 }
 
 function readSessionEmail(session) {

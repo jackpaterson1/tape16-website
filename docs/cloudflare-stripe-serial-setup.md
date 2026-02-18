@@ -33,6 +33,8 @@ In Stripe -> Developers -> Webhooks:
 - Events:
   - `checkout.session.completed`
   - `checkout.session.async_payment_succeeded`
+  - `charge.refunded`
+  - `refund.updated`
 
 Use the endpoint signing secret for `STRIPE_WEBHOOK_SECRET`.
 
@@ -62,4 +64,3 @@ After tests pass:
 
 - Remove Render webhook URL from Stripe.
 - Keep only Worker webhook endpoint enabled.
-
