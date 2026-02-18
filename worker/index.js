@@ -255,14 +255,12 @@ async function sendSerialEmail({ env, to, serial, orderId, ctx }) {
 
   const send = async () => {
     const html = buildSerialHtml(serial, orderId);
-    const text = [
-      "Thanks for purchasing TAPE 16.",
-      "",
-      `Serial: ${serial}`,
-      `Order ID: ${orderId}`,
-      "",
-      "Need help? Reply to this email.",
-    ].join("\n");
+  const text = [
+    "Thanks for purchasing TAPE 16.",
+    "",
+    `Serial: ${serial}`,
+    `Order ID: ${orderId}`,
+  ].join("\n");
 
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -301,7 +299,6 @@ function buildSerialHtml(serial, orderId) {
       <p style="margin:0 0 12px;">Your serial number:</p>
       <p style="margin:0 0 16px;font-size:20px;font-weight:700;letter-spacing:0.08em;">${escapeHtml(serial)}</p>
       <p style="margin:0 0 8px;">Order ID: <code>${escapeHtml(orderId)}</code></p>
-      <p style="margin:0;">If you need support, reply to this email.</p>
     </div>
   `;
 }
