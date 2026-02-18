@@ -1,6 +1,7 @@
 name = "tape16-api"
 main = "worker/index.js"
 compatibility_date = "2026-02-18"
+keep_vars = true
 
 kv_namespaces = [
   { binding = "ORDERS_KV", id = "5df3d18ed4c04b89993606808dec5eb1" }
