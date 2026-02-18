@@ -288,6 +288,11 @@ h1 {
   gap: 1rem;
 }
 
+.pricing-grid-single {
+  grid-template-columns: minmax(280px, 440px);
+  justify-content: center;
+}
+
 .price-card {
   border: 1px solid var(--stroke);
   border-radius: 14px;
