@@ -1,12 +1,7 @@
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
-const GENERIC_RESEND_MESSAGE = "If a matching purchase exists, the serial email has been sent.";
-const ALLOWED_STRIPE_EVENTS = new Set([
-  "checkout.session.completed",
-  "checkout.session.async_payment_succeeded",
-]);
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = normalizePath(url.pathname);
     const method = request.method.toUpperCase();
@@ -22,11 +17,11 @@ export default {
       }
 
       if (method === "POST" && path === "/stripe/webhook") {
-        return await handleStripeWebhook(request, env, origin);
+        return await handleStripeWebhook(request, env, origin, ctx);
       }
 
       if (method === "POST" && path === "/resend-serial") {
-        return await handleResendSerial(request, env, origin);
+        return await handleResendSerial(request, env, origin, ctx);
       }
 
       if (method === "POST" && path === "/stripe/create-checkout-session") {
@@ -41,7 +36,7 @@ export default {
   },
 };
 
-async function handleStripeWebhook(request, env, origin) {
+async function handleStripeWebhook(request, env, origin, ctx) {
   if (!env.STRIPE_WEBHOOK_SECRET) {
     return json({ ok: false, error: "Missing STRIPE_WEBHOOK_SECRET" }, 500, origin, env);
   }
@@ -60,7 +55,11 @@ async function handleStripeWebhook(request, env, origin) {
     return json({ ok: false, error: "Invalid JSON payload" }, 400, origin, env);
   }
 
-  if (!ALLOWED_STRIPE_EVENTS.has(event?.type)) {
+  const allowed = new Set([
+    "checkout.session.completed",
+    "checkout.session.async_payment_succeeded",
+  ]);
+  if (!allowed.has(event?.type)) {
     return json({ ok: true, ignored: true, eventType: event?.type || null }, 200, origin, env);
   }
 
@@ -78,13 +77,15 @@ async function handleStripeWebhook(request, env, origin) {
   console.log(`[stripe processed] order=${processed.order.orderId} issued=${processed.issued}`);
 
   const order = processed.order;
-  const emailSent = await sendSerialEmail({
+  const emailSend = sendSerialEmail({
     env,
     to: order.email,
     serial: order.serial,
     orderId: order.orderId,
+    ctx,
   });
 
+  const emailSent = await emailSend;
   return json(
     {
       ok: true,
@@ -98,9 +99,11 @@ async function handleStripeWebhook(request, env, origin) {
   );
 }
 
-async function handleResendSerial(request, env, origin) {
-  const payload = await parseJsonBody(request);
-  if (!payload) {
+async function handleResendSerial(request, env, origin, ctx) {
+  let payload = {};
+  try {
+    payload = await request.json();
+  } catch {
     return json({ ok: false, error: "Invalid JSON payload" }, 400, origin, env);
   }
 
@@ -117,11 +120,21 @@ async function handleResendSerial(request, env, origin) {
   }
 
   if (!order) {
-    return genericResendResponse(origin, env);
+    return json(
+      { ok: true, message: "If a matching purchase exists, the serial email has been sent." },
+      200,
+      origin,
+      env,
+    );
   }
 
   if (cleanEmail(order.email) !== email) {
-    return genericResendResponse(origin, env);
+    return json(
+      { ok: true, message: "If a matching purchase exists, the serial email has been sent." },
+      200,
+      origin,
+      env,
+    );
   }
 
   const sent = await sendSerialEmail({
@@ -129,12 +142,13 @@ async function handleResendSerial(request, env, origin) {
     to: order.email,
     serial: order.serial,
     orderId: order.orderId,
+    ctx,
   });
 
   return json(
     {
       ok: true,
-      message: GENERIC_RESEND_MESSAGE,
+      message: "If a matching purchase exists, the serial email has been sent.",
       emailQueued: sent,
     },
     200,
@@ -153,7 +167,12 @@ async function handleCreateCheckoutSession(request, env, origin) {
     );
   }
 
-  const payload = (await parseJsonBody(request)) || {};
+  let payload = {};
+  try {
+    payload = await request.json();
+  } catch {
+    payload = {};
+  }
 
   const originBase = env.PUBLIC_SITE_ORIGIN || "https://emrmusicgroup.com";
   const successUrl = cleanString(payload.successUrl) || `${originBase}/tape16/?checkout=success`;
@@ -229,42 +248,50 @@ async function recoverOrderFromStripe(env, orderId) {
   return out.ok ? out.order : null;
 }
 
-async function sendSerialEmail({ env, to, serial, orderId }) {
+async function sendSerialEmail({ env, to, serial, orderId, ctx }) {
   const toEmail = cleanEmail(to);
   if (!toEmail || !serial || !orderId) return false;
   if (!env.RESEND_API_KEY || !env.RESEND_FROM) return false;
 
-  const html = buildSerialHtml(serial, orderId);
-  const text = [
-    "Thanks for purchasing TAPE 16.",
-    "",
-    `Serial: ${serial}`,
-    `Order ID: ${orderId}`,
-    "",
-    "Need help? Reply to this email.",
-  ].join("\n");
+  const send = async () => {
+    const html = buildSerialHtml(serial, orderId);
+    const text = [
+      "Thanks for purchasing TAPE 16.",
+      "",
+      `Serial: ${serial}`,
+      `Order ID: ${orderId}`,
+      "",
+      "Need help? Reply to this email.",
+    ].join("\n");
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: env.RESEND_FROM,
-      to: [toEmail],
-      subject: "Your TAPE 16 Serial Number",
-      html,
-      text,
-    }),
-  });
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => "");
-    console.log(`[email error] order=${orderId} to=${toEmail} err=${response.status} ${errorText}`);
-    return false;
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: env.RESEND_FROM,
+        to: [toEmail],
+        subject: "Your TAPE 16 Serial Number",
+        html,
+        text,
+      }),
+    });
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      console.log(`[email error] order=${orderId} to=${toEmail} err=${response.status} ${errorText}`);
+      return false;
+    }
+    console.log(`[email sent] order=${orderId} to=${toEmail}`);
+    return true;
+  };
+
+  if (ctx) {
+    ctx.waitUntil(send());
+    return true;
   }
-  console.log(`[email sent] order=${orderId} to=${toEmail}`);
-  return true;
+  return await send();
 }
 
 function buildSerialHtml(serial, orderId) {
@@ -332,18 +359,6 @@ function json(body, status = 200, origin = "", env) {
     status,
     headers: { ...JSON_HEADERS, ...corsHeaders(origin, env) },
   });
-}
-
-async function parseJsonBody(request) {
-  try {
-    return await request.json();
-  } catch {
-    return null;
-  }
-}
-
-function genericResendResponse(origin, env) {
-  return json({ ok: true, message: GENERIC_RESEND_MESSAGE }, 200, origin, env);
 }
 
 function corsHeaders(origin, env) {
