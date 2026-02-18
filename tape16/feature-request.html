@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TAPE 16 | Feature Requests</title>
+    <meta
+      name="description"
+      content="Send TAPE 16 feature ideas with optional references and attachments."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="TAPE 16 home">
+        <img src="assets/tape16-logo.png" alt="TAPE 16 logo" />
+        <span>TAPE 16</span>
+      </a>
+      <nav>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#workflow">Workflow</a>
+        <a href="index.html#pricing">Pricing</a>
+        <a href="feature-request.html">Request Feature</a>
+        <a href="bugs.html">Bugs</a>
+        <a href="index.html#download">Download</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="brand-banner" aria-label="TAPE 16 branding">
+        <img src="assets/tape16-wordmark-2048.png" alt="TAPE 16 wordmark" />
+      </section>
+
+      <section class="bug-report" id="feature-request">
+        <h2>Request A Feature</h2>
+        <p>
+          Tell us what you want next and how it should fit into your recording workflow.
+        </p>
+        <form id="feature-request-form" class="bug-form" enctype="multipart/form-data">
+          <label>
+            Email
+            <input id="feature-email" name="email" type="email" required placeholder="you@email.com" />
+          </label>
+          <label>
+            Name (optional)
+            <input id="feature-name" name="name" type="text" placeholder="Your name" />
+          </label>
+          <label>
+            App Version (optional)
+            <input id="feature-app-version" name="appVersion" type="text" placeholder="e.g. 0.8" />
+          </label>
+          <label>
+            Platform (optional)
+            <input id="feature-platform" name="platform" type="text" placeholder="e.g. macOS 14.6" />
+          </label>
+          <label class="bug-full">
+            Feature Summary
+            <input id="feature-summary" name="summary" type="text" required placeholder="Short description of the feature" />
+          </label>
+          <label class="bug-full">
+            Details
+            <textarea id="feature-details" name="details" rows="6" placeholder="What problem does this solve, and how should it behave?"></textarea>
+          </label>
+          <label class="bug-full">
+            Attachments (optional, up to 5 files / 25MB total)
+            <input
+              id="feature-attachments"
+              name="attachments"
+              type="file"
+              multiple
+              accept=".png,.jpg,.jpeg,.gif,.webp,.txt,.log,.zip,.dmp,.crash,.json,.wav,.pdf"
+            />
+          </label>
+          <button class="btn btn-primary bug-submit" type="submit" id="feature-submit-btn">Send Feature Request</button>
+        </form>
+        <p id="feature-form-status" class="serial-status" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <footer>
+      <p>JB Paterson | EMR Music Group</p>
+      <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

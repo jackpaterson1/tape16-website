@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TAPE 16 | Analog-Inspired Recording Software</title>
+    <meta
+      name="description"
+      content="TAPE 16 is an analog-inspired desktop recorder with a fixed 16-track workflow, destructive recording, and hardware-style transport control."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="TAPE 16 home">
+        <img src="assets/tape16-logo.png" alt="TAPE 16 logo" />
+        <span>TAPE 16</span>
+      </a>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#pricing">Pricing</a>
+        <a href="feature-request.html">Request Feature</a>
+        <a href="bugs.html">Bugs</a>
+        <a href="#download">Download</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="brand-banner" aria-label="TAPE 16 branding">
+        <img src="assets/tape16-wordmark-2048.png" alt="TAPE 16 wordmark" />
+      </section>
+
+      <section class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">Analog-Inspired Recorder</p>
+          <h1>Track fast.<br />Commit with confidence.</h1>
+          <p class="hero-copy">
+            TAPE 16 is built for decisive sessions. Record to a fixed 16-track layout, punch in
+            quickly, and keep momentum with a transport-first workflow.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#download">Get TAPE 16</a>
+            <a class="btn btn-ghost" href="#features">Explore features</a>
+          </div>
+          <div class="status-bar" role="status" aria-live="polite">
+            <span>Current build</span>
+            <strong>Updated regularly</strong>
+            <span>macOS DMG download</span>
+          </div>
+        </div>
+        <figure class="hero-image-wrap">
+          <img src="hero-image.png" alt="TAPE 16 hero artwork" class="hero-image" />
+        </figure>
+      </section>
+
+      <section class="feature-grid" id="features">
+        <article>
+          <h2>Fixed 16-track layout</h2>
+          <p>
+            Start instantly with the same dependable track layout every time, plus clear metering
+            and direct transport feedback.
+          </p>
+        </article>
+        <article>
+          <h2>Commit-style recording</h2>
+          <p>
+            Record behaves like tape: punch in, overwrite, and move forward. No hidden take stacks
+            and no menu-heavy comp workflow.
+          </p>
+        </article>
+        <article>
+          <h2>Use your plugins like outboard gear</h2>
+          <p>
+            Treat your favorite plugin chains like committed hardware moves. Shape tone while you
+            track, print decisions early, and keep sessions moving without option overload.
+          </p>
+        </article>
+        <article>
+          <h2>Character and texture controls</h2>
+          <p>
+            Shape your sound with wow, flutter, saturation, tape age, and damage controls while
+            keeping operation quick and tactile.
+          </p>
+        </article>
+      </section>
+
+      <section class="workflow" id="workflow">
+        <div>
+          <p class="eyebrow">Workflow</p>
+          <h2>Built for flow, not endless setup.</h2>
+          <p>
+            TAPE 16 keeps you focused on recording decisions. Arm a track, hit transport, capture
+            the take, and keep moving.
+          </p>
+        </div>
+        <ul>
+          <li>Hardware-style REW, FF, STOP, PLAY, and REC controls</li>
+          <li>Per-track arm, solo, and mute with clear status states</li>
+          <li>Tape character and calibration controls where they matter</li>
+          <li>Realtime and offline bounce options</li>
+        </ul>
+      </section>
+
+      <section class="pricing" id="pricing">
+        <div class="pricing-head">
+          <p class="eyebrow">Pricing</p>
+          <h2>Simple pricing.</h2>
+          <p>Purchase the full version for $19 USD, or start with the demo first.</p>
+        </div>
+        <div class="pricing-grid">
+          <article class="price-card">
+            <h3>Full License</h3>
+            <p class="price">$19 <span>USD</span></p>
+            <p>One-time purchase with full recording workflow and export options.</p>
+            <p class="price-note">Secure checkout. Your serial is delivered automatically after purchase.</p>
+            <a class="btn btn-primary" id="buy-link" href="#" target="_blank" rel="noreferrer">Buy For $19</a>
+            <p id="buy-status" class="serial-status" role="status" aria-live="polite"></p>
+          </article>
+          <article class="price-card">
+            <h3>Demo</h3>
+            <p class="price">Free</p>
+            <p>Try TAPE 16 before buying. Download the latest demo build anytime.</p>
+            <a class="btn btn-ghost" id="demo-link" href="#" target="_blank" rel="noreferrer">Download Demo</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="serial-help" id="serial-help">
+        <h2>Need your serial again?</h2>
+        <p>
+          Enter your order ID and purchase email to resend your serial.
+        </p>
+        <form id="serial-resend-form" class="serial-form">
+          <label>
+            Order ID
+            <input id="serial-order-id" name="orderId" type="text" required placeholder="e.g. 123456" />
+          </label>
+          <label>
+            Purchase Email
+            <input id="serial-email" name="email" type="email" required placeholder="you@email.com" />
+          </label>
+          <button class="btn btn-primary" type="submit" id="serial-submit-btn">Resend My Serial</button>
+        </form>
+        <p id="serial-form-status" class="serial-status" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="download" id="download">
+        <h2>Get The Latest Build</h2>
+        <p>
+          Open the download page for full and demo installers.
+        </p>
+        <a class="btn btn-primary" href="download.html">Open Download Page</a>
+      </section>
+    </main>
+
+    <footer>
+      <p>JB Paterson | EMR Music Group</p>
+      <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
