@@ -12,12 +12,13 @@ window.TAPE16_SITE_CONFIG = {
   // Point this to your demo build asset.
   demoDownloadUrl: "https://github.com/jackpaterson1/Tape-16/releases/latest/download/TAPE-16-Demo-macOS.dmg",
   // Point this to your full-license build asset.
-  fullDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/latest",
-  // Base URL for serial API.
-  // Render example: "https://tape16-webhook.onrender.com"
-  // Cloudflare Worker example: "https://tape16-api.<subdomain>.workers.dev"
+  fullDownloadUrl: "REPLACE_WITH_FULL_DOWNLOAD_URL",
+  // Base URL where licensing/auto_issue_webhook.py is hosted.
+  // Example: "https://licenses.tape16.com"
   serialApiBaseUrl: "https://tape16-webhook.onrender.com",
   // Optional dedicated support API. If empty, serialApiBaseUrl is used.
-  // Set this to the same Worker URL during Cloudflare cutover.
   supportApiBaseUrl: "https://tape16-webhook.onrender.com",
+  // Account/licensing API base (Cloudflare Worker recommended).
+  // Example: "https://tape16-licensing.youraccount.workers.dev"
+  accountApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
 };
