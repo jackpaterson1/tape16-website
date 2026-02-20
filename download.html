@@ -2,14 +2,70 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="refresh" content="0; url=https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/latest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Redirecting...</title>
+    <title>TAPE 16 | Downloads</title>
+    <meta
+      name="description"
+      content="Download TAPE 16 full and demo installers."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <p>Redirecting to the latest public release...</p>
-    <p>
-      <a href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/latest">Continue</a>
-    </p>
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="TAPE 16 home">
+        <img src="assets/tape16-logo.png" alt="TAPE 16 logo" />
+        <span>TAPE 16</span>
+      </a>
+      <nav>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#workflow">Workflow</a>
+        <a href="index.html#pricing">Pricing</a>
+        <a href="feature-request.html">Request Feature</a>
+        <a href="bugs.html">Bugs</a>
+        <a href="download.html">Download</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="brand-banner" aria-label="TAPE 16 branding">
+        <img src="assets/tape16-wordmark-2048.png" alt="TAPE 16 wordmark" />
+      </section>
+
+      <section class="pricing" id="downloads">
+        <div class="pricing-head">
+          <p class="eyebrow">Downloads</p>
+          <h2>Get TAPE 16</h2>
+          <p>Choose the full installer or the demo build.</p>
+        </div>
+        <div class="pricing-grid">
+          <article class="price-card">
+            <h3>Full License Download</h3>
+            <p>Use this after purchase to install the full version.</p>
+            <a class="btn btn-primary" id="full-download-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/latest">Download Full</a>
+          </article>
+          <article class="price-card">
+            <h3>Demo Download</h3>
+            <p>Try TAPE 16 before purchasing.</p>
+            <a class="btn btn-ghost" id="download-page-demo-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/latest">Download Demo</a>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>JB Paterson | EMR Music Group</p>
+      <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
+    </footer>
+
+    <script src="config.js?v=0.8.8.2"></script>
+    <script src="script.js?v=0.8.8.2"></script>
   </body>
 </html>

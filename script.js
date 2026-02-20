@@ -28,6 +28,7 @@ const featureStatus = document.getElementById("feature-form-status");
 const featureSubmitBtn = document.getElementById("feature-submit-btn");
 const fullDownloadLink = document.getElementById("full-download-link");
 const downloadPageDemoLink = document.getElementById("download-page-demo-link");
+const downloadCtaLink = document.getElementById("download-cta-link");
 const accountLoginForm = document.getElementById("account-login-form");
 const accountStatus = document.getElementById("account-status");
 const accountLoginBtn = document.getElementById("account-login-btn");
@@ -36,8 +37,11 @@ const accountLogoutBtn = document.getElementById("account-logout-btn");
 const accountPanel = document.getElementById("account-panel");
 const accountSummary = document.getElementById("account-summary");
 const accountActivations = document.getElementById("account-activations");
+const currentBuildLabel = document.getElementById("current-build-label");
 
 const ACCOUNT_SESSION_KEY = "tape16_account_session_v1";
+const BUILD_VERSION_CACHE_KEY = "tape16_latest_build_cache_v1";
+const BUILD_VERSION_CACHE_TTL_MS = 10 * 60 * 1000;
 
 function configUrl(value) {
   if (typeof value !== "string") return "";
@@ -46,11 +50,100 @@ function configUrl(value) {
   return out;
 }
 
+function configureDirectDownloadLink(linkEl, downloadUrl) {
+  if (!linkEl) return;
+
+  linkEl.removeAttribute("target");
+  linkEl.removeAttribute("rel");
+
+  if (downloadUrl) {
+    linkEl.href = downloadUrl;
+    linkEl.removeAttribute("aria-disabled");
+    if (linkEl.dataset.boundMissingClick === "1") {
+      linkEl.dataset.missingDownload = "0";
+    }
+    return;
+  }
+
+  linkEl.href = "#";
+  linkEl.setAttribute("aria-disabled", "true");
+  linkEl.dataset.missingDownload = "1";
+  if (linkEl.dataset.boundMissingClick === "1") return;
+
+  linkEl.addEventListener("click", (event) => {
+    if (linkEl.dataset.missingDownload === "1") {
+      event.preventDefault();
+      window.alert("Download is not configured yet. Please contact support.");
+    }
+  });
+  linkEl.dataset.boundMissingClick = "1";
+}
+
 function setBuyStatus(message, isError) {
   if (!buyStatus) return;
   buyStatus.textContent = message;
   buyStatus.style.color = isError ? "#ff9d87" : "#f7c34b";
 }
+
+function formatReleaseTag(tag) {
+  const value = String(tag || "").trim();
+  if (!value) return "";
+  return value.startsWith("v") ? value : `v${value}`;
+}
+
+function readCachedBuildLabel() {
+  try {
+    const raw = localStorage.getItem(BUILD_VERSION_CACHE_KEY);
+    if (!raw) return "";
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed.label !== "string" || typeof parsed.ts !== "number") return "";
+    if (Date.now() - parsed.ts > BUILD_VERSION_CACHE_TTL_MS) return "";
+    return parsed.label;
+  } catch (error) {
+    return "";
+  }
+}
+
+function writeCachedBuildLabel(label) {
+  try {
+    localStorage.setItem(
+      BUILD_VERSION_CACHE_KEY,
+      JSON.stringify({ label, ts: Date.now() })
+    );
+  } catch (error) {
+    // Ignore storage errors (private mode / disabled storage).
+  }
+}
+
+async function updateCurrentBuildLabel() {
+  if (!currentBuildLabel) return;
+
+  const cached = readCachedBuildLabel();
+  if (cached) {
+    currentBuildLabel.textContent = cached;
+    return;
+  }
+
+  const latestReleaseApiUrl =
+    configUrl(config.latestReleaseApiUrl) ||
+    "https://api.github.com/repos/jackpaterson1/TAPE-16-Public-Releases/releases/latest";
+
+  try {
+    const response = await fetch(latestReleaseApiUrl, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (!response.ok) throw new Error("Could not fetch latest release");
+    const body = await response.json().catch(() => ({}));
+    const label = formatReleaseTag(body.tag_name);
+    if (!label) throw new Error("No tag name in release payload");
+    currentBuildLabel.textContent = label;
+    writeCachedBuildLabel(label);
+  } catch (error) {
+    currentBuildLabel.textContent = "Latest on GitHub";
+  }
+}
+
+updateCurrentBuildLabel();
 
 if (buyLink) {
   const fallbackBuyUrl =
@@ -111,22 +204,23 @@ if (buyLink) {
 }
 
 if (demoLink) {
-  const fallbackDemoUrl = "https://github.com/jackpaterson1/Tape-16/releases/latest";
-  const hasDemoUrl =
-    typeof config.demoDownloadUrl === "string" && config.demoDownloadUrl.length > 0;
-  demoLink.href = hasDemoUrl ? config.demoDownloadUrl : fallbackDemoUrl;
+  const demoUrl = configUrl(config.demoDownloadUrl);
+  configureDirectDownloadLink(demoLink, demoUrl);
 }
 
 if (fullDownloadLink) {
-  const fallbackFullUrl = "https://github.com/jackpaterson1/Tape-16/releases/latest";
   const fullUrl = configUrl(config.fullDownloadUrl);
-  fullDownloadLink.href = fullUrl || fallbackFullUrl;
+  configureDirectDownloadLink(fullDownloadLink, fullUrl);
 }
 
 if (downloadPageDemoLink) {
-  const fallbackDemoUrl = "https://github.com/jackpaterson1/Tape-16/releases/latest";
   const demoUrl = configUrl(config.demoDownloadUrl);
-  downloadPageDemoLink.href = demoUrl || fallbackDemoUrl;
+  configureDirectDownloadLink(downloadPageDemoLink, demoUrl);
+}
+
+if (downloadCtaLink) {
+  const fullUrl = configUrl(config.fullDownloadUrl);
+  configureDirectDownloadLink(downloadCtaLink, fullUrl);
 }
 
 function setSerialStatus(message, isError) {

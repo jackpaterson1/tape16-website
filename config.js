@@ -9,10 +9,9 @@ window.TAPE16_SITE_CONFIG = {
   // Optional explicit return URLs. If empty, backend falls back to env/origin defaults.
   stripeSuccessUrl: "",
   stripeCancelUrl: "",
-  // Point this to your demo build asset.
-  demoDownloadUrl: "https://github.com/jackpaterson1/Tape-16/releases/latest/download/TAPE-16-Demo-macOS.dmg",
-  // Point this to your full-license build asset.
-  fullDownloadUrl: "REPLACE_WITH_FULL_DOWNLOAD_URL",
+  // Demo and full download buttons both point to the latest public release page.
+  demoDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/latest",
+  fullDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/latest",
   // Base URL where licensing/auto_issue_webhook.py is hosted.
   // Example: "https://licenses.tape16.com"
   serialApiBaseUrl: "https://tape16-webhook.onrender.com",
@@ -21,4 +20,6 @@ window.TAPE16_SITE_CONFIG = {
   // Account/licensing API base (Cloudflare Worker recommended).
   // Example: "https://tape16-licensing.youraccount.workers.dev"
   accountApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
+  // Latest release endpoint for displaying the current build automatically.
+  latestReleaseApiUrl: "https://api.github.com/repos/jackpaterson1/TAPE-16-Public-Releases/releases/latest",
 };
