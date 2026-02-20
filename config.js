@@ -9,9 +9,9 @@ window.TAPE16_SITE_CONFIG = {
   // Optional explicit return URLs. If empty, backend falls back to env/origin defaults.
   stripeSuccessUrl: "",
   stripeCancelUrl: "",
-  // Demo and full download buttons both point to the latest public release page.
-  demoDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/latest",
-  fullDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/latest",
+  // Demo and full download buttons both point to the current public DMG.
+  demoDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.8.8/TAPE-16-v0.8.8-macOS.dmg",
+  fullDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.8.8/TAPE-16-v0.8.8-macOS.dmg",
   // Base URL where licensing/auto_issue_webhook.py is hosted.
   // Example: "https://licenses.tape16.com"
   serialApiBaseUrl: "https://tape16-webhook.onrender.com",
