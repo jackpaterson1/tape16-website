@@ -228,6 +228,7 @@ h1 {
 
 .feature-grid article,
 .workflow,
+.roadmap,
 .download,
 .bug-report {
   border: 1px solid var(--stroke);
@@ -242,6 +243,7 @@ h1 {
 
 .feature-grid p,
 .workflow p,
+.roadmap p,
 .download p,
 .bug-report p {
   color: var(--muted);
@@ -263,6 +265,26 @@ h1 {
 
 .workflow li {
   margin-bottom: 0.7rem;
+}
+
+.roadmap {
+  margin-top: 1rem;
+}
+
+.roadmap-list {
+  margin: 1rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem 1.2rem;
+}
+
+.roadmap-list li {
+  color: var(--text);
+}
+
+.roadmap-list strong {
+  color: var(--accent-alt);
 }
 
 .download {
@@ -457,6 +479,10 @@ footer {
   }
 
   .workflow {
+    grid-template-columns: 1fr;
+  }
+
+  .roadmap-list {
     grid-template-columns: 1fr;
   }
 
