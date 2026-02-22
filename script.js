@@ -174,7 +174,7 @@ if (buyLink) {
 }
 
 const defaultReleaseDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.8.9/TAPE-16-v0.8.9-macOS.dmg";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.8.91v/TAPE-16-v0.8.91v-macOS.dmg";
 const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || defaultReleaseDownloadUrl;
 
 if (demoLink) {
