@@ -28,7 +28,6 @@ const featureStatus = document.getElementById("feature-form-status");
 const featureSubmitBtn = document.getElementById("feature-submit-btn");
 const fullDownloadLink = document.getElementById("full-download-link");
 const downloadPageDemoLink = document.getElementById("download-page-demo-link");
-const downloadCtaLink = document.getElementById("download-cta-link");
 const accountLoginForm = document.getElementById("account-login-form");
 const accountStatus = document.getElementById("account-status");
 const accountLoginBtn = document.getElementById("account-login-btn");
@@ -48,35 +47,6 @@ function configUrl(value) {
   const out = value.trim();
   if (!out || out.includes("REPLACE_WITH_")) return "";
   return out;
-}
-
-function configureDirectDownloadLink(linkEl, downloadUrl) {
-  if (!linkEl) return;
-
-  linkEl.removeAttribute("target");
-  linkEl.removeAttribute("rel");
-
-  if (downloadUrl) {
-    linkEl.href = downloadUrl;
-    linkEl.removeAttribute("aria-disabled");
-    if (linkEl.dataset.boundMissingClick === "1") {
-      linkEl.dataset.missingDownload = "0";
-    }
-    return;
-  }
-
-  linkEl.href = "#";
-  linkEl.setAttribute("aria-disabled", "true");
-  linkEl.dataset.missingDownload = "1";
-  if (linkEl.dataset.boundMissingClick === "1") return;
-
-  linkEl.addEventListener("click", (event) => {
-    if (linkEl.dataset.missingDownload === "1") {
-      event.preventDefault();
-      window.alert("Download is not configured yet. Please contact support.");
-    }
-  });
-  linkEl.dataset.boundMissingClick = "1";
 }
 
 function setBuyStatus(message, isError) {
@@ -203,24 +173,23 @@ if (buyLink) {
   }
 }
 
+const defaultReleaseDownloadUrl =
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.8.9/TAPE-16-v0.8.9-macOS.dmg";
+const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || defaultReleaseDownloadUrl;
+
 if (demoLink) {
-  const demoUrl = configUrl(config.demoDownloadUrl);
-  configureDirectDownloadLink(demoLink, demoUrl);
+  const demoUrl = configUrl(config.demoDownloadUrl) || releaseDownloadUrl;
+  demoLink.href = demoUrl;
 }
 
 if (fullDownloadLink) {
-  const fullUrl = configUrl(config.fullDownloadUrl);
-  configureDirectDownloadLink(fullDownloadLink, fullUrl);
+  const fullUrl = configUrl(config.fullDownloadUrl) || releaseDownloadUrl;
+  fullDownloadLink.href = fullUrl;
 }
 
 if (downloadPageDemoLink) {
-  const demoUrl = configUrl(config.demoDownloadUrl);
-  configureDirectDownloadLink(downloadPageDemoLink, demoUrl);
-}
-
-if (downloadCtaLink) {
-  const fullUrl = configUrl(config.fullDownloadUrl);
-  configureDirectDownloadLink(downloadCtaLink, fullUrl);
+  const demoUrl = configUrl(config.demoDownloadUrl) || releaseDownloadUrl;
+  downloadPageDemoLink.href = demoUrl;
 }
 
 function setSerialStatus(message, isError) {
