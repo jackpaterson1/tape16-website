@@ -265,6 +265,12 @@ h1 {
   margin-bottom: 0.7rem;
 }
 
+#roadmap ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.4rem;
+}
+
 .download {
   margin-top: 1rem;
 }
@@ -493,9 +499,17 @@ footer {
   .bug-full {
     grid-column: auto;
   }
+
+  #roadmap ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 700px) {
+  #roadmap ul {
+    grid-template-columns: 1fr;
+  }
+
   .site-header {
     position: static;
     padding-inline: 4vw;
@@ -561,6 +575,11 @@ footer {
   margin: 0 0 0.8rem;
   color: var(--accent-alt) !important;
   font-weight: 600;
+}
+
+#current-build-label .build-test {
+  color: var(--accent-alt);
+  font-weight: 700;
 }
 
 .activation-list {
