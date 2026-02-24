@@ -91,6 +91,33 @@ function formatReleaseTag(tag) {
   return value.startsWith("v") ? value : `v${value}`;
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function renderBuildLabel(label) {
+  if (!currentBuildLabel) return;
+  const text = String(label || "").trim();
+  if (!text) {
+    currentBuildLabel.textContent = "";
+    return;
+  }
+  const hasTest = /test/i.test(text);
+  if (!hasTest) {
+    currentBuildLabel.textContent = text;
+    return;
+  }
+  currentBuildLabel.innerHTML = escapeHtml(text).replace(
+    /(test)/gi,
+    '<span class="build-test">$1</span>'
+  );
+}
+
 function readCachedBuildLabel() {
   try {
     const raw = localStorage.getItem(BUILD_VERSION_CACHE_KEY);
@@ -120,7 +147,7 @@ async function updateCurrentBuildLabel() {
 
   const cached = readCachedBuildLabel();
   if (cached) {
-    currentBuildLabel.textContent = cached;
+    renderBuildLabel(cached);
     return;
   }
 
@@ -136,10 +163,10 @@ async function updateCurrentBuildLabel() {
     const body = await response.json().catch(() => ({}));
     const label = formatReleaseTag(body.tag_name);
     if (!label) throw new Error("No tag name in release payload");
-    currentBuildLabel.textContent = label;
+    renderBuildLabel(label);
     writeCachedBuildLabel(label);
   } catch (error) {
-    currentBuildLabel.textContent = "Latest on GitHub";
+    renderBuildLabel("Latest on GitHub");
   }
 }
 
@@ -204,7 +231,7 @@ if (buyLink) {
 }
 
 const defaultReleaseDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.8.91v/TAPE-16-v0.8.91v-macOS.dmg";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9/TAPE-16-v0.9-macOS.dmg";
 const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || defaultReleaseDownloadUrl;
 
 if (demoLink) {
