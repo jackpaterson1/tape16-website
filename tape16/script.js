@@ -660,8 +660,14 @@ if (accountLogoutBtn) {
 if (accountActivations) {
   accountActivations.addEventListener("click", async (event) => {
     const target = event.target;
-    if (!(target instanceof HTMLElement)) return;
-    const button = target.closest(".account-deactivate-btn");
+    const element =
+      target instanceof Element
+        ? target
+        : target instanceof Node
+          ? target.parentElement
+          : null;
+    if (!element) return;
+    const button = element.closest(".account-deactivate-btn");
     if (!button) return;
     const machineId = String(button.getAttribute("data-machine-id") || "").trim();
     if (!machineId) return;
