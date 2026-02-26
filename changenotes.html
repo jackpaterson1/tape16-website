@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TAPE 16 | Change Notes</title>
+    <meta name="description" content="TAPE 16 release change notes." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon-emr.svg" />
+    <link rel="shortcut icon" href="assets/favicon-emr.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="TAPE 16 home">
+        <img src="assets/tape16-logo.png" alt="TAPE 16 logo" />
+        <span>TAPE 16</span>
+      </a>
+      <nav>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#workflow">Workflow</a>
+        <a href="index.html#pricing">Pricing</a>
+        <a href="feature-request.html">Request Feature</a>
+        <a href="bugs.html">Bugs</a>
+        <a href="changenotes.html">Change Notes</a>
+        <a href="download.html">Download</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="brand-banner" aria-label="TAPE 16 branding">
+        <img src="assets/tape16-wordmark-2048.png" alt="TAPE 16 wordmark" />
+      </section>
+
+      <section class="pricing" id="change-notes">
+        <div class="pricing-head">
+          <p class="eyebrow">Release Notes</p>
+          <h2>TAPE 16 0.9.13</h2>
+          <p>Published February 26, 2026</p>
+        </div>
+        <div class="feature-grid" style="margin-top: 20px;">
+          <article>
+            <h2>UI performance and refresh consistency</h2>
+            <p>Set default UI refresh to a steady 60 FPS across idle/play/record/rewind/fast-forward, and added Calibration FPS options: 24 / 30 / 60.</p>
+          </article>
+          <article>
+            <h2>FX and Send FX plugin search workflow</h2>
+            <p>Added inline TYPE TO SEARCH rows directly inside FX slot menus (Track/Bus/Master/Send) with live top results, and improved FX menu interaction stability.</p>
+          </article>
+          <article>
+            <h2>Plugin persistence reliability</h2>
+            <p>Plugin insert/remove changes now persist immediately, and UAD restore persistence was fixed by making protected VST3 startup skip opt-in only.</p>
+          </article>
+          <article>
+            <h2>MIDI and instrument stability</h2>
+            <p>Fixed held-note blip behavior by keeping instrument tracks rendering between MIDI events, plus added a MIDI input safety fallback if exclusions leave zero inputs open.</p>
+          </article>
+        </div>
+        <p style="margin-top: 24px; text-align: center;">
+          <a class="btn btn-primary" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.13" target="_blank" rel="noreferrer">View on GitHub</a>
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <p>JB Paterson | EMR Music Group</p>
+      <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
+    </footer>
+
+    <script src="config.js?v=0.9.13"></script>
+    <script src="script.js?v=0.9.13"></script>
+  </body>
+</html>
