@@ -39,30 +39,28 @@
       <section class="pricing" id="change-notes">
         <div class="pricing-head">
           <p class="eyebrow">Release Notes</p>
-          <h2>TAPE 16 0.9.13</h2>
-          <p>Published February 26, 2026</p>
+          <h2>Change Notes</h2>
+          <p>Latest updates in a simple release list.</p>
         </div>
-        <div class="feature-grid" style="margin-top: 20px;">
-          <article>
-            <h2>UI performance and refresh consistency</h2>
-            <p>Set default UI refresh to a steady 60 FPS across idle/play/record/rewind/fast-forward, and added Calibration FPS options: 24 / 30 / 60.</p>
-          </article>
-          <article>
-            <h2>FX and Send FX plugin search workflow</h2>
-            <p>Added inline TYPE TO SEARCH rows directly inside FX slot menus (Track/Bus/Master/Send) with live top results, and improved FX menu interaction stability.</p>
-          </article>
-          <article>
-            <h2>Plugin persistence reliability</h2>
-            <p>Plugin insert/remove changes now persist immediately, and UAD restore persistence was fixed by making protected VST3 startup skip opt-in only.</p>
-          </article>
-          <article>
-            <h2>MIDI and instrument stability</h2>
-            <p>Fixed held-note blip behavior by keeping instrument tracks rendering between MIDI events, plus added a MIDI input safety fallback if exclusions leave zero inputs open.</p>
-          </article>
-        </div>
-        <p style="margin-top: 24px; text-align: center;">
-          <a class="btn btn-primary" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.13" target="_blank" rel="noreferrer">View on GitHub</a>
-        </p>
+        <ul class="release-list">
+          <li class="release-item">
+            <div class="release-head">
+              <h3>0.9.13</h3>
+              <span>February 26, 2026</span>
+            </div>
+            <ul>
+              <li>UI refresh now defaults to a steady 60 FPS across idle, play, record, rewind, and fast-forward.</li>
+              <li>Added Calibration FPS options: 24 / 30 / 60.</li>
+              <li>Added inline TYPE TO SEARCH rows inside FX slot menus (Track/Bus/Master/Send) with live top results.</li>
+              <li>Improved FX menu interaction stability.</li>
+              <li>Plugin insert/remove changes now persist immediately.</li>
+              <li>Fixed UAD restore persistence by making protected VST3 startup skip opt-in only.</li>
+              <li>Fixed held-note blip behavior by keeping instrument tracks rendering between MIDI events.</li>
+              <li>Added MIDI input safety fallback if exclusions leave zero inputs open.</li>
+            </ul>
+            <a class="release-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.13" target="_blank" rel="noreferrer">View release on GitHub</a>
+          </li>
+        </ul>
       </section>
     </main>
 

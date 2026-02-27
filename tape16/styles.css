@@ -365,6 +365,60 @@ h1 {
   font-size: 1rem;
 }
 
+.release-list {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.release-item {
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  background: rgba(7, 7, 7, 0.55);
+  padding: 1rem;
+}
+
+.release-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.8rem;
+  margin-bottom: 0.7rem;
+}
+
+.release-head h3 {
+  margin: 0;
+  font-family: "Archivo Black", sans-serif;
+  font-size: 1.2rem;
+}
+
+.release-head span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.release-item ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--text);
+}
+
+.release-item li {
+  margin-bottom: 0.5rem;
+}
+
+.release-link {
+  display: inline-block;
+  margin-top: 0.65rem;
+  color: var(--accent-alt);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.release-link:hover {
+  text-decoration: underline;
+}
+
 .serial-help {
   margin-top: 1rem;
   border: 1px solid var(--stroke);
@@ -533,6 +587,11 @@ footer {
 }
 
 @media (max-width: 700px) {
+  .release-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   #roadmap ul {
     grid-template-columns: 1fr;
   }

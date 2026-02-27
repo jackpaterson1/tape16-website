@@ -19,7 +19,7 @@ window.TAPE16_SITE_CONFIG = {
   // Example: "https://licenses.tape16.com"
   serialApiBaseUrl: "",
   // Optional dedicated support API. If empty, serialApiBaseUrl is used.
-  supportApiBaseUrl: "",
+  supportApiBaseUrl: "https://tape16-webhook.onrender.com",
   // Account/licensing API base (Cloudflare Worker recommended).
   // Example: "https://tape16-licensing.youraccount.workers.dev"
   accountApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
