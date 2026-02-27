@@ -229,6 +229,7 @@ h1 {
 .feature-grid article,
 .workflow,
 .download,
+.requirements,
 .bug-report {
   border: 1px solid var(--stroke);
   border-radius: 18px;
@@ -243,6 +244,7 @@ h1 {
 .feature-grid p,
 .workflow p,
 .download p,
+.requirements p,
 .bug-report p {
   color: var(--muted);
 }
@@ -277,6 +279,23 @@ h1 {
 
 #download {
   text-align: center;
+}
+
+.requirements {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 1rem;
+}
+
+.requirements ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  align-self: center;
+}
+
+.requirements li {
+  margin-bottom: 0.65rem;
 }
 
 .pricing {
@@ -478,6 +497,10 @@ footer {
   }
 
   .workflow {
+    grid-template-columns: 1fr;
+  }
+
+  .requirements {
     grid-template-columns: 1fr;
   }
 
