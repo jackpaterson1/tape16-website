@@ -29,6 +29,7 @@ const featureSubmitBtn = document.getElementById("feature-submit-btn");
 const fullDownloadLink = document.getElementById("full-download-link");
 const downloadPageDemoLink = document.getElementById("download-page-demo-link");
 const downloadCtaLink = document.getElementById("download-cta-link");
+const getTape16Link = document.getElementById("get-tape-16-link");
 const accountLoginForm = document.getElementById("account-login-form");
 const accountStatus = document.getElementById("account-status");
 const accountLoginBtn = document.getElementById("account-login-btn");
@@ -77,6 +78,27 @@ function configureDirectDownloadLink(linkEl, downloadUrl) {
     }
   });
   linkEl.dataset.boundMissingClick = "1";
+}
+
+function trackAnalyticsEvent(eventName, params) {
+  if (typeof window.gtag !== "function") return;
+  try {
+    window.gtag("event", eventName, params || {});
+  } catch (error) {
+    // Ignore analytics dispatch failures.
+  }
+}
+
+function bindDownloadClickTracking(linkEl, buttonName) {
+  if (!linkEl || linkEl.dataset.boundAnalyticsClick === "1") return;
+  linkEl.addEventListener("click", () => {
+    trackAnalyticsEvent("download_click", {
+      button_name: buttonName,
+      destination: linkEl.href || "",
+      page_location: window.location.href,
+    });
+  });
+  linkEl.dataset.boundAnalyticsClick = "1";
 }
 
 function setBuyStatus(message, isError) {
@@ -253,6 +275,12 @@ if (downloadCtaLink) {
   const fullUrl = configUrl(config.fullDownloadUrl);
   configureDirectDownloadLink(downloadCtaLink, fullUrl);
 }
+
+bindDownloadClickTracking(getTape16Link, "Get TAPE 16");
+bindDownloadClickTracking(downloadCtaLink, "Download Full Installer");
+bindDownloadClickTracking(fullDownloadLink, "Download Full");
+bindDownloadClickTracking(downloadPageDemoLink, "Download Demo");
+bindDownloadClickTracking(demoLink, "Download Demo");
 
 function setSerialStatus(message, isError) {
   if (!serialStatus) return;
