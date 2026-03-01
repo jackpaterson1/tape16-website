@@ -252,27 +252,27 @@ if (buyLink) {
   }
 }
 
-const defaultReleaseDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.13/TAPE-16-v0.9.13-macOS.dmg";
-const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || defaultReleaseDownloadUrl;
+const pinnedReleaseDownloadUrl =
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.15/TAPE-16-v0.9.15-macOS.dmg?ref=site-2026-02-28";
+const releaseDownloadUrl = pinnedReleaseDownloadUrl;
 
 if (demoLink) {
-  const demoUrl = configUrl(config.demoDownloadUrl);
+  const demoUrl = releaseDownloadUrl;
   configureDirectDownloadLink(demoLink, demoUrl);
 }
 
 if (fullDownloadLink) {
-  const fullUrl = configUrl(config.fullDownloadUrl);
+  const fullUrl = releaseDownloadUrl;
   configureDirectDownloadLink(fullDownloadLink, fullUrl);
 }
 
 if (downloadPageDemoLink) {
-  const demoUrl = configUrl(config.demoDownloadUrl);
+  const demoUrl = releaseDownloadUrl;
   configureDirectDownloadLink(downloadPageDemoLink, demoUrl);
 }
 
 if (downloadCtaLink) {
-  const fullUrl = configUrl(config.fullDownloadUrl);
+  const fullUrl = releaseDownloadUrl;
   configureDirectDownloadLink(downloadCtaLink, fullUrl);
 }
 
