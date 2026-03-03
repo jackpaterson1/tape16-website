@@ -194,6 +194,8 @@ async function updateCurrentBuildLabel() {
   const cached = readCachedBuildLabel();
   if (cached.label) {
     renderBuildLabel(cached.label);
+  }
+  if (cached.label && cached.date) {
     renderBuildDate(cached.date);
     return;
   }
