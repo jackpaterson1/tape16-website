@@ -42,6 +42,7 @@ const accountPanel = document.getElementById("account-panel");
 const accountSummary = document.getElementById("account-summary");
 const accountActivations = document.getElementById("account-activations");
 const currentBuildLabel = document.getElementById("current-build-label");
+const currentBuildDateLabel = document.getElementById("current-build-date-label");
 
 const ACCOUNT_SESSION_KEY = "tape16_account_session_v1";
 const BUILD_VERSION_CACHE_KEY = "tape16_latest_build_cache_v1";
@@ -143,24 +144,44 @@ function renderBuildLabel(label) {
   );
 }
 
+function formatReleaseDate(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return "";
+  return parsed.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function renderBuildDate(value) {
+  if (!currentBuildDateLabel) return;
+  const formatted = formatReleaseDate(value);
+  currentBuildDateLabel.textContent = formatted ? `(${formatted})` : "(date tag created)";
+}
+
 function readCachedBuildLabel() {
   try {
     const raw = localStorage.getItem(BUILD_VERSION_CACHE_KEY);
-    if (!raw) return "";
+    if (!raw) return { label: "", date: "" };
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed.label !== "string" || typeof parsed.ts !== "number") return "";
-    if (Date.now() - parsed.ts > BUILD_VERSION_CACHE_TTL_MS) return "";
-    return parsed.label;
+    if (!parsed || typeof parsed.ts !== "number") return { label: "", date: "" };
+    if (Date.now() - parsed.ts > BUILD_VERSION_CACHE_TTL_MS) return { label: "", date: "" };
+    if (typeof parsed.label !== "string") return { label: "", date: "" };
+    const date = typeof parsed.date === "string" ? parsed.date : "";
+    return { label: parsed.label, date };
   } catch (error) {
-    return "";
+    return { label: "", date: "" };
   }
 }
 
-function writeCachedBuildLabel(label) {
+function writeCachedBuildLabel(label, date) {
   try {
     localStorage.setItem(
       BUILD_VERSION_CACHE_KEY,
-      JSON.stringify({ label, ts: Date.now() })
+      JSON.stringify({ label, date, ts: Date.now() })
     );
   } catch (error) {
     // Ignore storage errors (private mode / disabled storage).
@@ -171,8 +192,9 @@ async function updateCurrentBuildLabel() {
   if (!currentBuildLabel) return;
 
   const cached = readCachedBuildLabel();
-  if (cached) {
-    renderBuildLabel(cached);
+  if (cached.label) {
+    renderBuildLabel(cached.label);
+    renderBuildDate(cached.date);
     return;
   }
 
@@ -188,10 +210,13 @@ async function updateCurrentBuildLabel() {
     const body = await response.json().catch(() => ({}));
     const label = formatReleaseTag(body.tag_name);
     if (!label) throw new Error("No tag name in release payload");
+    const date = String(body.published_at || body.created_at || "").trim();
     renderBuildLabel(label);
-    writeCachedBuildLabel(label);
+    renderBuildDate(date);
+    writeCachedBuildLabel(label, date);
   } catch (error) {
     renderBuildLabel("Latest on GitHub");
+    renderBuildDate("");
   }
 }
 
