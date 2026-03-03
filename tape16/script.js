@@ -30,6 +30,9 @@ const fullDownloadLink = document.getElementById("full-download-link");
 const downloadPageDemoLink = document.getElementById("download-page-demo-link");
 const downloadCtaLink = document.getElementById("download-cta-link");
 const getTape16Link = document.getElementById("get-tape-16-link");
+const directDownloadMacLink = document.getElementById("direct-download-mac-link");
+const directDownloadWindowsLink = document.getElementById("direct-download-windows-link");
+const directDownloadReleaseLink = document.getElementById("direct-download-release-link");
 const accountLoginForm = document.getElementById("account-login-form");
 const accountStatus = document.getElementById("account-status");
 const accountLoginBtn = document.getElementById("account-login-btn");
@@ -253,8 +256,14 @@ if (buyLink) {
 }
 
 const pinnedReleaseDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.17/TAPE-16-v0.9.17-macOS.dmg";
-const releaseDownloadUrl = pinnedReleaseDownloadUrl;
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.18/TAPE-16-v0.9.18-macOS.dmg";
+const pinnedWindowsDownloadUrl =
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.18/TAPE16-Windows-Release-0.9.18.zip";
+const pinnedGithubReleaseUrl =
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.18";
+const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || pinnedReleaseDownloadUrl;
+const windowsDownloadUrl = configUrl(config.windowsDownloadUrl) || pinnedWindowsDownloadUrl;
+const githubReleaseUrl = configUrl(config.githubReleaseUrl) || pinnedGithubReleaseUrl;
 
 if (demoLink) {
   const demoUrl = releaseDownloadUrl;
@@ -267,8 +276,7 @@ if (fullDownloadLink) {
 }
 
 if (downloadPageDemoLink) {
-  const demoUrl = releaseDownloadUrl;
-  configureDirectDownloadLink(downloadPageDemoLink, demoUrl);
+  configureDirectDownloadLink(downloadPageDemoLink, windowsDownloadUrl);
 }
 
 if (downloadCtaLink) {
@@ -276,11 +284,26 @@ if (downloadCtaLink) {
   configureDirectDownloadLink(downloadCtaLink, fullUrl);
 }
 
+if (directDownloadMacLink) {
+  configureDirectDownloadLink(directDownloadMacLink, releaseDownloadUrl);
+}
+
+if (directDownloadWindowsLink) {
+  configureDirectDownloadLink(directDownloadWindowsLink, windowsDownloadUrl);
+}
+
+if (directDownloadReleaseLink) {
+  configureDirectDownloadLink(directDownloadReleaseLink, githubReleaseUrl);
+}
+
 bindDownloadClickTracking(getTape16Link, "Get TAPE 16");
 bindDownloadClickTracking(downloadCtaLink, "Download Full Installer");
 bindDownloadClickTracking(fullDownloadLink, "Download Full");
-bindDownloadClickTracking(downloadPageDemoLink, "Download Demo");
+bindDownloadClickTracking(downloadPageDemoLink, "Download Windows");
 bindDownloadClickTracking(demoLink, "Download Demo");
+bindDownloadClickTracking(directDownloadMacLink, "Direct Download Mac");
+bindDownloadClickTracking(directDownloadWindowsLink, "Direct Download Windows");
+bindDownloadClickTracking(directDownloadReleaseLink, "Direct on GitHub");
 
 function setSerialStatus(message, isError) {
   if (!serialStatus) return;
