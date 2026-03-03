@@ -159,7 +159,7 @@ function formatReleaseDate(value) {
 function renderBuildDate(value) {
   if (!currentBuildDateLabel) return;
   const formatted = formatReleaseDate(value);
-  currentBuildDateLabel.textContent = formatted ? `(${formatted})` : "(date tag created)";
+  currentBuildDateLabel.textContent = formatted || "date tag created";
 }
 
 function readCachedBuildLabel() {

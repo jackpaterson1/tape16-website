@@ -203,10 +203,10 @@ h1 {
 }
 
 .btn-download {
-  background: linear-gradient(135deg, var(--accent), #ff7f24);
+  background: linear-gradient(135deg, var(--accent), #e66a1f);
   color: #ffffff !important;
   border: 1px solid transparent;
-  box-shadow: 0 12px 30px rgba(255, 85, 30, 0.35);
+  box-shadow: 0 12px 30px rgba(226, 90, 25, 0.3);
 }
 
 .status-bar {
