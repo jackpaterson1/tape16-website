@@ -29,7 +29,6 @@ const featureSubmitBtn = document.getElementById("feature-submit-btn");
 const fullDownloadLink = document.getElementById("full-download-link");
 const downloadPageDemoLink = document.getElementById("download-page-demo-link");
 const downloadCtaLink = document.getElementById("download-cta-link");
-const getTape16Link = document.getElementById("get-tape-16-link");
 const directDownloadMacLink = document.getElementById("direct-download-mac-link");
 const directDownloadWindowsLink = document.getElementById("direct-download-windows-link");
 const directDownloadReleaseLink = document.getElementById("direct-download-release-link");
@@ -42,7 +41,6 @@ const accountPanel = document.getElementById("account-panel");
 const accountSummary = document.getElementById("account-summary");
 const accountActivations = document.getElementById("account-activations");
 const currentBuildLabel = document.getElementById("current-build-label");
-const currentBuildDateLabel = document.getElementById("current-build-date-label");
 
 const ACCOUNT_SESSION_KEY = "tape16_account_session_v1";
 const BUILD_VERSION_CACHE_KEY = "tape16_latest_build_cache_v1";
@@ -84,27 +82,6 @@ function configureDirectDownloadLink(linkEl, downloadUrl) {
   linkEl.dataset.boundMissingClick = "1";
 }
 
-function trackAnalyticsEvent(eventName, params) {
-  if (typeof window.gtag !== "function") return;
-  try {
-    window.gtag("event", eventName, params || {});
-  } catch (error) {
-    // Ignore analytics dispatch failures.
-  }
-}
-
-function bindDownloadClickTracking(linkEl, buttonName) {
-  if (!linkEl || linkEl.dataset.boundAnalyticsClick === "1") return;
-  linkEl.addEventListener("click", () => {
-    trackAnalyticsEvent("download_click", {
-      button_name: buttonName,
-      destination: linkEl.href || "",
-      page_location: window.location.href,
-    });
-  });
-  linkEl.dataset.boundAnalyticsClick = "1";
-}
-
 function setBuyStatus(message, isError) {
   if (!buyStatus) return;
   buyStatus.textContent = message;
@@ -144,44 +121,24 @@ function renderBuildLabel(label) {
   );
 }
 
-function formatReleaseDate(value) {
-  const raw = String(value || "").trim();
-  if (!raw) return "";
-  const parsed = new Date(raw);
-  if (Number.isNaN(parsed.getTime())) return "";
-  return parsed.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function renderBuildDate(value) {
-  if (!currentBuildDateLabel) return;
-  const formatted = formatReleaseDate(value);
-  currentBuildDateLabel.textContent = formatted || "date tag created";
-}
-
 function readCachedBuildLabel() {
   try {
     const raw = localStorage.getItem(BUILD_VERSION_CACHE_KEY);
-    if (!raw) return { label: "", date: "" };
+    if (!raw) return "";
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed.ts !== "number") return { label: "", date: "" };
-    if (Date.now() - parsed.ts > BUILD_VERSION_CACHE_TTL_MS) return { label: "", date: "" };
-    if (typeof parsed.label !== "string") return { label: "", date: "" };
-    const date = typeof parsed.date === "string" ? parsed.date : "";
-    return { label: parsed.label, date };
+    if (!parsed || typeof parsed.label !== "string" || typeof parsed.ts !== "number") return "";
+    if (Date.now() - parsed.ts > BUILD_VERSION_CACHE_TTL_MS) return "";
+    return parsed.label;
   } catch (error) {
-    return { label: "", date: "" };
+    return "";
   }
 }
 
-function writeCachedBuildLabel(label, date) {
+function writeCachedBuildLabel(label) {
   try {
     localStorage.setItem(
       BUILD_VERSION_CACHE_KEY,
-      JSON.stringify({ label, date, ts: Date.now() })
+      JSON.stringify({ label, ts: Date.now() })
     );
   } catch (error) {
     // Ignore storage errors (private mode / disabled storage).
@@ -192,11 +149,8 @@ async function updateCurrentBuildLabel() {
   if (!currentBuildLabel) return;
 
   const cached = readCachedBuildLabel();
-  if (cached.label) {
-    renderBuildLabel(cached.label);
-  }
-  if (cached.label && cached.date) {
-    renderBuildDate(cached.date);
+  if (cached) {
+    renderBuildLabel(cached);
     return;
   }
 
@@ -212,13 +166,10 @@ async function updateCurrentBuildLabel() {
     const body = await response.json().catch(() => ({}));
     const label = formatReleaseTag(body.tag_name);
     if (!label) throw new Error("No tag name in release payload");
-    const date = String(body.published_at || body.created_at || "").trim();
     renderBuildLabel(label);
-    renderBuildDate(date);
-    writeCachedBuildLabel(label, date);
+    writeCachedBuildLabel(label);
   } catch (error) {
     renderBuildLabel("Latest on GitHub");
-    renderBuildDate("");
   }
 }
 
@@ -226,7 +177,7 @@ updateCurrentBuildLabel();
 
 if (buyLink) {
   const fallbackBuyUrl =
-    "mailto:emrmusicgroup@gmail.com?subject=TAPE%2016%20License%20Purchase%20-%20$19%20USD";
+    "mailto:emrmusicgroup@gmail.com?subject=TAPE%2016%20License%20Purchase%20-%20$29%20USD";
   const checkoutUrl = configUrl(config.buyNowUrl);
   buyLink.href = checkoutUrl || fallbackBuyUrl;
 
@@ -285,9 +236,9 @@ if (buyLink) {
 const pinnedReleaseDownloadUrl =
   "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.19/TAPE-16-v0.9.19-macOS.dmg";
 const pinnedWindowsDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.19/TAPE16-Windows-Release-0.9.19.zip";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.191/TAPE16-Windows-Release-0.9.191.zip";
 const pinnedGithubReleaseUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.19";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.191";
 const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || pinnedReleaseDownloadUrl;
 const windowsDownloadUrl = configUrl(config.windowsDownloadUrl) || pinnedWindowsDownloadUrl;
 const githubReleaseUrl = configUrl(config.githubReleaseUrl) || pinnedGithubReleaseUrl;
@@ -322,15 +273,6 @@ if (directDownloadWindowsLink) {
 if (directDownloadReleaseLink) {
   configureDirectDownloadLink(directDownloadReleaseLink, githubReleaseUrl);
 }
-
-bindDownloadClickTracking(getTape16Link, "Get TAPE 16");
-bindDownloadClickTracking(downloadCtaLink, "Download Full Installer");
-bindDownloadClickTracking(fullDownloadLink, "Download Full");
-bindDownloadClickTracking(downloadPageDemoLink, "Download Windows");
-bindDownloadClickTracking(demoLink, "Download Demo");
-bindDownloadClickTracking(directDownloadMacLink, "Direct Download Mac");
-bindDownloadClickTracking(directDownloadWindowsLink, "Direct Download Windows");
-bindDownloadClickTracking(directDownloadReleaseLink, "Direct on GitHub");
 
 function setSerialStatus(message, isError) {
   if (!serialStatus) return;
@@ -759,3 +701,4 @@ if (accountActivations) {
     fetchAccountActivations(session, { silent: true });
   }
 }
+

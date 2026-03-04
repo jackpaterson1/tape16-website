@@ -49,14 +49,6 @@
         }
       }
     </script>
-      <script async src="https://www.googletagmanager.com/gtag/js?id=GT-TQK5FZD8"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag("js", new Date());
-      gtag("config", "GT-TQK5FZD8");
-      gtag("config", "G-BEW6NC5PCV");
-    </script>
   </head>
   <body>
     <div class="page-bg" aria-hidden="true"></div>
@@ -72,7 +64,7 @@
         <a href="bugs.html">Bugs</a>
         <a href="changenotes.html">Change Notes</a>
         <a href="#requirements">Requirements</a>
-        <a href="download.html">Download</a>
+        <a href="#download">Download</a>
       </nav>
     </header>
 
@@ -86,17 +78,17 @@
           <p class="eyebrow">DAWless Tape Workflow</p>
           <h1>Let go of perfect.<br />Commit to the take.</h1>
           <p class="hero-copy">
-            TAPE 16 is a 16-track tape machine built for decisive sessions. Work in a DAWless-style flow: punch in quickly, commit takes, and keep momentum with transport-first recording. There is NO UNDO.
+            TAPE 16 is a 16-track tape machine built for decisive sessions. Work in a DAWless-style flow: punch in quickly, commit takes, and keep momentum with transport-first recording.
           </p>
           <div class="hero-actions">
-            <a class="btn btn-primary btn-with-logo btn-download" id="get-tape-16-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.19/TAPE-16-v0.9.19-macOS.dmg">Download <img class="download-logo-icon" src="assets/apple_logo.png" alt="Apple logo" /></a>
-            <a class="btn btn-ghost btn-with-logo btn-download" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.19/TAPE16-Windows-Release-0.9.19.zip">Download <img class="download-logo-icon" src="assets/windows_logo.png" alt="Windows logo" /></a>
-            <a class="btn btn-ghost" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.19">Direct on GitHub</a>
+            <a class="btn btn-primary btn-with-logo" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.19/TAPE-16-v0.9.19-macOS.dmg">Download <img class="download-logo-icon" src="assets/apple_logo.png" alt="Apple logo" /></a>
+            <a class="btn btn-ghost btn-with-logo" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.191/TAPE16-Windows-Release-0.9.191.zip">Download <img class="download-logo-icon" src="assets/windows_logo.png" alt="Windows logo" /></a>
+            <a class="btn btn-ghost" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.191">Direct on GitHub</a>
           </div>
           <div class="status-bar" role="status" aria-live="polite">
             <span>Current build</span>
-            <strong id="current-build-label">v0.9.19</strong>
-            <span id="current-build-date-label">(date tag created)</span>
+            <strong id="current-build-label">v0.9.191</strong>
+            <span>Available now</span>
           </div>
         </div>
         <figure class="hero-image-wrap">
@@ -115,26 +107,15 @@
         <article>
           <h2>Commit-style recording</h2>
           <p>
-            Record behaves like tape: punch in, overwrite, and move forward. NO UNDO means commit or re-record.
-            No hidden take stacks and no menu-heavy comp workflow.
+            Record behaves like tape: punch in, overwrite, and move forward. No hidden take stacks
+            and no menu-heavy comp workflow.
           </p>
         </article>
         <article>
-          <h2>Print MIDI synths as audio</h2>
+          <h2>Use your plugins like outboard gear</h2>
           <p>
-            Record your MIDI synths like real synths. What you play gets printed: audio only.
-          </p>
-        </article>
-        <article>
-          <h2>Learn to trust your ears</h2>
-          <p>
-            A focused tape-style workflow that keeps you making decisions by sound, not by endless visual edits.
-          </p>
-        </article>
-        <article>
-          <h2>Use your plugins like your dream outboard gear</h2>
-          <p>
-            Combine the old with the new: shape tracks with your favorite plugins in a hands-on tape workflow.
+            Treat your favorite plugin chains like committed hardware moves. Shape tone while you
+            track, print decisions early, and keep sessions moving without option overload.
           </p>
         </article>
         <article>
@@ -157,7 +138,7 @@
         </div>
         <ul>
           <li>Fixed 16-track layout for faster arrangement decisions</li>
-          <li>NO UNDO tape workflow: commit the take or re-record it</li>
+          <li>Commit-first recording that rewards performance over endless undo</li>
           <li>Transport-led control inspired by real tape workflows</li>
           <li>A focused DAWless-style experience with modern plugin support</li>
         </ul>
@@ -176,57 +157,52 @@
           <li>Hardware-style REW, FF, STOP, PLAY, and REC controls</li>
           <li>Per-track arm, solo, and mute with clear status states</li>
           <li>Tape character and calibration controls where they matter</li>
-          <li>Realtime and offline bounce options</li>
+          <li>Realtime bounce options</li>
         </ul>
       </section>
 
-      <section class="requirements" id="requirements">
-        <p class="eyebrow">Minimum Requirements</p>
-        <div class="requirements-columns">
-          <article class="requirements-col">
-            <h3>macOS</h3>
-            <ul>
-              <li>macOS 11 (Big Sur) or later</li>
-              <li>Apple Silicon or Intel 64-bit Mac</li>
-              <li>Intel Mac minimum for stable use: 6-core i7 (or better), 16 GB RAM, SSD storage</li>
-              <li>Intel Mac users should be cautious and try the demo first before purchase</li>
-              <li>8 GB RAM minimum</li>
-              <li>500 MB free disk space minimum</li>
-              <li>CoreAudio-compatible audio device (built-in or external)</li>
-              <li>Internet connection for license activation and updates</li>
-            </ul>
-          </article>
-          <article class="requirements-col">
-            <h3>Windows</h3>
-            <ul>
-              <li>Windows 10 or Windows 11 (64-bit)</li>
-              <li>Intel or AMD 64-bit CPU</li>
-              <li>8 GB RAM minimum</li>
-              <li>500 MB free disk space minimum</li>
-              <li>WASAPI or ASIO-compatible audio device (built-in or external)</li>
-              <li>Internet connection for license activation and updates</li>
-            </ul>
-          </article>
+      <section class="workflow" id="roadmap">
+        <div>
+          <p class="eyebrow">Roadmap</p>
+          <h2>What is next.</h2>
+          <p>
+            Focused milestones for upcoming releases.
+          </p>
+        </div>
+        <ul>
+          <li>Modding support with a documented extension path for community workflows</li>
+          <li>Expanded tape/session management quality-of-life controls</li>
+          <li>Additional mixer and transport performance polish</li>
+          <li>Windows build is complete</li>
+        </ul>
+      </section>
+
+      <section class="download" id="download">
+        <h2>Get The Latest Build</h2>
+        <p>
+          Direct downloads for latest macOS and Windows builds from GitHub.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-with-logo" id="direct-download-mac-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.19/TAPE-16-v0.9.19-macOS.dmg">Download <img class="download-logo-icon" src="assets/apple_logo.png" alt="Apple logo" /></a>
+          <a class="btn btn-ghost btn-with-logo" id="direct-download-windows-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.191/TAPE16-Windows-Release-0.9.191.zip">Download <img class="download-logo-icon" src="assets/windows_logo.png" alt="Windows logo" /></a>
+          <a class="btn btn-ghost" id="direct-download-release-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.191">Direct on GitHub</a>
         </div>
       </section>
 
-      <section class="workflow" id="roadmap">
-        <p class="eyebrow">Roadmap</p>
+      <section class="requirements" id="requirements">
+        <div>
+          <p class="eyebrow">Minimum Requirements</p>
+          <h2>What you need to run TAPE 16.</h2>
+          <p>These are the baseline specs for stable installation, playback, and recording.</p>
+        </div>
         <ul>
-          <li>Windows build is complete</li>
-          <li>Handwritten titles on tapes for saves</li>
-          <li>Accounts for serial to save to, and sync with iPhone app TAPE 8</li>
-          <li>Make accounts: save to cloud for editing on iPhone or iPad</li>
-          <li>4 / 8 track version for iPhone / iPad</li>
-          <li>Superior saving features (tapes for folder icons)</li>
-          <li>Song folder feature + nice sharing feature between iPhone and Mac</li>
-          <li>Easy mode with virtual tracks (still can't comp)</li>
-          <li>Hardcore mode featuring generation loss</li>
-          <li>Committable plugins</li>
-          <li>Control surface support - SSL UF8 UC1 UF1 is partially working</li>
-          <li>Custom TAPE16 remote control</li>
-          <li>Custom TAPE16 wireless remote controls</li>
-          <li>Distraction free mode (locks user into app for chosen period of time, deletes tape if exited early)</li>
+          <li>macOS 11 (Big Sur) or later</li>
+          <li>Apple Silicon or Intel 64-bit Mac</li>
+          <li>Intel Mac users should be cautious and try the demo first before purchase</li>
+          <li>8 GB RAM minimum</li>
+          <li>500 MB free disk space minimum</li>
+          <li>CoreAudio-compatible audio device (built-in or external)</li>
+          <li>Internet connection for license activation and updates</li>
         </ul>
       </section>
 
@@ -234,19 +210,19 @@
         <div class="pricing-head">
           <p class="eyebrow">Pricing</p>
           <h2>Simple pricing.</h2>
-          <p>Launch special pricing! Please feel free to try the demo and see if you enjoy the app first.</p>
+          <p>Purchase the full version for $29 USD. Intel Mac users should test with the demo first before purchasing.</p>
         </div>
         <div class="pricing-grid">
           <article class="price-card price-card--license">
             <h3>Full License</h3>
-            <p class="price"><span class="price-was">$59</span> $29 <span>USD</span></p>
+            <p class="price">$29 <span>USD</span></p>
             <p>One-time purchase with full recording workflow and export options.</p>
             <p class="price-note">Secure checkout. Your serial is delivered automatically after purchase.</p>
-            <a class="btn btn-primary" id="buy-link" href="https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02" target="_blank" rel="noreferrer">Buy For $29</a>
+            <a class="btn btn-primary" id="buy-link" href="https://buy.stripe.com/aFabJ12Lrcyp0D6dyu1ck01" target="_blank" rel="noreferrer">Buy For $29</a>
             <p id="buy-status" class="serial-status" role="status" aria-live="polite"></p>
           </article>
           <article class="price-card price-card--demo">
-            <h3>Try it for free</h3>
+            <h3>Demo Download</h3>
             <p class="price">Free</p>
             <p>Try TAPE 16 before buying. Download the latest demo build anytime.</p>
             <a class="btn btn-ghost" id="demo-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.19/TAPE-16-v0.9.19-macOS.dmg" target="_blank" rel="noreferrer">Download Demo</a>
@@ -289,7 +265,8 @@
       <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
     </footer>
 
-    <script src="config.js?v=0.9.19"></script>
-    <script src="script.js?v=0.9.19"></script>
+    <script src="config.js?v=0.9.191"></script>
+    <script src="script.js?v=0.9.191"></script>
   </body>
 </html>
+

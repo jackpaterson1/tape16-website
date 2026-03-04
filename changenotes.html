@@ -12,14 +12,6 @@
     <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
     <link rel="stylesheet" href="styles.css" />
-      <script async src="https://www.googletagmanager.com/gtag/js?id=GT-TQK5FZD8"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag("js", new Date());
-      gtag("config", "GT-TQK5FZD8");
-      gtag("config", "G-BEW6NC5PCV");
-    </script>
   </head>
   <body>
     <div class="page-bg" aria-hidden="true"></div>
@@ -54,16 +46,17 @@
         <ul class="release-list">
           <li class="release-item">
             <div class="release-head">
-              <h3>0.9.19</h3>
-              <span>March 3, 2026</span>
+              <h3>0.9.191</h3>
+              <span>March 4, 2026</span>
             </div>
             <ul>
-              <li>Improved MIDI input responsiveness by draining queued MIDI every audio block instead of skipping under contention.</li>
-              <li>Moved performance stats to the F12 overlay and tightened the sidebar-to-machine spacing for cleaner monitoring.</li>
-              <li>Improved meter/transport rendering efficiency with targeted caching updates for smoother UI pacing.</li>
-              <li>Added direct latest-release download links for both macOS and Windows.</li>
+              <li>Added lane-aware Track FX slots in Plugin Manager: P1, P2, M1, and M2.</li>
+              <li>Updated split track FX labels to PFX/MFX with larger text for better readability.</li>
+              <li>In SENDS mode, restored the original single FX button behavior on track strips.</li>
+              <li>Temporarily hid/disabled Offline Bounce in the bounce panel.</li>
+              <li>Crash recovery now opens a blank recovery tape after unclean shutdown and offers one-click crash report send.</li>
             </ul>
-            <a class="release-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.19" target="_blank" rel="noreferrer">View release on GitHub</a>
+            <a class="release-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.191" target="_blank" rel="noreferrer">View release on GitHub</a>
           </li>
         </ul>
       </section>
@@ -74,7 +67,8 @@
       <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
     </footer>
 
-    <script src="config.js?v=0.9.19"></script>
-    <script src="script.js?v=0.9.19"></script>
+    <script src="config.js?v=0.9.191"></script>
+    <script src="script.js?v=0.9.191"></script>
   </body>
 </html>
+

@@ -1,9 +1,9 @@
 window.TAPE16_SITE_CONFIG = {
   releaseDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.19/TAPE-16-v0.9.19-macOS.dmg",
-  windowsDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.19/TAPE16-Windows-Release-0.9.19.zip",
-  githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.19",
+  windowsDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.191/TAPE16-Windows-Release-0.9.191.zip",
+  githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.191",
   // Replace this with your live checkout URL (Stripe / Gumroad / Paddle / etc).
-  buyNowUrl: "https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02",
+  buyNowUrl: "https://buy.stripe.com/aFabJ12Lrcyp0D6dyu1ck01",
   // Stripe direct checkout-session flow (recommended only when you host that endpoint).
   stripeCheckoutEnabled: false,
   // Optional custom endpoint path if different from default.
@@ -28,3 +28,4 @@ window.TAPE16_SITE_CONFIG = {
   // Latest release endpoint for displaying the current build automatically.
   latestReleaseApiUrl: "https://api.github.com/repos/jackpaterson1/TAPE-16-Public-Releases/releases/latest",
 };
+
