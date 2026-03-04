@@ -3,7 +3,7 @@ window.TAPE16_SITE_CONFIG = {
   windowsDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.18/TAPE16-Windows-Release-0.9.18.zip",
   githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.18",
   // Replace this with your live checkout URL (Stripe / Gumroad / Paddle / etc).
-  buyNowUrl: "https://buy.stripe.com/aFabJ12Lrcyp0D6dyu1ck01",
+  buyNowUrl: "https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02",
   // Stripe direct checkout-session flow (recommended only when you host that endpoint).
   stripeCheckoutEnabled: false,
   // Optional custom endpoint path if different from default.
