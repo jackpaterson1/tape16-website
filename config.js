@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 ﻿window.TAPE16_SITE_CONFIG = {
-  releaseDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.20/TAPE-16-v0.9.20-macOS.dmg",
-=======
 window.TAPE16_SITE_CONFIG = {
   releaseDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE-16-v0.9.201-macOS.dmg",
->>>>>>> b688904 (Publish 0.9.201 release links and change notes)
   windowsDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE16-Windows-Release-0.9.201.zip",
   githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.201",
   // Replace this with your live checkout URL (Stripe / Gumroad / Paddle / etc).
