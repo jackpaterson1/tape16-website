@@ -430,6 +430,9 @@ h1 {
   border-radius: 14px;
   background: rgba(7, 7, 7, 0.55);
   padding: 1rem;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
 }
 
 .release-head {
