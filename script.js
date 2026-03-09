@@ -234,7 +234,7 @@ if (buyLink) {
 }
 
 const pinnedReleaseDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.20/TAPE-16-v0.9.20-macOS.dmg";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE-16-v0.9.201-macOS.dmg";
 const pinnedWindowsDownloadUrl =
   "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE16-Windows-Release-0.9.201.zip";
 const pinnedGithubReleaseUrl =
