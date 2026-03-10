@@ -177,7 +177,7 @@ updateCurrentBuildLabel();
 
 if (buyLink) {
   const fallbackBuyUrl =
-    "mailto:emrmusicgroup@gmail.com?subject=TAPE%2016%20License%20Purchase%20-%20$29%20USD";
+    "https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02";
   const checkoutUrl = configUrl(config.buyNowUrl);
   buyLink.href = checkoutUrl || fallbackBuyUrl;
 

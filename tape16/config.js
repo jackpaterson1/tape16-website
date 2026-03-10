@@ -1,5 +1,4 @@
 ﻿window.TAPE16_SITE_CONFIG = {
-window.TAPE16_SITE_CONFIG = {
   releaseDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE-16-v0.9.201-macOS.dmg",
   windowsDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE16-Windows-Release-0.9.201.zip",
   githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.201",
