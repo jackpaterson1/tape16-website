@@ -311,6 +311,10 @@ if (downloadCtaLink) {
   configureDirectDownloadLink(downloadCtaLink, fullUrl);
 }
 
+if (getTape16Link) {
+  configureDirectDownloadLink(getTape16Link, releaseDownloadUrl);
+}
+
 if (directDownloadMacLink) {
   configureDirectDownloadLink(directDownloadMacLink, releaseDownloadUrl);
 }
