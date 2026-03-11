@@ -50,11 +50,14 @@
               <span>March 11, 2026</span>
             </div>
             <ul>
-              <li>Published signed, notarized, and stapled macOS release for 0.9.202.</li>
-              <li>Refined crash-recovery startup prompt with clear plugin guidance: clear plugin cache and run Deep Scan.</li>
-              <li>Audio I/O updates for mono-tape workflow: single-channel routing presentation and clearer mono-design messaging.</li>
-              <li>Added instrument print control: <code>Print Instrument To Tape As</code> (Mono Sum / Left Only / Right Only).</li>
-              <li>Improved transport stability with further pop/click reduction during stop and solo/mute transitions.</li>
+              <li>Expanded mono-first tape workflow: Audio I/O now clearly communicates that tape tracks are mono by design.</li>
+              <li>Changed channel presentation from paired routing to single-channel options where appropriate, matching tape-machine behavior.</li>
+              <li>Added <code>Print Instrument To Tape As</code> modes for MIDI/instrument commit control: <code>MONO SUM (L+R)</code>, <code>LEFT ONLY</code>, <code>RIGHT ONLY</code>.</li>
+              <li>Improved Audio Settings panel behavior with stronger layout anchoring and reduced overlap risk at smaller window sizes.</li>
+              <li>Refined transport button-state feedback for range-dependent realtime operations.</li>
+              <li>Added/updated latency visibility in diagnostics workflows to better reflect real recording and routing scenarios.</li>
+              <li>Reduced audible clicks on stop and solo/mute transitions with additional output smoothing and transition handling.</li>
+              <li>Improved crash-recovery guidance so plugin-related failures point users to clear cache + Deep Scan steps.</li>
             </ul>
             <a class="release-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.202" target="_blank" rel="noreferrer">View release on GitHub</a>
           </li>
