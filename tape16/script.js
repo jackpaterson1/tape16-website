@@ -283,11 +283,11 @@ if (buyLink) {
 }
 
 const pinnedReleaseDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE-16-v0.9.201-macOS.dmg";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.202/TAPE-16-v0.9.202-macOS.dmg";
 const pinnedWindowsDownloadUrl =
   "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE16-Windows-Release-0.9.201.zip";
 const pinnedGithubReleaseUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.201";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.202";
 const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || pinnedReleaseDownloadUrl;
 const windowsDownloadUrl = configUrl(config.windowsDownloadUrl) || pinnedWindowsDownloadUrl;
 const githubReleaseUrl = configUrl(config.githubReleaseUrl) || pinnedGithubReleaseUrl;

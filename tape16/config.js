@@ -1,7 +1,7 @@
 ﻿window.TAPE16_SITE_CONFIG = {
-  releaseDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE-16-v0.9.201-macOS.dmg",
+  releaseDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.202/TAPE-16-v0.9.202-macOS.dmg",
   windowsDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE16-Windows-Release-0.9.201.zip",
-  githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.201",
+  githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.202",
   // Replace this with your live checkout URL (Stripe / Gumroad / Paddle / etc).
   buyNowUrl: "https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02",
   // Stripe direct checkout-session flow (recommended only when you host that endpoint).
@@ -13,10 +13,10 @@
   stripeSuccessUrl: "",
   stripeCancelUrl: "",
   // Point this to your demo build asset.
-  demoDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE-16-v0.9.201-macOS.dmg",
+  demoDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.202/TAPE-16-v0.9.202-macOS.dmg",
   // Point this to your full-license build asset.
   fullDownloadUrl:
-    "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE-16-v0.9.201-macOS.dmg",
+    "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.202/TAPE-16-v0.9.202-macOS.dmg",
   // Base URL where licensing/auto_issue_webhook.py is hosted.
   // Example: "https://licenses.tape16.com"
   serialApiBaseUrl: "",
