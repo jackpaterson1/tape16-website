@@ -1,4 +1,4 @@
-﻿const links = document.querySelectorAll('a[href^="#"]');
+const links = document.querySelectorAll('a[href^="#"]');
 
 for (const link of links) {
   link.addEventListener("click", (event) => {
@@ -236,7 +236,7 @@ if (buyLink) {
 const pinnedReleaseDownloadUrl =
   "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.202/TAPE-16-v0.9.202-macOS.dmg";
 const pinnedWindowsDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.201/TAPE16-Windows-Release-0.9.201.zip";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/raw/main/windows/0.9.202/TAPE16-Windows-Release-0.9.202.zip";
 const pinnedGithubReleaseUrl =
   "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.202";
 const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || pinnedReleaseDownloadUrl;
@@ -508,7 +508,7 @@ function renderAccountPanel(payload) {
   const serial = payload.serial || "";
   const used = Number(payload.usedActivations || 0);
   const max = Number(payload.maxActivations || 0);
-  accountSummary.textContent = `Serial ${serial} â€¢ ${used} / ${max} activations used`;
+  accountSummary.textContent = `Serial ${serial} • ${used} / ${max} activations used`;
 
   const rows = Array.isArray(payload.activations) ? payload.activations : [];
   if (rows.length === 0) {
@@ -701,6 +701,7 @@ if (accountActivations) {
     fetchAccountActivations(session, { silent: true });
   }
 }
+
 
 
 
