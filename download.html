@@ -18,7 +18,31 @@
     <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
     <link rel="stylesheet" href="styles.css" />
-  </head>
+  <!-- Reddit Pixel -->
+  <script>
+  !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js?pixel_id=a2_in5atqp7amcu",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
+  var rdtMatch = {};
+  try {
+    var rawMatch = window.localStorage ? localStorage.getItem("tape16_reddit_match_v1") : "";
+    var parsedMatch = rawMatch ? JSON.parse(rawMatch) : {};
+    if (parsedMatch && typeof parsedMatch === "object") {
+      if (parsedMatch.email) rdtMatch.email = String(parsedMatch.email).trim().toLowerCase();
+      if (parsedMatch.phoneNumber) rdtMatch.phoneNumber = String(parsedMatch.phoneNumber).trim();
+      if (parsedMatch.externalId) rdtMatch.externalId = String(parsedMatch.externalId).trim();
+      if (parsedMatch.idfa) rdtMatch.idfa = String(parsedMatch.idfa).trim();
+      if (parsedMatch.aaid) rdtMatch.aaid = String(parsedMatch.aaid).trim();
+    }
+  } catch (e) {}
+  if (Object.keys(rdtMatch).length > 0) {
+    rdt("init", "a2_in5atqp7amcu", rdtMatch);
+  } else {
+    rdt("init", "a2_in5atqp7amcu");
+  }
+  rdt("track", "PageVisit");
+  </script>
+  <!-- DO NOT MODIFY UNLESS TO REPLACE A USER IDENTIFIER -->
+  <!-- End Reddit Pixel -->
+</head>
   <body>
     <div class="page-bg" aria-hidden="true"></div>
 
