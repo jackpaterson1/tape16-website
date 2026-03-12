@@ -47,12 +47,37 @@ const currentBuildDateLabel = document.getElementById("current-build-date-label"
 const ACCOUNT_SESSION_KEY = "tape16_account_session_v1";
 const BUILD_VERSION_CACHE_KEY = "tape16_latest_build_cache_v1";
 const BUILD_VERSION_CACHE_TTL_MS = 10 * 60 * 1000;
+const REDDIT_MATCH_STORAGE_KEY = "tape16_reddit_match_v1";
 
 function configUrl(value) {
   if (typeof value !== "string") return "";
   const out = value.trim();
   if (!out || out.includes("REPLACE_WITH_")) return "";
   return out;
+}
+
+function sanitizeMatchValue(value) {
+  const out = String(value || "").trim();
+  return out || "";
+}
+
+function saveRedditMatch(payload) {
+  if (!payload || typeof payload !== "object") return;
+  try {
+    const raw = localStorage.getItem(REDDIT_MATCH_STORAGE_KEY);
+    const existing = raw ? JSON.parse(raw) : {};
+    const next = {
+      email: sanitizeMatchValue(payload.email || existing.email || "").toLowerCase(),
+      phoneNumber: sanitizeMatchValue(payload.phoneNumber || existing.phoneNumber || ""),
+      externalId: sanitizeMatchValue(payload.externalId || existing.externalId || ""),
+      idfa: sanitizeMatchValue(payload.idfa || existing.idfa || ""),
+      aaid: sanitizeMatchValue(payload.aaid || existing.aaid || ""),
+      updatedAt: Date.now(),
+    };
+    localStorage.setItem(REDDIT_MATCH_STORAGE_KEY, JSON.stringify(next));
+  } catch (error) {
+    // Ignore storage errors.
+  }
 }
 
 function configureDirectDownloadLink(linkEl, downloadUrl) {
@@ -360,6 +385,7 @@ if (serialForm) {
       setSerialStatus("Enter your order ID and purchase email.", true);
       return;
     }
+    saveRedditMatch({ email });
 
     const endpoint = `${baseUrl.replace(/\/+$/, "")}/resend-serial`;
     if (serialSubmitBtn) serialSubmitBtn.setAttribute("disabled", "disabled");
@@ -415,6 +441,7 @@ if (bugForm) {
       setBugStatus("Email and summary are required.", true);
       return;
     }
+    saveRedditMatch({ email });
     if (files.length > 5) {
       setBugStatus("You can upload up to 5 attachments.", true);
       return;
@@ -477,6 +504,7 @@ if (featureForm) {
       setFeatureStatus("Email and feature summary are required.", true);
       return;
     }
+    saveRedditMatch({ email });
     if (files.length > 5) {
       setFeatureStatus("You can upload up to 5 attachments.", true);
       return;
@@ -716,6 +744,7 @@ if (accountLoginForm) {
       setAccountStatus("Enter serial, order ID, and purchase email.", true);
       return;
     }
+    saveRedditMatch({ email });
     await loginAccount({ serial, orderId, email });
   });
 }
@@ -763,5 +792,4 @@ if (accountActivations) {
     fetchAccountActivations(session, { silent: true });
   }
 }
-
 
