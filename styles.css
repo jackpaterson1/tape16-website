@@ -284,6 +284,17 @@ h1 {
   grid-template-columns: 1fr;
 }
 
+.workflow-panel {
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+}
+
+.workflow-panel h2 {
+  margin-top: 0.15rem;
+}
+
 .workflow ul {
   margin: 0;
   padding-left: 1.1rem;
