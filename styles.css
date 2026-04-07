@@ -295,6 +295,20 @@ h1 {
   margin-top: 0.15rem;
 }
 
+.remote-art {
+  margin: 0.9rem 0 0;
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.remote-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .workflow ul {
   margin: 0;
   padding-left: 1.1rem;
