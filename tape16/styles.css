@@ -280,6 +280,10 @@ h1 {
   gap: 1rem;
 }
 
+.workflow--stacked {
+  grid-template-columns: 1fr;
+}
+
 .workflow ul {
   margin: 0;
   padding-left: 1.1rem;
