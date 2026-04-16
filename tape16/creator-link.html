@@ -101,17 +101,16 @@
                 Connected account ID
                 <input id="creator-account" name="creatorAccount" type="text" required placeholder="acct_1TMnhmGtx20hDTt7" />
               </label>
-              <label>
-                Commission percent
-                <input id="creator-percent" name="creatorPercent" type="number" min="0" max="100" step="1" value="10" />
-              </label>
+              <div class="bug-full">
+                <p class="small-note">Commission is fixed at 10% for every creator link.</p>
+              </div>
               <label>
                 Tracking label
                 <input id="creator-label" name="creatorLabel" type="text" placeholder="Jack Paterson" />
               </label>
               <div class="bug-full">
                 <p class="small-note">
-                  The creator email is for your records. The share link itself only needs the connected account ID and commission.
+                  The creator email is for your records. The share link itself only needs the connected account ID.
                 </p>
               </div>
               <button class="btn btn-primary bug-submit" type="submit">Generate Share Link</button>
@@ -171,10 +170,10 @@
       const openLinkEl = document.getElementById("creator-link-open");
       const copyLinkEl = document.getElementById("creator-link-copy");
       const accountEl = document.getElementById("creator-account");
-      const percentEl = document.getElementById("creator-percent");
       const labelEl = document.getElementById("creator-label");
       const nameEl = document.getElementById("creator-name");
       const emailEl = document.getElementById("creator-email");
+      const FIXED_COMMISSION_PERCENT = "10";
 
       function configUrl(value) {
         if (typeof value !== "string") return "";
@@ -192,11 +191,9 @@
       function buildShareUrl() {
         const account = String(accountEl?.value || "").trim();
         if (!account) return "";
-        const commission = String(percentEl?.value || "15").trim() || "15";
         const label = String(labelEl?.value || nameEl?.value || "").trim();
         const url = new URL(window.location.href);
         url.searchParams.set("account", account);
-        url.searchParams.set("commission", commission);
         if (label) url.searchParams.set("label", label);
         return url.toString();
       }
@@ -216,11 +213,9 @@
       function fillFromQuery() {
         const params = new URLSearchParams(window.location.search);
         const account = params.get("account") || "";
-        const commission = params.get("commission") || "";
         const label = params.get("label") || "";
 
         if (accountEl && account) accountEl.value = account;
-        if (percentEl && commission) percentEl.value = commission;
         if (labelEl && label) labelEl.value = label;
       }
 
@@ -261,7 +256,7 @@
           successUrl: configUrl(config.stripeSuccessUrl),
           cancelUrl: configUrl(config.stripeCancelUrl),
           affiliateAccountId: account,
-          affiliateCommissionPercent: String(percentEl?.value || "15").trim() || "15",
+          affiliateCommissionPercent: FIXED_COMMISSION_PERCENT,
           affiliateLabel: String(labelEl?.value || nameEl?.value || "").trim(),
           clientReferenceId: `affiliate:${account}`,
         };
