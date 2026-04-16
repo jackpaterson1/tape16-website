@@ -53,6 +53,50 @@
         color: var(--muted);
         font-size: 0.96rem;
       }
+      .creator-guide {
+        margin-top: 1.2rem;
+        padding: 1rem 1.1rem;
+        border: 1px solid var(--stroke);
+        border-radius: 16px;
+        background: rgba(0, 0, 0, 0.26);
+      }
+      .creator-guide-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+        margin-top: 0.9rem;
+      }
+      .creator-guide-card {
+        border: 1px solid var(--stroke);
+        border-radius: 14px;
+        padding: 0.95rem 1rem;
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .creator-guide-card h3 {
+        margin: 0 0 0.6rem;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 1.05rem;
+      }
+      .creator-step-list {
+        margin: 0;
+        padding-left: 1.1rem;
+        color: var(--text);
+      }
+      .creator-step-list li {
+        margin-bottom: 0.55rem;
+      }
+      .creator-example {
+        margin: 0;
+        color: var(--muted);
+      }
+      .creator-example strong {
+        color: var(--text);
+      }
+      @media (max-width: 760px) {
+        .creator-guide-grid {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
   <body>
@@ -84,14 +128,25 @@
             Enter your connected Stripe account once. The page will generate a link you can share on YouTube,
             socials, and your site. Commission is fixed at 10% behind the scenes.
           </p>
-          <p class="small-note">
-            3 steps to find your ID: 1. Open Stripe Dashboard and go to Connect or Connected accounts. 2. Click your
-            creator account. 3. Copy the ID that starts with <strong>acct_</strong>.
-          </p>
-          <p class="small-note">
-            What it looks like: your ID will look something like <strong>acct_1TMnhmGtx20hDTt7</strong>. Paste that
-            into the creator link form below, then generate your share link.
-          </p>
+          <div class="creator-guide" aria-label="Creator ID instructions">
+            <div class="creator-guide-grid">
+              <article class="creator-guide-card">
+                <h3>3 steps to find your ID</h3>
+                <ol class="creator-step-list">
+                  <li>Open Stripe Dashboard and go to Connect or Connected accounts.</li>
+                  <li>Click your creator account.</li>
+                  <li>Copy the ID that starts with <strong>acct_</strong>.</li>
+                </ol>
+              </article>
+              <article class="creator-guide-card">
+                <h3>What it looks like</h3>
+                <p class="creator-example">
+                  Your ID will look something like <strong>acct_1TMnhmGtx20hDTt7</strong>. Paste that into the
+                  creator link form below, then generate your share link.
+                </p>
+              </article>
+            </div>
+          </div>
         </div>
         <div class="pricing-grid">
           <article class="price-card">
