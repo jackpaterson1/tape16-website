@@ -74,6 +74,22 @@
         color: var(--muted);
         font-size: 0.96rem;
       }
+      .stripe-note {
+        margin-top: 0.85rem;
+        padding: 0.85rem 1rem;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        display: grid;
+        gap: 0.35rem;
+      }
+      .stripe-note strong {
+        color: var(--text);
+      }
+      .stripe-note a {
+        color: #ffab74;
+      }
     </style>
   </head>
   <body>
@@ -100,11 +116,21 @@
       <section class="pricing">
         <div class="pricing-head">
           <p class="eyebrow">Creator Link</p>
-          <h1>Start onboarding with your email.</h1>
+          <h1>Open Stripe onboarding with your email.</h1>
           <p>
             Enter your email once. We will send you to Stripe onboarding, then fill in your connected account and
             generate your share link after payout details are set up.
           </p>
+          <div class="stripe-note">
+            <strong>Stripe setup note</strong>
+            <span>
+              If Stripe asks for platform review, open
+              <a href="https://dashboard.stripe.com/settings/connect/platform-profile" target="_blank" rel="noopener noreferrer">
+                Connect platform profile
+              </a>
+              and acknowledge the requirements collection settings once.
+            </span>
+          </div>
           <div class="creator-guide" aria-label="Creator ID instructions">
             <p>3 steps to get set up:</p>
             <ol>
@@ -144,7 +170,7 @@
                   Start with your email. Stripe will collect the rest, then we will fill this in for you.
                 </p>
               </div>
-              <button class="btn btn-primary bug-submit" id="creator-submit-btn" type="submit">Start Stripe Onboarding</button>
+              <button class="btn btn-primary bug-submit" id="creator-submit-btn" type="submit">Open Stripe Onboarding</button>
             </form>
             <p id="creator-link-status" class="serial-status" role="status" aria-live="polite"></p>
           </article>
@@ -170,7 +196,7 @@
         <div class="pricing-grid">
           <article class="price-card">
             <h3>Flow</h3>
-            <p>1. Enter your email and start Stripe onboarding.</p>
+            <p>1. Enter your email and open Stripe onboarding.</p>
             <p>2. Finish Stripe onboarding once.</p>
             <p>3. Come back and copy your share link.</p>
           </article>
@@ -366,6 +392,13 @@
           window.location.assign(body.url);
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error || "");
+          if (message.includes("account_creation_requirement_collection_unacknowledged")) {
+            setStatus(
+              "Stripe needs a one-time platform-profile acknowledgement. Open Connect platform profile, save the requirements setting, then try again.",
+              true
+            );
+            return;
+          }
           setStatus(message ? `Could not start onboarding: ${message}` : "Could not start onboarding.", true);
         }
       }
