@@ -108,7 +108,7 @@
           <p class="eyebrow">Creator Link</p>
           <h1>Open Stripe onboarding with your email.</h1>
           <p>
-            Enter your email once. Stripe will handle the creator onboarding flow, then we will fill in your
+            Send your email and we’ll guide you through Stripe onboarding. Once that’s done, we’ll fill in your
             connected account and unlock your share link after payout details are set up.
           </p>
           <div class="stripe-note">
@@ -124,8 +124,8 @@
           <div class="creator-guide" aria-label="Creator steps">
             <p>3 steps to get set up:</p>
             <ol>
-              <li>Enter your email and open Stripe onboarding.</li>
-              <li>Finish Stripe onboarding once.</li>
+              <li>Send your email and open Stripe onboarding.</li>
+              <li>We’ll guide you through Stripe onboarding once.</li>
               <li>Come back and copy your share link.</li>
             </ol>
             <p>After Stripe returns you, the connected account will be filled automatically.</p>
@@ -141,7 +141,7 @@
                 <input id="creator-email" name="creatorEmail" type="email" required placeholder="creator@example.com" autocomplete="email" />
               </label>
               <label class="bug-full">
-                Creator label
+                Creator label <span class="creator-helper">(optional)</span>
                 <input id="creator-label" name="creatorLabel" type="text" placeholder="Jack Paterson" />
               </label>
               <label class="bug-full">
@@ -150,7 +150,7 @@
               </label>
               <div class="bug-full">
                 <p class="creator-helper" id="creator-helper">
-                  Start with your email. Stripe will collect the rest, then we will fill this in for you.
+                  Start with your email. We’ll guide you through Stripe onboarding, then we will fill this in for you.
                 </p>
               </div>
               <button class="btn btn-primary bug-submit" id="creator-submit-btn" type="submit">Open Stripe Onboarding</button>
