@@ -4,16 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TAPE 16 | Creator Link</title>
-    <meta
-      name="description"
-      content="Generate a shareable TAPE 16 creator link."
-    />
+    <meta name="description" content="Start Stripe onboarding and generate a shareable TAPE 16 creator link." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
     <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
@@ -49,10 +43,6 @@
         flex-wrap: wrap;
         margin-top: 1rem;
       }
-      .small-note {
-        color: var(--muted);
-        font-size: 0.96rem;
-      }
       .creator-guide {
         margin-top: 1rem;
         display: grid;
@@ -68,6 +58,27 @@
       }
       .creator-guide li {
         margin-bottom: 0.35rem;
+      }
+      .stripe-note {
+        margin-top: 0.85rem;
+        padding: 0.85rem 1rem;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        display: grid;
+        gap: 0.35rem;
+      }
+      .stripe-note strong {
+        color: var(--text);
+      }
+      .stripe-note a {
+        color: #ffab74;
+      }
+      .creator-helper {
+        margin: -0.25rem 0 0;
+        color: var(--muted);
+        font-size: 0.96rem;
       }
     </style>
   </head>
@@ -95,50 +106,62 @@
       <section class="pricing">
         <div class="pricing-head">
           <p class="eyebrow">Creator Link</p>
-          <h1>Generate your own shareable affiliate link.</h1>
+          <h1>Open Stripe onboarding with your email.</h1>
           <p>
-            Enter your connected Stripe account once. The page will generate a link you can share on YouTube,
-            socials, and your site. Commission is fixed at 10% behind the scenes.
+            Enter your email once. Stripe will handle the creator onboarding flow, then we will fill in your
+            connected account and unlock your share link after payout details are set up.
           </p>
-          <div class="creator-guide" aria-label="Creator ID instructions">
-            <p>3 steps to find your ID:</p>
+          <div class="stripe-note">
+            <strong>Stripe setup note</strong>
+            <span>
+              If Stripe asks for a platform review, open
+              <a href="https://dashboard.stripe.com/settings/connect/platform-profile" target="_blank" rel="noopener noreferrer">
+                Connect platform profile
+              </a>
+              and acknowledge the requirements settings once.
+            </span>
+          </div>
+          <div class="creator-guide" aria-label="Creator steps">
+            <p>3 steps to get set up:</p>
             <ol>
-              <li>Open Stripe Dashboard and go to Connect or Connected accounts.</li>
-              <li>Click your creator account.</li>
-              <li>Copy the ID that starts with <strong>acct_</strong>.</li>
+              <li>Enter your email and open Stripe onboarding.</li>
+              <li>Finish Stripe onboarding once.</li>
+              <li>Come back and copy your share link.</li>
             </ol>
-            <p>
-              What it looks like: your ID will look something like <strong>acct_1TMnhmGtx20hDTt7</strong>. Paste
-              that into the creator link form below, then generate your share link.
-            </p>
+            <p>After Stripe returns you, the connected account will be filled automatically.</p>
           </div>
         </div>
+
         <div class="pricing-grid">
           <article class="price-card">
-            <h3>Create Link</h3>
+            <h3>Onboard Creator</h3>
             <form id="creator-link-form" class="bug-form" autocomplete="off">
               <label class="bug-full">
-                Connected account ID
-                <input id="creator-account" name="creatorAccount" type="text" required placeholder="acct_1TMnhmGtx20hDTt7" />
+                Email
+                <input id="creator-email" name="creatorEmail" type="email" required placeholder="creator@example.com" autocomplete="email" />
               </label>
               <label class="bug-full">
                 Creator label
                 <input id="creator-label" name="creatorLabel" type="text" placeholder="Jack Paterson" />
               </label>
+              <label class="bug-full">
+                Connected account ID
+                <input id="creator-account" name="creatorAccount" type="text" placeholder="Filled automatically after Stripe onboarding" readonly />
+              </label>
               <div class="bug-full">
-                <p class="small-note">
-                  We keep the commission locked at 10% and handle payout automatically after the sale.
+                <p class="creator-helper" id="creator-helper">
+                  Start with your email. Stripe will collect the rest, then we will fill this in for you.
                 </p>
               </div>
-              <button class="btn btn-primary bug-submit" type="submit">Generate Share Link</button>
+              <button class="btn btn-primary bug-submit" id="creator-submit-btn" type="submit">Open Stripe Onboarding</button>
             </form>
             <p id="creator-link-status" class="serial-status" role="status" aria-live="polite"></p>
           </article>
+
           <article class="price-card">
             <h3>Share Link</h3>
             <p>
-              This is the link you can hand out. When someone opens it, checkout starts with your connected account
-              already attached.
+              After onboarding, this becomes your link to hand out on YouTube, socials, and your site.
             </p>
             <pre id="creator-link-preview" class="link-preview">Generate a link to preview it here.</pre>
             <div class="link-actions">
@@ -157,13 +180,13 @@
         <div class="pricing-grid">
           <article class="price-card">
             <h3>Flow</h3>
-            <p>1. Complete Stripe onboarding once.</p>
-            <p>2. Generate your link on this page.</p>
-            <p>3. Share the link anywhere and the payout happens automatically after a sale.</p>
+            <p>1. Enter your email and open Stripe onboarding.</p>
+            <p>2. Finish Stripe onboarding once.</p>
+            <p>3. Come back and copy your share link.</p>
           </article>
           <article class="price-card">
             <h3>Need onboarding help?</h3>
-            <p>Use the creators page if you want a manual setup reminder or support from us.</p>
+            <p>If you get stuck, open the creator page and we’ll help you get back on track.</p>
             <a class="btn btn-ghost" href="affiliate.html">Open Creator Page</a>
           </article>
         </div>
@@ -183,8 +206,12 @@
       const previewEl = document.getElementById("creator-link-preview");
       const openLinkEl = document.getElementById("creator-link-open");
       const copyLinkEl = document.getElementById("creator-link-copy");
+      const emailEl = document.getElementById("creator-email");
       const accountEl = document.getElementById("creator-account");
       const labelEl = document.getElementById("creator-label");
+      const submitBtn = document.getElementById("creator-submit-btn");
+      const helperEl = document.getElementById("creator-helper");
+      const creatorStateKey = "tape16_creator_onboarding_v1";
 
       function configUrl(value) {
         if (typeof value !== "string") return "";
@@ -197,6 +224,55 @@
         if (!statusEl) return;
         statusEl.textContent = message;
         statusEl.style.color = isError ? "#ff9d87" : "#f7c34b";
+      }
+
+      function readStoredCreatorState() {
+        try {
+          const raw = localStorage.getItem(creatorStateKey);
+          if (!raw) return {};
+          const parsed = JSON.parse(raw);
+          return parsed && typeof parsed === "object" ? parsed : {};
+        } catch {
+          return {};
+        }
+      }
+
+      function writeStoredCreatorState(next) {
+        try {
+          localStorage.setItem(creatorStateKey, JSON.stringify(next || {}));
+        } catch {
+          // Ignore storage failures.
+        }
+      }
+
+      function saveCurrentCreatorState(extra = {}) {
+        const next = {
+          email: String(emailEl?.value || "").trim(),
+          label: String(labelEl?.value || "").trim(),
+          accountId: String(accountEl?.value || "").trim(),
+          ...extra,
+        };
+        writeStoredCreatorState(next);
+        return next;
+      }
+
+      function applyCreatorState(next) {
+        const state = next && typeof next === "object" ? next : {};
+        if (emailEl && typeof state.email === "string" && state.email) emailEl.value = state.email;
+        if (labelEl && typeof state.label === "string" && state.label) labelEl.value = state.label;
+        if (accountEl && typeof state.accountId === "string" && state.accountId) accountEl.value = state.accountId;
+      }
+
+      function updateMode() {
+        const account = String(accountEl?.value || "").trim();
+        if (submitBtn) {
+          submitBtn.textContent = account ? "Generate Share Link" : "Open Stripe Onboarding";
+        }
+        if (helperEl) {
+          helperEl.textContent = account
+            ? "Your connected account is ready. Generate the share link below."
+            : "Start with your email. Stripe will collect the rest, then we will fill this in for you.";
+        }
       }
 
       function buildShareUrl() {
@@ -223,10 +299,16 @@
 
       function fillFromQuery() {
         const params = new URLSearchParams(window.location.search);
-        const account = params.get("account") || "";
+        const account = params.get("accountId") || params.get("account") || "";
+        const email = params.get("email") || "";
         const label = params.get("label") || "";
+        const onboarding = params.get("onboarding") || "";
+        if (emailEl && email) emailEl.value = email;
         if (accountEl && account) accountEl.value = account;
         if (labelEl && label) labelEl.value = label;
+        if (onboarding === "complete") {
+          setStatus("Stripe onboarding complete. We are checking your connected account.", false);
+        }
       }
 
       async function copyToClipboard(text) {
@@ -249,29 +331,26 @@
         }
       }
 
-      async function startCheckout() {
-        const account = String(accountEl?.value || "").trim();
-        if (!account) {
-          setStatus("Add a connected account ID first.", true);
+      async function startOnboarding() {
+        const email = String(emailEl?.value || "").trim();
+        if (!email) {
+          setStatus("Add your email to start onboarding.", true);
           return;
         }
         const apiBase = configUrl(config.supportApiBaseUrl) || configUrl(config.serialApiBaseUrl) || "";
         if (!apiBase) {
-          setStatus("Checkout service is not configured yet.", true);
+          setStatus("Onboarding service is not configured yet.", true);
           return;
         }
-        const path = configUrl(config.stripeCheckoutPath) || "/stripe/create-checkout-session";
-        const endpoint = `${apiBase.replace(/\/+$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
+        const endpoint = `${apiBase.replace(/\/+$/, "")}/stripe/create-creator-onboarding-link`;
         const payload = {
-          successUrl: configUrl(config.stripeSuccessUrl),
-          cancelUrl: configUrl(config.stripeCancelUrl),
-          affiliateAccountId: account,
-          affiliateCommissionPercent: "10",
-          affiliateLabel: String(labelEl?.value || "").trim(),
-          clientReferenceId: `affiliate:${account}`,
+          email,
+          name: String(labelEl?.value || "").trim(),
+          returnUrl: `${window.location.origin}${window.location.pathname}?onboarding=complete`,
+          refreshUrl: `${window.location.origin}${window.location.pathname}?onboarding=refresh`,
         };
 
-        setStatus("Starting secure checkout...", false);
+        setStatus("Opening Stripe onboarding...", false);
         try {
           const response = await fetch(endpoint, {
             method: "POST",
@@ -282,31 +361,78 @@
           let body = {};
           try {
             body = rawText ? JSON.parse(rawText) : {};
-          } catch (error) {
+          } catch {
             body = {};
           }
           if (!response.ok || !body.ok || !body.url) {
-            const detail = body.error || rawText || "Checkout start failed";
+            const detail = body.error || rawText || "Onboarding start failed";
             throw new Error(`${response.status} ${detail}`.trim());
           }
+          saveCurrentCreatorState({
+            email,
+            label: String(labelEl?.value || "").trim(),
+            accountId: String(body.accountId || "").trim(),
+          });
           window.location.assign(body.url);
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error || "");
-          setStatus(
-            message ? `Could not start checkout: ${message}` : "Could not start checkout. Check the account ID and try again.",
-            true
-          );
+          if (message.includes("account_creation_requirement_collection_unacknowledged")) {
+            setStatus(
+              "Stripe needs a one-time platform-profile acknowledgement. Open Connect platform profile, save the requirements setting, then try again.",
+              true
+            );
+            return;
+          }
+          setStatus(message ? `Could not start onboarding: ${message}` : "Could not start onboarding.", true);
+        }
+      }
+
+      async function refreshCreatorStatus() {
+        const apiBase = configUrl(config.supportApiBaseUrl) || configUrl(config.serialApiBaseUrl) || "";
+        const account = String(accountEl?.value || "").trim();
+        const email = String(emailEl?.value || "").trim();
+        if (!apiBase || (!account && !email)) return;
+
+        const query = new URLSearchParams();
+        if (account) query.set("accountId", account);
+        if (email) query.set("email", email);
+
+        try {
+          const response = await fetch(`${apiBase.replace(/\/+$/, "")}/stripe/creator-onboarding-status?${query.toString()}`);
+          const body = await response.json();
+          if (response.ok && body && body.ok && body.accountId) {
+            if (accountEl) accountEl.value = String(body.accountId || "").trim();
+            saveCurrentCreatorState({
+              email: String(body.email || email || "").trim(),
+              label: String(labelEl?.value || "").trim(),
+              accountId: String(body.accountId || "").trim(),
+            });
+            updateMode();
+            renderPreview(buildShareUrl());
+            if (body.ready) {
+              setStatus("Your Stripe onboarding is complete. Your share link is ready.", false);
+            }
+          }
+        } catch {
+          // Ignore refresh failures; the page remains usable.
         }
       }
 
       form?.addEventListener("submit", (event) => {
         event.preventDefault();
+        const account = String(accountEl?.value || "").trim();
+        if (!account) {
+          saveCurrentCreatorState();
+          startOnboarding();
+          return;
+        }
         const url = buildShareUrl();
         if (!url) {
           setStatus("Add a connected account ID to build the link.", true);
           renderPreview("");
           return;
         }
+        saveCurrentCreatorState();
         renderPreview(url);
         setStatus("Share link ready.", false);
       });
@@ -320,20 +446,25 @@
         try {
           await copyToClipboard(url);
           setStatus("Copied the share link.", false);
-        } catch (error) {
+        } catch {
           setStatus("Could not copy automatically. Use the link shown above.", true);
         }
       });
 
+      const stored = readStoredCreatorState();
+      applyCreatorState(stored);
       fillFromQuery();
+      updateMode();
       renderPreview(buildShareUrl());
 
       const params = new URLSearchParams(window.location.search);
-      if (params.get("account")) {
+      const onboarding = params.get("onboarding") || "";
+      if (onboarding === "complete" || onboarding === "refresh") {
         setTimeout(() => {
-          startCheckout();
+          refreshCreatorStatus();
         }, 250);
       }
+
     </script>
   </body>
 </html>
