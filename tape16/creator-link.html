@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TAPE 16 | Creator Link</title>
+    <meta
+      name="description"
+      content="Generate a shareable TAPE 16 creator link."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="stylesheet" href="styles.css?v=remote-panel-1" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GT-TQK5FZD8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "GT-TQK5FZD8");
+      gtag("config", "G-BEW6NC5PCV");
+    </script>
+    <script>
+      !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js?pixel_id=a2_in5atqp7amcu",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
+      rdt("init", "a2_in5atqp7amcu");
+      rdt("track", "PageVisit");
+    </script>
+    <style>
+      .link-preview {
+        margin: 0.6rem 0 0;
+        padding: 0.9rem;
+        border-radius: 12px;
+        border: 1px solid var(--stroke);
+        background: rgba(0, 0, 0, 0.34);
+        color: var(--text);
+        overflow-x: auto;
+        word-break: break-all;
+        white-space: pre-wrap;
+      }
+      .link-actions {
+        display: flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+      }
+      .small-note {
+        color: var(--muted);
+        font-size: 0.96rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="TAPE 16 home">
+        <img src="assets/tape16-logo.png" alt="TAPE 16 logo" />
+        <span>TAPE 16</span>
+      </a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="download.html">Download</a>
+        <a href="buy.html">Buy</a>
+        <a href="affiliate.html">Creators</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="brand-banner" aria-label="TAPE 16 branding">
+        <img src="assets/tape16-wordmark-2048.png" alt="TAPE 16 wordmark" />
+      </section>
+
+      <section class="pricing">
+        <div class="pricing-head">
+          <p class="eyebrow">Creator Link</p>
+          <h1>Generate your own shareable affiliate link.</h1>
+          <p>
+            Enter your connected Stripe account once. The page will generate a link you can share on YouTube,
+            socials, and your site. Commission is fixed at 10% behind the scenes.
+          </p>
+        </div>
+        <div class="pricing-grid">
+          <article class="price-card">
+            <h3>Create Link</h3>
+            <form id="creator-link-form" class="bug-form" autocomplete="off">
+              <label class="bug-full">
+                Connected account ID
+                <input id="creator-account" name="creatorAccount" type="text" required placeholder="acct_1TMnhmGtx20hDTt7" />
+              </label>
+              <label class="bug-full">
+                Creator label
+                <input id="creator-label" name="creatorLabel" type="text" placeholder="Jack Paterson" />
+              </label>
+              <div class="bug-full">
+                <p class="small-note">
+                  We keep the commission locked at 10% and handle payout automatically after the sale.
+                </p>
+              </div>
+              <button class="btn btn-primary bug-submit" type="submit">Generate Share Link</button>
+            </form>
+            <p id="creator-link-status" class="serial-status" role="status" aria-live="polite"></p>
+          </article>
+          <article class="price-card">
+            <h3>Share Link</h3>
+            <p>
+              This is the link you can hand out. When someone opens it, checkout starts with your connected account
+              already attached.
+            </p>
+            <pre id="creator-link-preview" class="link-preview">Generate a link to preview it here.</pre>
+            <div class="link-actions">
+              <a class="btn btn-ghost" id="creator-link-open" href="#" target="_blank" rel="noopener noreferrer">Open Link</a>
+              <button class="btn btn-primary" id="creator-link-copy" type="button">Copy Link</button>
+            </div>
+            <p class="small-note">
+              If you prefer, you can also keep using the creator request page and we’ll help set it up for you.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="pricing">
+        <div class="pricing-head">
+          <p class="eyebrow">How it works</p>
+          <h1>One creator. One link. Automatic payout.</h1>
+        </div>
+        <div class="pricing-grid">
+          <article class="price-card">
+            <h3>Flow</h3>
+            <p>1. Complete Stripe onboarding once.</p>
+            <p>2. Generate your link on this page.</p>
+            <p>3. Share the link anywhere and the payout happens automatically after a sale.</p>
+          </article>
+          <article class="price-card">
+            <h3>Need onboarding help?</h3>
+            <p>Use the creators page if you want a manual setup reminder or support from us.</p>
+            <a class="btn btn-ghost" href="affiliate.html">Open Creator Page</a>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>JB Paterson | EMR Music Group</p>
+      <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
+    </footer>
+
+    <script src="config.js?v=0.9.21"></script>
+    <script>
+      const config = window.TAPE16_SITE_CONFIG || {};
+      const form = document.getElementById("creator-link-form");
+      const statusEl = document.getElementById("creator-link-status");
+      const previewEl = document.getElementById("creator-link-preview");
+      const openLinkEl = document.getElementById("creator-link-open");
+      const copyLinkEl = document.getElementById("creator-link-copy");
+      const accountEl = document.getElementById("creator-account");
+      const labelEl = document.getElementById("creator-label");
+
+      function configUrl(value) {
+        if (typeof value !== "string") return "";
+        const out = value.trim();
+        if (!out || out.includes("REPLACE_WITH_")) return "";
+        return out;
+      }
+
+      function setStatus(message, isError) {
+        if (!statusEl) return;
+        statusEl.textContent = message;
+        statusEl.style.color = isError ? "#ff9d87" : "#f7c34b";
+      }
+
+      function buildShareUrl() {
+        const account = String(accountEl?.value || "").trim();
+        if (!account) return "";
+        const label = String(labelEl?.value || "").trim();
+        const url = new URL(window.location.href);
+        url.searchParams.set("account", account);
+        if (label) url.searchParams.set("label", label);
+        return url.toString();
+      }
+
+      function renderPreview(url) {
+        const shareUrl = url || "";
+        if (previewEl) previewEl.textContent = shareUrl || "Generate a link to preview it here.";
+        if (openLinkEl) {
+          openLinkEl.href = shareUrl || "#";
+          openLinkEl.toggleAttribute("aria-disabled", !shareUrl);
+        }
+        if (copyLinkEl) {
+          copyLinkEl.disabled = !shareUrl;
+        }
+      }
+
+      function fillFromQuery() {
+        const params = new URLSearchParams(window.location.search);
+        const account = params.get("account") || "";
+        const label = params.get("label") || "";
+        if (accountEl && account) accountEl.value = account;
+        if (labelEl && label) labelEl.value = label;
+      }
+
+      async function copyToClipboard(text) {
+        if (!text) return false;
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "true");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          return document.execCommand("copy");
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      }
+
+      async function startCheckout() {
+        const account = String(accountEl?.value || "").trim();
+        if (!account) {
+          setStatus("Add a connected account ID first.", true);
+          return;
+        }
+        const apiBase = configUrl(config.supportApiBaseUrl) || configUrl(config.serialApiBaseUrl) || "";
+        if (!apiBase) {
+          setStatus("Checkout service is not configured yet.", true);
+          return;
+        }
+        const path = configUrl(config.stripeCheckoutPath) || "/stripe/create-checkout-session";
+        const endpoint = `${apiBase.replace(/\/+$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
+        const payload = {
+          successUrl: configUrl(config.stripeSuccessUrl),
+          cancelUrl: configUrl(config.stripeCancelUrl),
+          affiliateAccountId: account,
+          affiliateCommissionPercent: "10",
+          affiliateLabel: String(labelEl?.value || "").trim(),
+          clientReferenceId: `affiliate:${account}`,
+        };
+
+        setStatus("Starting secure checkout...", false);
+        try {
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok || !body.ok || !body.url) {
+            throw new Error(body.error || "Checkout start failed");
+          }
+          window.location.assign(body.url);
+        } catch (error) {
+          setStatus("Could not start checkout. Check the account ID and try again.", true);
+        }
+      }
+
+      form?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const url = buildShareUrl();
+        if (!url) {
+          setStatus("Add a connected account ID to build the link.", true);
+          renderPreview("");
+          return;
+        }
+        renderPreview(url);
+        setStatus("Share link ready.", false);
+      });
+
+      copyLinkEl?.addEventListener("click", async () => {
+        const url = buildShareUrl();
+        if (!url) {
+          setStatus("Add a connected account ID to build the link.", true);
+          return;
+        }
+        try {
+          await copyToClipboard(url);
+          setStatus("Copied the share link.", false);
+        } catch (error) {
+          setStatus("Could not copy automatically. Use the link shown above.", true);
+        }
+      });
+
+      fillFromQuery();
+      renderPreview(buildShareUrl());
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("account")) {
+        setTimeout(() => {
+          startCheckout();
+        }, 250);
+      }
+    </script>
+  </body>
+</html>
