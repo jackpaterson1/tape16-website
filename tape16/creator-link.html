@@ -47,7 +47,7 @@
 
       <section class="pricing">
         <div class="pricing-head">
-          <p class="eyebrow">Creator intake</p>
+          <p class="eyebrow">Creator request</p>
           <h1>Send your email and socials.</h1>
           <p>
             Tell us the email you want us to use, plus what channel you’re running and any other socials.
@@ -56,7 +56,7 @@
         </div>
 
         <article class="price-card">
-          <h3>Send Request</h3>
+            <h3>Send Creator Request</h3>
           <form id="creator-intake-form" class="bug-form">
             <label class="bug-full">
               Email
@@ -82,7 +82,7 @@
             <button class="btn btn-primary bug-submit" id="creator-intake-submit" type="submit">Send</button>
           </form>
           <p id="creator-intake-status" class="serial-status" role="status" aria-live="polite"></p>
-          <p class="price-note">This goes straight to <strong>emrmusicgroup@gmail.com</strong>.</p>
+            <p class="price-note">This goes straight to <strong>emrmusicgroup@gmail.com</strong> as a creator request.</p>
         </article>
       </section>
     </main>
@@ -132,7 +132,7 @@
 
         const formData = new FormData();
         formData.append("email", email);
-        formData.append("summary", "Creator intake");
+        formData.append("summary", "Creator request");
         formData.append("details", details);
         formData.append("replyTo", email);
 
@@ -140,7 +140,7 @@
         setStatus("Sending request...", false);
 
         try {
-          const response = await fetch(`${supportBase.replace(/\/+$/, "")}/submit-feature`, {
+          const response = await fetch(`${supportBase.replace(/\/+$/, "")}/submit-creator`, {
             method: "POST",
             body: formData,
           });
