@@ -3,11 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TAPE 16 | Creator Link</title>
-    <meta name="description" content="Start Stripe onboarding and generate a shareable TAPE 16 creator link." />
+    <title>TAPE 16 | Creator Intake</title>
+    <meta name="description" content="Send your email and social links to start a TAPE 16 creator request." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
     <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
@@ -20,67 +23,6 @@
       gtag("config", "GT-TQK5FZD8");
       gtag("config", "G-BEW6NC5PCV");
     </script>
-    <script>
-      !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js?pixel_id=a2_in5atqp7amcu",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
-      rdt("init", "a2_in5atqp7amcu");
-      rdt("track", "PageVisit");
-    </script>
-    <style>
-      .link-preview {
-        margin: 0.6rem 0 0;
-        padding: 0.9rem;
-        border-radius: 12px;
-        border: 1px solid var(--stroke);
-        background: rgba(0, 0, 0, 0.34);
-        color: var(--text);
-        overflow-x: auto;
-        word-break: break-all;
-        white-space: pre-wrap;
-      }
-      .link-actions {
-        display: flex;
-        gap: 0.8rem;
-        flex-wrap: wrap;
-        margin-top: 1rem;
-      }
-      .creator-guide {
-        margin-top: 1rem;
-        display: grid;
-        gap: 0.4rem;
-        color: var(--muted);
-      }
-      .creator-guide p {
-        margin: 0;
-      }
-      .creator-guide ol {
-        margin: 0.3rem 0 0;
-        padding-left: 1.2rem;
-      }
-      .creator-guide li {
-        margin-bottom: 0.35rem;
-      }
-      .stripe-note {
-        margin-top: 0.85rem;
-        padding: 0.85rem 1rem;
-        border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(255, 255, 255, 0.04);
-        color: var(--muted);
-        display: grid;
-        gap: 0.35rem;
-      }
-      .stripe-note strong {
-        color: var(--text);
-      }
-      .stripe-note a {
-        color: #ffab74;
-      }
-      .creator-helper {
-        margin: -0.25rem 0 0;
-        color: var(--muted);
-        font-size: 0.96rem;
-      }
-    </style>
   </head>
   <body>
     <div class="page-bg" aria-hidden="true"></div>
@@ -105,91 +47,43 @@
 
       <section class="pricing">
         <div class="pricing-head">
-          <p class="eyebrow">Creator Link</p>
-          <h1>Open Stripe onboarding with your email.</h1>
+          <p class="eyebrow">Creator intake</p>
+          <h1>Send your email and socials.</h1>
           <p>
-            Send your email and we’ll guide you through Stripe onboarding. Once that’s done, we’ll fill in your
-            connected account and unlock your share link after payout details are set up.
+            Tell us the email you want us to use, plus what channel you’re running and any other socials.
+            We’ll send it straight to EMR Music Group and get back to you.
           </p>
-          <div class="stripe-note">
-            <strong>Stripe setup note</strong>
-            <span>
-              If Stripe asks for a platform review, open
-              <a href="https://dashboard.stripe.com/settings/connect/platform-profile" target="_blank" rel="noopener noreferrer">
-                Connect platform profile
-              </a>
-              and acknowledge the requirements settings once.
-            </span>
-          </div>
-          <div class="creator-guide" aria-label="Creator steps">
-            <p>3 steps to get set up:</p>
-            <ol>
-              <li>Send your email and open Stripe onboarding.</li>
-              <li>We’ll guide you through Stripe onboarding once.</li>
-              <li>Come back and copy your share link.</li>
-            </ol>
-            <p>After Stripe returns you, the connected account will be filled automatically.</p>
-          </div>
         </div>
 
-        <div class="pricing-grid">
-          <article class="price-card">
-            <h3>Onboard Creator</h3>
-            <form id="creator-link-form" class="bug-form" autocomplete="off">
-              <label class="bug-full">
-                Email
-                <input id="creator-email" name="creatorEmail" type="email" required placeholder="creator@example.com" autocomplete="email" />
-              </label>
-              <label class="bug-full">
-                Creator label <span class="creator-helper">(optional)</span>
-                <input id="creator-label" name="creatorLabel" type="text" placeholder="Jack Paterson" />
-              </label>
-              <label class="bug-full">
-                Connected account ID
-                <input id="creator-account" name="creatorAccount" type="text" placeholder="Filled automatically after Stripe onboarding" readonly />
-              </label>
-              <div class="bug-full">
-                <p class="creator-helper" id="creator-helper">
-                  Start with your email. We’ll guide you through Stripe onboarding, then we will fill this in for you.
-                </p>
-              </div>
-              <button class="btn btn-primary bug-submit" id="creator-submit-btn" type="submit">Open Stripe Onboarding</button>
-            </form>
-            <p id="creator-link-status" class="serial-status" role="status" aria-live="polite"></p>
-          </article>
-
-          <article class="price-card">
-            <h3>Share Link</h3>
-            <p>
-              After onboarding, this becomes your link to hand out on YouTube, socials, and your site.
-            </p>
-            <pre id="creator-link-preview" class="link-preview">Generate a link to preview it here.</pre>
-            <div class="link-actions">
-              <a class="btn btn-ghost" id="creator-link-open" href="#" target="_blank" rel="noopener noreferrer">Open Link</a>
-              <button class="btn btn-primary" id="creator-link-copy" type="button">Copy Link</button>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="pricing">
-        <div class="pricing-head">
-          <p class="eyebrow">How it works</p>
-          <h1>One creator. One link. Automatic payout.</h1>
-        </div>
-        <div class="pricing-grid">
-          <article class="price-card">
-            <h3>Flow</h3>
-            <p>1. Enter your email and open Stripe onboarding.</p>
-            <p>2. Finish Stripe onboarding once.</p>
-            <p>3. Come back and copy your share link.</p>
-          </article>
-          <article class="price-card">
-            <h3>Need onboarding help?</h3>
-            <p>If you get stuck, open the creator page and we’ll help you get back on track.</p>
-            <a class="btn btn-ghost" href="affiliate.html">Open Creator Page</a>
-          </article>
-        </div>
+        <article class="price-card">
+          <h3>Send Request</h3>
+          <form id="creator-intake-form" class="bug-form">
+            <label class="bug-full">
+              Email
+              <input
+                id="creator-intake-email"
+                name="email"
+                type="email"
+                required
+                placeholder="creator@example.com"
+                autocomplete="email"
+              />
+            </label>
+            <label class="bug-full">
+              What channel are you running / other socials?
+              <textarea
+                id="creator-intake-details"
+                name="details"
+                rows="6"
+                required
+                placeholder="YouTube channel, Instagram, TikTok, website, anything else you want us to know."
+              ></textarea>
+            </label>
+            <button class="btn btn-primary bug-submit" id="creator-intake-submit" type="submit">Send</button>
+          </form>
+          <p id="creator-intake-status" class="serial-status" role="status" aria-live="polite"></p>
+          <p class="price-note">This goes straight to <strong>emrmusicgroup@gmail.com</strong>.</p>
+        </article>
       </section>
     </main>
 
@@ -201,17 +95,11 @@
     <script src="config.js?v=0.9.21"></script>
     <script>
       const config = window.TAPE16_SITE_CONFIG || {};
-      const form = document.getElementById("creator-link-form");
-      const statusEl = document.getElementById("creator-link-status");
-      const previewEl = document.getElementById("creator-link-preview");
-      const openLinkEl = document.getElementById("creator-link-open");
-      const copyLinkEl = document.getElementById("creator-link-copy");
-      const emailEl = document.getElementById("creator-email");
-      const accountEl = document.getElementById("creator-account");
-      const labelEl = document.getElementById("creator-label");
-      const submitBtn = document.getElementById("creator-submit-btn");
-      const helperEl = document.getElementById("creator-helper");
-      const creatorStateKey = "tape16_creator_onboarding_v1";
+      const form = document.getElementById("creator-intake-form");
+      const emailEl = document.getElementById("creator-intake-email");
+      const detailsEl = document.getElementById("creator-intake-details");
+      const statusEl = document.getElementById("creator-intake-status");
+      const submitBtn = document.getElementById("creator-intake-submit");
 
       function configUrl(value) {
         if (typeof value !== "string") return "";
@@ -226,245 +114,49 @@
         statusEl.style.color = isError ? "#ff9d87" : "#f7c34b";
       }
 
-      function readStoredCreatorState() {
-        try {
-          const raw = localStorage.getItem(creatorStateKey);
-          if (!raw) return {};
-          const parsed = JSON.parse(raw);
-          return parsed && typeof parsed === "object" ? parsed : {};
-        } catch {
-          return {};
-        }
-      }
+      form?.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-      function writeStoredCreatorState(next) {
-        try {
-          localStorage.setItem(creatorStateKey, JSON.stringify(next || {}));
-        } catch {
-          // Ignore storage failures.
-        }
-      }
-
-      function saveCurrentCreatorState(extra = {}) {
-        const next = {
-          email: String(emailEl?.value || "").trim(),
-          label: String(labelEl?.value || "").trim(),
-          accountId: String(accountEl?.value || "").trim(),
-          ...extra,
-        };
-        writeStoredCreatorState(next);
-        return next;
-      }
-
-      function applyCreatorState(next) {
-        const state = next && typeof next === "object" ? next : {};
-        if (emailEl && typeof state.email === "string" && state.email) emailEl.value = state.email;
-        if (labelEl && typeof state.label === "string" && state.label) labelEl.value = state.label;
-        if (accountEl && typeof state.accountId === "string" && state.accountId) accountEl.value = state.accountId;
-      }
-
-      function updateMode() {
-        const account = String(accountEl?.value || "").trim();
-        if (submitBtn) {
-          submitBtn.textContent = account ? "Generate Share Link" : "Open Stripe Onboarding";
-        }
-        if (helperEl) {
-          helperEl.textContent = account
-            ? "Your connected account is ready. Generate the share link below."
-            : "Start with your email. Stripe will collect the rest, then we will fill this in for you.";
-        }
-      }
-
-      function buildShareUrl() {
-        const account = String(accountEl?.value || "").trim();
-        if (!account) return "";
-        const label = String(labelEl?.value || "").trim();
-        const url = new URL(window.location.href);
-        url.searchParams.set("account", account);
-        if (label) url.searchParams.set("label", label);
-        return url.toString();
-      }
-
-      function renderPreview(url) {
-        const shareUrl = url || "";
-        if (previewEl) previewEl.textContent = shareUrl || "Generate a link to preview it here.";
-        if (openLinkEl) {
-          openLinkEl.href = shareUrl || "#";
-          openLinkEl.toggleAttribute("aria-disabled", !shareUrl);
-        }
-        if (copyLinkEl) {
-          copyLinkEl.disabled = !shareUrl;
-        }
-      }
-
-      function fillFromQuery() {
-        const params = new URLSearchParams(window.location.search);
-        const account = params.get("accountId") || params.get("account") || "";
-        const email = params.get("email") || "";
-        const label = params.get("label") || "";
-        const onboarding = params.get("onboarding") || "";
-        if (emailEl && email) emailEl.value = email;
-        if (accountEl && account) accountEl.value = account;
-        if (labelEl && label) labelEl.value = label;
-        if (onboarding === "complete") {
-          setStatus("Stripe onboarding complete. We are checking your connected account.", false);
-        }
-      }
-
-      async function copyToClipboard(text) {
-        if (!text) return false;
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
-          return true;
-        }
-        const textarea = document.createElement("textarea");
-        textarea.value = text;
-        textarea.setAttribute("readonly", "true");
-        textarea.style.position = "fixed";
-        textarea.style.opacity = "0";
-        document.body.appendChild(textarea);
-        textarea.select();
-        try {
-          return document.execCommand("copy");
-        } finally {
-          document.body.removeChild(textarea);
-        }
-      }
-
-      async function startOnboarding() {
-        const email = String(emailEl?.value || "").trim();
-        if (!email) {
-          setStatus("Add your email to start onboarding.", true);
+        const email = String(emailEl?.value || "").trim().toLowerCase();
+        const details = String(detailsEl?.value || "").trim();
+        if (!email || !details) {
+          setStatus("Add your email and channel details before sending.", true);
           return;
         }
-        const apiBase = configUrl(config.supportApiBaseUrl) || configUrl(config.serialApiBaseUrl) || "";
-        if (!apiBase) {
-          setStatus("Onboarding service is not configured yet.", true);
+
+        const supportBase = configUrl(config.supportApiBaseUrl) || configUrl(config.serialApiBaseUrl) || "";
+        if (!supportBase) {
+          setStatus("The creator intake service is not configured yet.", true);
           return;
         }
-        const endpoint = `${apiBase.replace(/\/+$/, "")}/stripe/create-creator-onboarding-link`;
-        const payload = {
-          email,
-          name: String(labelEl?.value || "").trim(),
-          returnUrl: `${window.location.origin}${window.location.pathname}?onboarding=complete`,
-          refreshUrl: `${window.location.origin}${window.location.pathname}?onboarding=refresh`,
-        };
 
-        setStatus("Opening Stripe onboarding...", false);
+        const formData = new FormData();
+        formData.append("email", email);
+        formData.append("summary", "Creator intake");
+        formData.append("details", details);
+        formData.append("replyTo", email);
+
+        if (submitBtn) submitBtn.setAttribute("disabled", "disabled");
+        setStatus("Sending request...", false);
+
         try {
-          const response = await fetch(endpoint, {
+          const response = await fetch(`${supportBase.replace(/\/+$/, "")}/submit-feature`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
+            body: formData,
           });
-          const rawText = await response.text();
-          let body = {};
-          try {
-            body = rawText ? JSON.parse(rawText) : {};
-          } catch {
-            body = {};
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok || !body.ok) {
+            throw new Error(body.error || "Submit failed");
           }
-          if (!response.ok || !body.ok || !body.url) {
-            const detail = body.error || rawText || "Onboarding start failed";
-            throw new Error(`${response.status} ${detail}`.trim());
-          }
-          saveCurrentCreatorState({
-            email,
-            label: String(labelEl?.value || "").trim(),
-            accountId: String(body.accountId || "").trim(),
-          });
-          window.location.assign(body.url);
+          setStatus("Sent. We’ll get back to you at your email address.", false);
+          form?.reset();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error || "");
-          if (message.includes("account_creation_requirement_collection_unacknowledged")) {
-            setStatus(
-              "Stripe needs a one-time platform-profile acknowledgement. Open Connect platform profile, save the requirements setting, then try again.",
-              true
-            );
-            return;
-          }
-          setStatus(message ? `Could not start onboarding: ${message}` : "Could not start onboarding.", true);
-        }
-      }
-
-      async function refreshCreatorStatus() {
-        const apiBase = configUrl(config.supportApiBaseUrl) || configUrl(config.serialApiBaseUrl) || "";
-        const account = String(accountEl?.value || "").trim();
-        const email = String(emailEl?.value || "").trim();
-        if (!apiBase || (!account && !email)) return;
-
-        const query = new URLSearchParams();
-        if (account) query.set("accountId", account);
-        if (email) query.set("email", email);
-
-        try {
-          const response = await fetch(`${apiBase.replace(/\/+$/, "")}/stripe/creator-onboarding-status?${query.toString()}`);
-          const body = await response.json();
-          if (response.ok && body && body.ok && body.accountId) {
-            if (accountEl) accountEl.value = String(body.accountId || "").trim();
-            saveCurrentCreatorState({
-              email: String(body.email || email || "").trim(),
-              label: String(labelEl?.value || "").trim(),
-              accountId: String(body.accountId || "").trim(),
-            });
-            updateMode();
-            renderPreview(buildShareUrl());
-            if (body.ready) {
-              setStatus("Your Stripe onboarding is complete. Your share link is ready.", false);
-            }
-          }
-        } catch {
-          // Ignore refresh failures; the page remains usable.
-        }
-      }
-
-      form?.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const account = String(accountEl?.value || "").trim();
-        if (!account) {
-          saveCurrentCreatorState();
-          startOnboarding();
-          return;
-        }
-        const url = buildShareUrl();
-        if (!url) {
-          setStatus("Add a connected account ID to build the link.", true);
-          renderPreview("");
-          return;
-        }
-        saveCurrentCreatorState();
-        renderPreview(url);
-        setStatus("Share link ready.", false);
-      });
-
-      copyLinkEl?.addEventListener("click", async () => {
-        const url = buildShareUrl();
-        if (!url) {
-          setStatus("Add a connected account ID to build the link.", true);
-          return;
-        }
-        try {
-          await copyToClipboard(url);
-          setStatus("Copied the share link.", false);
-        } catch {
-          setStatus("Could not copy automatically. Use the link shown above.", true);
+          setStatus(message ? `Could not send request: ${message}` : "Could not send request right now.", true);
+        } finally {
+          if (submitBtn) submitBtn.removeAttribute("disabled");
         }
       });
-
-      const stored = readStoredCreatorState();
-      applyCreatorState(stored);
-      fillFromQuery();
-      updateMode();
-      renderPreview(buildShareUrl());
-
-      const params = new URLSearchParams(window.location.search);
-      const onboarding = params.get("onboarding") || "";
-      if (onboarding === "complete" || onboarding === "refresh") {
-        setTimeout(() => {
-          refreshCreatorStatus();
-        }, 250);
-      }
-
     </script>
   </body>
 </html>
