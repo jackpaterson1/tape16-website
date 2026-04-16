@@ -278,13 +278,24 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
-          const body = await response.json().catch(() => ({}));
+          const rawText = await response.text();
+          let body = {};
+          try {
+            body = rawText ? JSON.parse(rawText) : {};
+          } catch (error) {
+            body = {};
+          }
           if (!response.ok || !body.ok || !body.url) {
-            throw new Error(body.error || "Checkout start failed");
+            const detail = body.error || rawText || "Checkout start failed";
+            throw new Error(`${response.status} ${detail}`.trim());
           }
           window.location.assign(body.url);
         } catch (error) {
-          setStatus("Could not start checkout. Check the account ID and try again.", true);
+          const message = error instanceof Error ? error.message : String(error || "");
+          setStatus(
+            message ? `Could not start checkout: ${message}` : "Could not start checkout. Check the account ID and try again.",
+            true
+          );
         }
       }
 
