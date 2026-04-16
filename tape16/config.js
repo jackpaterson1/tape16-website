@@ -10,8 +10,8 @@ window.TAPE16_SITE_CONFIG = {
   // Example: "/stripe/create-checkout-session"
   stripeCheckoutPath: "/stripe/create-checkout-session",
   // Optional explicit return URLs. If empty, backend falls back to env/origin defaults.
-  stripeSuccessUrl: "https://emrmusicgroup.com/tape16/buy.html?checkout=success",
-  stripeCancelUrl: "https://emrmusicgroup.com/tape16/buy.html?checkout=cancel",
+  stripeSuccessUrl: "https://emrmusicgroup.com/tape16/success.html",
+  stripeCancelUrl: "https://emrmusicgroup.com/tape16/cancel.html",
   // Point this to your demo build asset.
   demoDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.21/TAPE-16-v0.9.21-macOS.dmg",
   // Point this to your full-license build asset.
