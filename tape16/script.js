@@ -43,6 +43,13 @@ const accountSummary = document.getElementById("account-summary");
 const accountActivations = document.getElementById("account-activations");
 const currentBuildLabel = document.getElementById("current-build-label");
 const currentBuildDateLabel = document.getElementById("current-build-date-label");
+const checkoutResultSection = document.getElementById("checkout-result");
+const checkoutResultEyebrow = document.getElementById("checkout-result-eyebrow");
+const checkoutResultTitle = document.getElementById("checkout-result-title");
+const checkoutResultCopy = document.getElementById("checkout-result-copy");
+const checkoutResultCardTitle = document.getElementById("checkout-result-card-title");
+const checkoutResultCardCopy = document.getElementById("checkout-result-card-copy");
+const checkoutResultPrimaryLink = document.getElementById("checkout-result-primary-link");
 
 const ACCOUNT_SESSION_KEY = "tape16_account_session_v1";
 const BUILD_VERSION_CACHE_KEY = "tape16_latest_build_cache_v1";
@@ -134,6 +141,52 @@ function setBuyStatus(message, isError) {
   if (!buyStatus) return;
   buyStatus.textContent = message;
   buyStatus.style.color = isError ? "#ff9d87" : "#f7c34b";
+}
+
+function renderCheckoutResult() {
+  if (!checkoutResultSection || !checkoutResultTitle || !checkoutResultCopy) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const state = String(params.get("checkout") || "").trim().toLowerCase();
+  if (!state) return;
+
+  checkoutResultSection.hidden = false;
+
+  if (state === "success") {
+    if (checkoutResultEyebrow) checkoutResultEyebrow.textContent = "Payment complete";
+    checkoutResultTitle.textContent = "Thanks for your purchase.";
+    checkoutResultCopy.textContent =
+      "Your Stripe payment went through. Your serial will be emailed automatically.";
+    if (checkoutResultCardTitle) checkoutResultCardTitle.textContent = "Next step";
+    if (checkoutResultCardCopy) {
+      checkoutResultCardCopy.textContent =
+        "Check your inbox for the serial email, then open the downloads page if you need the installer.";
+    }
+    if (checkoutResultPrimaryLink) {
+      checkoutResultPrimaryLink.textContent = "Open Downloads";
+      checkoutResultPrimaryLink.href = "download.html";
+    }
+    return;
+  }
+
+  if (state === "cancel") {
+    if (checkoutResultEyebrow) checkoutResultEyebrow.textContent = "Checkout cancelled";
+    checkoutResultTitle.textContent = "No charge was made.";
+    checkoutResultCopy.textContent =
+      "You backed out of checkout before paying. You can return to the buy page whenever you are ready.";
+    if (checkoutResultCardTitle) checkoutResultCardTitle.textContent = "Try again";
+    if (checkoutResultCardCopy) {
+      checkoutResultCardCopy.textContent =
+        "Use the buy page to restart the secure Stripe checkout.";
+    }
+    if (checkoutResultPrimaryLink) {
+      checkoutResultPrimaryLink.textContent = "Back to Buy Page";
+      checkoutResultPrimaryLink.href = "buy.html";
+    }
+    return;
+  }
+
+  checkoutResultSection.hidden = true;
 }
 
 function formatReleaseTag(tag) {
@@ -248,6 +301,7 @@ async function updateCurrentBuildLabel() {
 }
 
 updateCurrentBuildLabel();
+renderCheckoutResult();
 
 if (buyLink) {
   const fallbackBuyUrl =
