@@ -110,23 +110,31 @@
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         setTimeout(function () {
+          var referralId = window.promotekit_referral;
+          var hasReferralId =
+            typeof referralId === "string" &&
+            referralId.trim() !== "" &&
+            referralId.trim().toLowerCase() !== "null" &&
+            referralId.trim().toLowerCase() !== "undefined";
+
           document.querySelectorAll('a[href^="https://buy.stripe.com/"]').forEach(function (link) {
             var oldBuyUrl = link.getAttribute("href");
-            var referralId = window.promotekit_referral;
-            if (!oldBuyUrl.includes("client_reference_id")) {
+            if (hasReferralId && !oldBuyUrl.includes("client_reference_id")) {
               var separator = oldBuyUrl.includes("?") ? "&" : "?";
-              var newBuyUrl = oldBuyUrl + separator + "client_reference_id=" + referralId;
+              var newBuyUrl = oldBuyUrl + separator + "client_reference_id=" + encodeURIComponent(referralId.trim());
               link.setAttribute("href", newBuyUrl);
             }
           });
 
-          document.querySelectorAll("[pricing-table-id]").forEach(function (element) {
-            element.setAttribute("client-reference-id", window.promotekit_referral);
-          });
+          if (hasReferralId) {
+            document.querySelectorAll("[pricing-table-id]").forEach(function (element) {
+              element.setAttribute("client-reference-id", referralId.trim());
+            });
 
-          document.querySelectorAll("[buy-button-id]").forEach(function (element) {
-            element.setAttribute("client-reference-id", window.promotekit_referral);
-          });
+            document.querySelectorAll("[buy-button-id]").forEach(function (element) {
+              element.setAttribute("client-reference-id", referralId.trim());
+            });
+          }
         }, 1500);
       });
     </script>
