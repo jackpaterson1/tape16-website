@@ -77,6 +77,36 @@ function sanitizePromoteKitReferral(value) {
   return out;
 }
 
+function readCookieValue(cookieName) {
+  if (!cookieName) return "";
+  const prefix = `${cookieName}=`;
+  const cookies = String(document.cookie || "").split(/;\s*/);
+  for (const cookie of cookies) {
+    if (!cookie.startsWith(prefix)) continue;
+    return decodeURIComponent(cookie.slice(prefix.length));
+  }
+  return "";
+}
+
+function readReferralFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const candidates = [
+      params.get("promotekit_referral"),
+      params.get("ref"),
+      params.get("referral"),
+      params.get("client_reference_id"),
+    ];
+    for (const candidate of candidates) {
+      const value = sanitizePromoteKitReferral(candidate);
+      if (value) return value;
+    }
+  } catch (error) {
+    // Ignore malformed URLs.
+  }
+  return "";
+}
+
 function readStoredPromoteKitReferral() {
   try {
     const raw = localStorage.getItem(PROMOTEKIT_REFERRAL_STORAGE_KEY);
@@ -97,11 +127,24 @@ function writeStoredPromoteKitReferral(referralId) {
 }
 
 function resolvePromoteKitReferral() {
+  const urlReferral = readReferralFromUrl();
+  if (urlReferral) {
+    writeStoredPromoteKitReferral(urlReferral);
+    return urlReferral;
+  }
+
   const liveReferral = sanitizePromoteKitReferral(window.promotekit_referral);
   if (liveReferral) {
     writeStoredPromoteKitReferral(liveReferral);
     return liveReferral;
   }
+
+  const cookieReferral = sanitizePromoteKitReferral(readCookieValue("promotekit_referral"));
+  if (cookieReferral) {
+    writeStoredPromoteKitReferral(cookieReferral);
+    return cookieReferral;
+  }
+
   return readStoredPromoteKitReferral();
 }
 
@@ -150,6 +193,13 @@ function startPromoteKitTracking() {
         window.clearInterval(pollInterval);
       }
     }, 400);
+
+    window.addEventListener("focus", refreshPromoteKitRefs, { passive: true });
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        refreshPromoteKitRefs();
+      }
+    });
   };
 
   if (document.readyState === "loading") {
