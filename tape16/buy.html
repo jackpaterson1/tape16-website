@@ -106,6 +106,31 @@
       <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
     </footer>
 
+    <script async src="https://cdn.promotekit.com/pk.js" data-promotekit="a9cad7b0-60ef-486a-b876-e9ddbcb4631e"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(function () {
+          document.querySelectorAll('a[href^="https://buy.stripe.com/"]').forEach(function (link) {
+            var oldBuyUrl = link.getAttribute("href");
+            var referralId = window.promotekit_referral;
+            if (!oldBuyUrl.includes("client_reference_id")) {
+              var separator = oldBuyUrl.includes("?") ? "&" : "?";
+              var newBuyUrl = oldBuyUrl + separator + "client_reference_id=" + referralId;
+              link.setAttribute("href", newBuyUrl);
+            }
+          });
+
+          document.querySelectorAll("[pricing-table-id]").forEach(function (element) {
+            element.setAttribute("client-reference-id", window.promotekit_referral);
+          });
+
+          document.querySelectorAll("[buy-button-id]").forEach(function (element) {
+            element.setAttribute("client-reference-id", window.promotekit_referral);
+          });
+        }, 1500);
+      });
+    </script>
+
     <script src="config.js?v=0.9.21"></script>
     <script src="script.js?v=0.9.21"></script>
   </body>
