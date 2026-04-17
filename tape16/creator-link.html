@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TAPE 16 | Creator Request</title>
-    <meta name="description" content="Send your email and socials to request a TAPE 16 creator link." />
+    <title>TAPE 16 | Affiliate Portal</title>
+    <meta name="description" content="Open the TAPE 16 affiliate portal for tracking and referral links." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -47,45 +47,29 @@
 
       <section class="pricing">
         <div class="pricing-head">
-          <p class="eyebrow">Creator link request</p>
-          <h1>Creator request.</h1>
+          <p class="eyebrow">Affiliate Portal</p>
+          <h1>Open the Promotekit affiliate portal.</h1>
           <p>
-            Tell us the email associated with your Stripe Account, plus what YouTube channel you’re running and/or any
-            other socials. We&#39;ll be sure to get back to you ASAP. Affiliate commission is fixed at 10%.
+            Use this portal for referral links and affiliate tracking. If you are a creator promoting TAPE 16, this
+            is where your affiliate setup lives.
           </p>
         </div>
 
-        <article class="price-card">
-          <h3>Send Creator Link Request</h3>
-          <form id="creator-intake-form" class="bug-form">
-            <label class="bug-full">
-              Email
-              <input
-                id="creator-intake-email"
-                name="email"
-                type="email"
-                required
-                placeholder="creator@example.com"
-                autocomplete="email"
-              />
-            </label>
-            <label class="bug-full">
-              What channel are you running / other socials?
-              <textarea
-                id="creator-intake-details"
-                name="details"
-                rows="6"
-                required
-                placeholder="YouTube channel, Instagram, TikTok, website, anything else you want us to know."
-              ></textarea>
-            </label>
-            <button class="btn btn-primary bug-submit" id="creator-intake-submit" type="submit">Send</button>
-          </form>
-          <p id="creator-intake-status" class="serial-status" role="status" aria-live="polite"></p>
-          <p class="price-note">
-            This goes straight to <strong>emrmusicgroup@gmail.com</strong> as a creator link request. Commission is 10%.
-          </p>
-        </article>
+        <div class="pricing-grid">
+          <article class="price-card">
+            <h3>Affiliate Portal</h3>
+            <p>Open the portal to manage your referral link and track your activity.</p>
+            <p class="price-note">Affiliate commission is fixed at 10%.</p>
+            <a class="btn btn-primary" href="https://emrmusicgroup.promotekit.com/" target="_blank" rel="noopener noreferrer">
+              Open Affiliate Portal
+            </a>
+          </article>
+          <article class="price-card">
+            <h3>Need help?</h3>
+            <p>If you have a setup question, email us and we’ll point you in the right direction.</p>
+            <a class="btn btn-ghost" href="mailto:emrmusicgroup@gmail.com?subject=TAPE%2016%20Affiliate%20Help&body=Hi%20EMR%20Music%20Group,%0A%0AName:%0AEmail:%0A%0AThanks!">Email Support</a>
+          </article>
+        </div>
       </section>
     </main>
 
@@ -93,72 +77,5 @@
       <p>JB Paterson | EMR Music Group</p>
       <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
     </footer>
-
-    <script src="config.js?v=0.9.21"></script>
-    <script>
-      const config = window.TAPE16_SITE_CONFIG || {};
-      const form = document.getElementById("creator-intake-form");
-      const emailEl = document.getElementById("creator-intake-email");
-      const detailsEl = document.getElementById("creator-intake-details");
-      const statusEl = document.getElementById("creator-intake-status");
-      const submitBtn = document.getElementById("creator-intake-submit");
-
-      function configUrl(value) {
-        if (typeof value !== "string") return "";
-        const out = value.trim();
-        if (!out || out.includes("REPLACE_WITH_")) return "";
-        return out;
-      }
-
-      function setStatus(message, isError) {
-        if (!statusEl) return;
-        statusEl.textContent = message;
-        statusEl.style.color = isError ? "#ff9d87" : "#f7c34b";
-      }
-
-      form?.addEventListener("submit", async (event) => {
-        event.preventDefault();
-
-        const email = String(emailEl?.value || "").trim().toLowerCase();
-        const details = String(detailsEl?.value || "").trim();
-        if (!email || !details) {
-          setStatus("Add your email and channel details before sending.", true);
-          return;
-        }
-
-        const supportBase = configUrl(config.supportApiBaseUrl) || configUrl(config.serialApiBaseUrl) || "";
-        if (!supportBase) {
-          setStatus("The creator intake service is not configured yet.", true);
-          return;
-        }
-
-        const formData = new FormData();
-        formData.append("email", email);
-        formData.append("summary", "Creator request");
-        formData.append("details", details);
-        formData.append("replyTo", email);
-
-        if (submitBtn) submitBtn.setAttribute("disabled", "disabled");
-        setStatus("Sending request...", false);
-
-        try {
-          const response = await fetch(`${supportBase.replace(/\/+$/, "")}/submit-creator`, {
-            method: "POST",
-            body: formData,
-          });
-          const body = await response.json().catch(() => ({}));
-          if (!response.ok || !body.ok) {
-            throw new Error(body.error || "Submit failed");
-          }
-          setStatus("Sent. We’ll get back to you at your email address.", false);
-          form?.reset();
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error || "");
-          setStatus(message ? `Could not send request: ${message}` : "Could not send request right now.", true);
-        } finally {
-          if (submitBtn) submitBtn.removeAttribute("disabled");
-        }
-      });
-    </script>
   </body>
 </html>
