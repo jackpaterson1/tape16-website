@@ -269,6 +269,13 @@ function writeCachedBuildLabel(label, date) {
 async function updateCurrentBuildLabel() {
   if (!currentBuildLabel) return;
 
+  const configuredLabel = configUrl(config.currentBuildLabel);
+  if (configuredLabel) {
+    renderBuildLabel(configuredLabel);
+    renderBuildDate("");
+    return;
+  }
+
   const cached = readCachedBuildLabel();
   if (cached.label) {
     renderBuildLabel(cached.label);
