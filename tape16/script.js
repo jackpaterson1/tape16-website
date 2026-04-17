@@ -55,6 +55,7 @@ const ACCOUNT_SESSION_KEY = "tape16_account_session_v1";
 const BUILD_VERSION_CACHE_KEY = "tape16_latest_build_cache_v1";
 const BUILD_VERSION_CACHE_TTL_MS = 10 * 60 * 1000;
 const REDDIT_MATCH_STORAGE_KEY = "tape16_reddit_match_v1";
+const PROMOTEKIT_REFERRAL_STORAGE_KEY = "tape16_promotekit_referral_v1";
 
 function configUrl(value) {
   if (typeof value !== "string") return "";
@@ -66,6 +67,96 @@ function configUrl(value) {
 function sanitizeMatchValue(value) {
   const out = String(value || "").trim();
   return out || "";
+}
+
+function sanitizePromoteKitReferral(value) {
+  const out = String(value || "").trim();
+  if (!out) return "";
+  const lower = out.toLowerCase();
+  if (lower === "null" || lower === "undefined") return "";
+  return out;
+}
+
+function readStoredPromoteKitReferral() {
+  try {
+    const raw = localStorage.getItem(PROMOTEKIT_REFERRAL_STORAGE_KEY);
+    return sanitizePromoteKitReferral(raw);
+  } catch (error) {
+    return "";
+  }
+}
+
+function writeStoredPromoteKitReferral(referralId) {
+  const value = sanitizePromoteKitReferral(referralId);
+  if (!value) return;
+  try {
+    localStorage.setItem(PROMOTEKIT_REFERRAL_STORAGE_KEY, value);
+  } catch (error) {
+    // Ignore storage errors.
+  }
+}
+
+function resolvePromoteKitReferral() {
+  const liveReferral = sanitizePromoteKitReferral(window.promotekit_referral);
+  if (liveReferral) {
+    writeStoredPromoteKitReferral(liveReferral);
+    return liveReferral;
+  }
+  return readStoredPromoteKitReferral();
+}
+
+function attachPromoteKitReferral(linkEl) {
+  if (!linkEl) return;
+
+  const referralId = resolvePromoteKitReferral();
+  if (!referralId) return;
+
+  const oldBuyUrl = linkEl.getAttribute("href") || "";
+  if (!oldBuyUrl.startsWith("https://buy.stripe.com/") || oldBuyUrl.includes("client_reference_id=")) {
+    return;
+  }
+
+  const separator = oldBuyUrl.includes("?") ? "&" : "?";
+  const newBuyUrl = oldBuyUrl + separator + "client_reference_id=" + encodeURIComponent(referralId);
+  linkEl.setAttribute("href", newBuyUrl);
+}
+
+function refreshPromoteKitRefs() {
+  document.querySelectorAll('a[href^="https://buy.stripe.com/"]').forEach((link) => {
+    attachPromoteKitReferral(link);
+  });
+
+  const referralId = resolvePromoteKitReferral();
+  if (!referralId) return;
+
+  document.querySelectorAll("[pricing-table-id]").forEach((element) => {
+    element.setAttribute("client-reference-id", referralId);
+  });
+
+  document.querySelectorAll("[buy-button-id]").forEach((element) => {
+    element.setAttribute("client-reference-id", referralId);
+  });
+}
+
+function startPromoteKitTracking() {
+  const run = () => {
+    refreshPromoteKitRefs();
+
+    let pollCount = 0;
+    const pollInterval = window.setInterval(() => {
+      refreshPromoteKitRefs();
+      pollCount += 1;
+      if (pollCount >= 10 || readStoredPromoteKitReferral()) {
+        window.clearInterval(pollInterval);
+      }
+    }, 400);
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
 }
 
 function saveRedditMatch(payload) {
@@ -418,6 +509,8 @@ bindDownloadClickTracking(downloadCtaLink, "Download Full Installer");
 bindDownloadClickTracking(fullDownloadLink, "Download Full");
 bindDownloadClickTracking(downloadPageDemoLink, "Download Windows");
 bindDownloadClickTracking(demoLink, "Download Demo");
+
+startPromoteKitTracking();
 bindDownloadClickTracking(directDownloadMacLink, "Direct Download Mac");
 bindDownloadClickTracking(directDownloadWindowsLink, "Direct Download Windows");
 bindDownloadClickTracking(directDownloadReleaseLink, "Direct on GitHub");

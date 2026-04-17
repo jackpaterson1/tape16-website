@@ -301,37 +301,6 @@
     </footer>
 
     <script async src="https://cdn.promotekit.com/pk.js" data-promotekit="a9cad7b0-60ef-486a-b876-e9ddbcb4631e"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        setTimeout(function () {
-          var referralId = window.promotekit_referral;
-          var hasReferralId =
-            typeof referralId === "string" &&
-            referralId.trim() !== "" &&
-            referralId.trim().toLowerCase() !== "null" &&
-            referralId.trim().toLowerCase() !== "undefined";
-
-          document.querySelectorAll('a[href^="https://buy.stripe.com/"]').forEach(function (link) {
-            var oldBuyUrl = link.getAttribute("href");
-            if (hasReferralId && !oldBuyUrl.includes("client_reference_id")) {
-              var separator = oldBuyUrl.includes("?") ? "&" : "?";
-              var newBuyUrl = oldBuyUrl + separator + "client_reference_id=" + encodeURIComponent(referralId.trim());
-              link.setAttribute("href", newBuyUrl);
-            }
-          });
-
-          if (hasReferralId) {
-            document.querySelectorAll("[pricing-table-id]").forEach(function (element) {
-              element.setAttribute("client-reference-id", referralId.trim());
-            });
-
-            document.querySelectorAll("[buy-button-id]").forEach(function (element) {
-              element.setAttribute("client-reference-id", referralId.trim());
-            });
-          }
-        }, 1500);
-      });
-    </script>
 
     <script src="config.js?v=0.9.211"></script>
     <script src="script.js?v=0.9.211"></script>
