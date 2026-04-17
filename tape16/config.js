@@ -1,4 +1,6 @@
 window.TAPE16_SITE_CONFIG = {
+  // Temporary one-off filename override for the 0.9.210 release cycle.
+  // Revert back to the normal release naming on the next update (0.9.211).
   releaseDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.210/TAPE-16-v0.9.21-macOS.dmg",
   windowsDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.210/TAPE16-Windows-Release-0.9.21.zip",
   githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.210",
