@@ -120,7 +120,7 @@ main {
   display: grid;
   grid-template-columns: 1.02fr 0.98fr;
   gap: 1rem;
-  align-items: start;
+  align-items: stretch;
   border: 1px solid rgba(240, 207, 160, 0.34);
   border-radius: 0;
   background:
@@ -134,14 +134,16 @@ main {
 .hero-content {
   min-width: 0;
   padding-top: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .hero-image-wrap {
   margin: 0;
   border: 1px solid var(--stroke);
   border-radius: 0;
-  align-self: start;
-  height: clamp(300px, 35vw, 350px);
+  align-self: stretch;
+  height: clamp(520px, calc(100svh - 12rem), 780px);
   overflow: hidden;
   background: rgba(28, 19, 14, 0.34);
 }
@@ -715,6 +717,7 @@ footer {
 @media (max-width: 980px) {
   .hero {
     grid-template-columns: 1fr;
+    align-items: start;
   }
 
   .feature-grid {
@@ -788,6 +791,10 @@ footer {
     padding: 1.25rem;
     border-radius: 0;
     gap: 1rem;
+  }
+
+  .hero-image-wrap {
+    height: clamp(300px, 35vw, 350px);
   }
 
   .brand-banner img {
