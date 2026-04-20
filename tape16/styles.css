@@ -118,7 +118,7 @@ main {
 .hero {
   padding: 1.4rem;
   display: grid;
-  grid-template-columns: 1.02fr 0.98fr;
+  grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
   gap: 1rem;
   align-items: start;
   border: 1px solid rgba(240, 207, 160, 0.34);
@@ -144,7 +144,7 @@ main {
   border-radius: 0;
   align-self: start;
   width: 100%;
-  aspect-ratio: 1280 / 800;
+  aspect-ratio: 1280 / 768;
   overflow: hidden;
   background: rgba(28, 19, 14, 0.34);
 }
@@ -833,7 +833,7 @@ footer {
   }
 
   .hero-image-wrap {
-    aspect-ratio: 1280 / 800;
+    aspect-ratio: 1280 / 768;
   }
 
   .intro-loop {
