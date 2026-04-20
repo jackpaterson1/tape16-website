@@ -1,13 +1,11 @@
 window.TAPE16_SITE_CONFIG = {
-  // Temporary one-off filename override for the 0.9.210 release cycle.
-  // Revert back to the normal release naming on the next update (0.9.211).
-  releaseDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.210/TAPE-16-v0.9.21-macOS.dmg",
-  windowsDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.210/TAPE16-Windows-Release-0.9.21.zip",
-  githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.210",
+  releaseDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.211/TAPE-16-v0.9.211-macOS.dmg",
+  windowsDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.211/TAPE16-Windows-Release-0.9.211.zip",
+  githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.211",
   // Replace this with your live checkout URL (Stripe / Gumroad / Paddle / etc).
   buyNowUrl: "https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02",
   // Optional displayed build label override for the homepage.
-  currentBuildLabel: "v0.9.21",
+  currentBuildLabel: "v0.9.211",
   // Stripe direct checkout-session flow (recommended only when you host that endpoint).
   stripeCheckoutEnabled: false,
   // Optional custom endpoint path if different from default.
@@ -17,10 +15,10 @@ window.TAPE16_SITE_CONFIG = {
   stripeSuccessUrl: "https://emrmusicgroup.com/tape16/success.html",
   stripeCancelUrl: "https://emrmusicgroup.com/tape16/cancel.html",
   // Point this to your demo build asset.
-  demoDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.210/TAPE-16-v0.9.21-macOS.dmg",
+  demoDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.211/TAPE-16-v0.9.211-macOS.dmg",
   // Point this to your full-license build asset.
   fullDownloadUrl:
-    "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.210/TAPE-16-v0.9.21-macOS.dmg",
+    "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.211/TAPE-16-v0.9.211-macOS.dmg",
   // Base URL where licensing/auto_issue_webhook.py is hosted.
   // Example: "https://licenses.tape16.com"
   serialApiBaseUrl: "",
