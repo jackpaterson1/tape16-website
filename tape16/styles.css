@@ -158,7 +158,8 @@ main {
 
 .intro-loop {
   margin: 1.2rem auto 0;
-  max-width: 864px;
+  width: min(620px, 70vw);
+  max-width: 620px;
   border: 1px solid var(--stroke);
   background: rgba(45, 30, 22, 0.46);
   box-shadow: var(--shadow);
@@ -168,9 +169,9 @@ main {
 .intro-loop video {
   display: block;
   width: 100%;
-  aspect-ratio: 1280 / 832;
+  aspect-ratio: 1280 / 760;
   object-fit: cover;
-  object-position: center center;
+  object-position: center 68%;
 }
 
 .eyebrow {
@@ -845,6 +846,7 @@ footer {
   }
 
   .intro-loop {
+    width: min(94vw, 620px);
     margin-top: 1rem;
   }
 
