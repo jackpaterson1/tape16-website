@@ -142,9 +142,9 @@ main {
   margin: 0;
   border: 1px solid var(--stroke);
   border-radius: 0;
-  align-self: start;
+  align-self: center;
   width: 100%;
-  aspect-ratio: 1280 / 768;
+  aspect-ratio: 1280 / 800;
   overflow: hidden;
   background: rgba(28, 19, 14, 0.34);
 }
@@ -162,7 +162,7 @@ main {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center bottom;
+  object-position: center 54%;
 }
 
 .eyebrow {
