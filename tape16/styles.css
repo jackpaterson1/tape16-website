@@ -156,6 +156,23 @@ main {
   object-position: center 46%;
 }
 
+.intro-loop {
+  margin: 1.2rem auto 0;
+  max-width: 864px;
+  border: 1px solid var(--stroke);
+  background: rgba(45, 30, 22, 0.46);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.intro-loop video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1280 / 832;
+  object-fit: cover;
+  object-position: center center;
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -825,6 +842,10 @@ footer {
 
   .hero-image-wrap {
     height: clamp(300px, 35vw, 350px);
+  }
+
+  .intro-loop {
+    margin-top: 1rem;
   }
 
   .brand-banner img {
