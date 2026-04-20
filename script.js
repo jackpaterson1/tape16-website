@@ -194,7 +194,9 @@ async function updateCurrentBuildLabel() {
     renderBuildLabel(label);
     writeCachedBuildLabel(label);
   } catch (error) {
-    renderBuildLabel("Latest on GitHub");
+    if (!currentBuildLabel.textContent.trim()) {
+      renderBuildLabel("Latest on GitHub");
+    }
   }
 }
 

@@ -435,10 +435,10 @@ async function updateCurrentBuildLabel() {
     renderBuildDate(date);
     writeCachedBuildLabel(label, date);
   } catch (error) {
-    if (!cached.label) {
+    if (!cached.label && !currentBuildLabel.textContent.trim()) {
       renderBuildLabel("Latest on GitHub");
     }
-    if (!cached.date) {
+    if (!cached.date && !currentBuildDateLabel.textContent.trim()) {
       renderBuildDate("");
     }
   }
