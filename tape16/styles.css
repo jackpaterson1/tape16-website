@@ -156,22 +156,16 @@ main {
   object-position: center 46%;
 }
 
-.intro-loop {
-  margin: 1.2rem auto 0;
-  width: min(620px, 70vw);
-  max-width: 620px;
-  border: 1px solid var(--stroke);
-  background: rgba(45, 30, 22, 0.46);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-
-.intro-loop video {
+.hero-video {
   display: block;
   width: 100%;
-  aspect-ratio: 1280 / 760;
+  height: 100%;
   object-fit: cover;
-  object-position: center 68%;
+  object-position: center 46%;
+}
+
+.hero-image-wrap .hero-video {
+  aspect-ratio: auto;
 }
 
 .eyebrow {
