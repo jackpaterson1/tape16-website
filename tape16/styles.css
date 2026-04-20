@@ -1,12 +1,13 @@
 :root {
-  --bg: #090909;
-  --bg-alt: #141414;
-  --text: #f6f1e6;
-  --muted: #bbb3a5;
-  --accent: #ff4c1f;
-  --accent-alt: #f7c34b;
-  --stroke: rgba(255, 255, 255, 0.16);
-  --shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+  --bg: #1f140e;
+  --bg-alt: #312217;
+  --text: #f8ecd7;
+  --muted: #dbc29a;
+  --accent: #d06a28;
+  --accent-alt: #f0cf79;
+  --accent-deep: #76914f;
+  --stroke: rgba(240, 207, 160, 0.24);
+  --shadow: 0 22px 50px rgba(19, 11, 7, 0.46);
 }
 
 * {
@@ -17,7 +18,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
   color: var(--text);
   background: var(--bg);
 }
@@ -26,20 +27,36 @@ body {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(circle at 15% 20%, rgba(247, 195, 75, 0.16), transparent 40%),
-    radial-gradient(circle at 80% 10%, rgba(255, 76, 31, 0.17), transparent 40%),
-    linear-gradient(160deg, #0a0a0a 0%, #111 55%, #070707 100%);
+    radial-gradient(circle at 15% 20%, rgba(240, 207, 121, 0.2), transparent 30%),
+    radial-gradient(circle at 80% 14%, rgba(208, 106, 40, 0.24), transparent 34%),
+    linear-gradient(160deg, #2d1d14 0%, #1f140e 48%, #130c08 100%);
   z-index: -2;
+}
+
+.page-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255, 239, 198, 0.07) 0.7px, transparent 0.7px),
+    radial-gradient(circle, rgba(255, 248, 236, 0.03) 1px, transparent 1px),
+    linear-gradient(115deg, transparent 46%, rgba(255, 214, 145, 0.05) 48%, transparent 50%);
+  background-size: 9px 9px, 17px 17px, 160px 160px;
+  opacity: 0.22;
+  mix-blend-mode: soft-light;
 }
 
 .page-bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 34px 34px;
-  mask-image: radial-gradient(circle at center, black 35%, transparent 100%);
+  background-image:
+    linear-gradient(rgba(255, 225, 183, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 225, 183, 0.022) 1px, transparent 1px),
+    linear-gradient(45deg, transparent 49%, rgba(118, 145, 79, 0.03) 50%, transparent 51%);
+  background-size: 44px 44px, 44px 44px, 12px 12px;
+  mask-image: radial-gradient(circle at center, black 34%, transparent 100%);
+  opacity: 0.42;
 }
 
 .site-header {
@@ -51,7 +68,7 @@ body {
   position: sticky;
   top: 0;
   backdrop-filter: blur(10px);
-  background: rgba(8, 8, 8, 0.78);
+  background: rgba(34, 22, 15, 0.84);
   border-bottom: 1px solid var(--stroke);
   z-index: 10;
 }
@@ -62,8 +79,11 @@ body {
   gap: 0.7rem;
   color: var(--text);
   text-decoration: none;
-  font-family: "Archivo Black", sans-serif;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .brand img {
@@ -82,6 +102,11 @@ body {
   color: var(--muted);
   text-decoration: none;
   font-weight: 500;
+  transition: color 180ms ease;
+}
+
+.site-header nav a:hover {
+  color: var(--accent-alt);
 }
 
 main {
@@ -91,61 +116,73 @@ main {
 }
 
 .hero {
-  padding: 3rem;
+  padding: 2rem;
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1.02fr 0.98fr;
   gap: 1.4rem;
-  align-items: center;
-  border: 1px solid var(--stroke);
-  border-radius: 24px;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+  align-items: start;
+  border: 1px solid rgba(240, 207, 160, 0.34);
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 248, 236, 0.08), rgba(255, 255, 255, 0.02)),
+    linear-gradient(135deg, rgba(118, 145, 79, 0.09), transparent 42%),
+    linear-gradient(90deg, rgba(255, 219, 146, 0.04), transparent 30%, rgba(208, 106, 40, 0.04) 70%, transparent);
   box-shadow: var(--shadow);
   animation: rise 700ms ease-out;
 }
 
 .hero-content {
   min-width: 0;
+  padding-top: 0.2rem;
 }
 
 .hero-image-wrap {
   margin: 0;
   border: 1px solid var(--stroke);
-  border-radius: 16px;
+  border-radius: 0;
+  align-self: start;
+  height: clamp(360px, 42vw, 500px);
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.42);
+  background: rgba(28, 19, 14, 0.34);
 }
 
 .hero-image {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 38%;
 }
 
 .eyebrow {
   text-transform: uppercase;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.2em;
   color: var(--accent-alt);
   font-size: 0.78rem;
+  font-family: "IBM Plex Mono", "Courier New", monospace;
   margin: 0 0 1rem;
 }
 
 h1,
 h2 {
   margin: 0;
-  font-family: "Archivo Black", sans-serif;
+  font-family: "Fraunces", Georgia, serif;
   line-height: 1.04;
+  font-weight: 700;
 }
 
 h1 {
-  font-size: clamp(2rem, 6vw, 4.4rem);
+  font-size: clamp(2.1rem, 5.5vw, 4.3rem);
   text-wrap: balance;
+  letter-spacing: -0.045em;
 }
 
 .hero-copy {
   color: var(--muted);
-  max-width: 64ch;
+  max-width: 56ch;
   margin-top: 1rem;
   font-size: 1.08rem;
+  line-height: 1.7;
 }
 
 .hero-actions {
@@ -157,10 +194,11 @@ h1 {
 
 .btn {
   display: inline-block;
-  border-radius: 999px;
-  padding: 0.8rem 1.2rem;
+  border-radius: 4px;
+  padding: 0.8rem 1.15rem;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
@@ -174,15 +212,16 @@ h1 {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), #ff7f24);
-  color: #1a0b00;
-  box-shadow: 0 12px 30px rgba(255, 85, 30, 0.35);
+  background: linear-gradient(180deg, #e29a57, #bf6228);
+  color: #1f1209;
+  box-shadow: 0 12px 28px rgba(185, 92, 39, 0.3);
+  border: 1px solid rgba(255, 225, 181, 0.28);
 }
 
 .btn-ghost {
   color: var(--text);
   border: 1px solid var(--stroke);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 248, 236, 0.05);
 }
 
 .btn-with-logo {
@@ -203,21 +242,22 @@ h1 {
 }
 
 .btn-download {
-  background: linear-gradient(135deg, var(--accent), #e66a1f);
+  background: linear-gradient(180deg, #db8140, #b95d2c);
   color: #ffffff !important;
   border: 1px solid transparent;
-  box-shadow: 0 12px 30px rgba(226, 90, 25, 0.3);
+  box-shadow: 0 12px 30px rgba(185, 92, 39, 0.3);
 }
 
 .status-bar {
   margin-top: 2rem;
   border: 1px solid var(--stroke);
-  border-radius: 14px;
+  border-radius: 0;
   padding: 0.85rem 1rem;
   display: flex;
   gap: 0.8rem;
   flex-wrap: wrap;
   color: var(--muted);
+  background: rgba(255, 248, 236, 0.05);
 }
 
 .status-bar strong {
@@ -255,14 +295,17 @@ h1 {
 .download,
 .requirements,
 .bug-report {
-  border: 1px solid var(--stroke);
-  border-radius: 18px;
+  border: 1px solid rgba(240, 207, 160, 0.2);
+  border-radius: 0;
   padding: 1.2rem;
-  background: linear-gradient(170deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  background:
+    linear-gradient(180deg, rgba(255, 248, 236, 0.06), rgba(255, 255, 255, 0.018)),
+    linear-gradient(135deg, rgba(118, 145, 79, 0.06), transparent 44%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .feature-grid h2 {
-  font-size: 1.2rem;
+  font-size: 1.45rem;
 }
 
 .feature-grid p,
@@ -271,10 +314,13 @@ h1 {
 .requirements p,
 .bug-report p {
   color: var(--muted);
+  line-height: 1.7;
 }
 
 .workflow {
   margin-top: 1rem;
+  max-width: 864px;
+  margin-inline: auto;
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 1rem;
@@ -286,9 +332,11 @@ h1 {
 
 .workflow-panel {
   border: 1px solid var(--stroke);
-  border-radius: 16px;
+  border-radius: 0;
   padding: 1rem 1.1rem;
-  background: linear-gradient(170deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  background:
+    linear-gradient(180deg, rgba(255, 248, 236, 0.06), rgba(255, 255, 255, 0.02)),
+    linear-gradient(135deg, rgba(118, 145, 79, 0.05), transparent 46%);
 }
 
 .workflow-panel h2 {
@@ -298,7 +346,7 @@ h1 {
 .remote-art {
   margin: 0.9rem 0 0;
   border: 1px solid var(--stroke);
-  border-radius: 14px;
+  border-radius: 0;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.3);
 }
@@ -314,6 +362,7 @@ h1 {
   padding-left: 1.1rem;
   color: var(--text);
   align-self: center;
+  line-height: 1.7;
 }
 
 .workflow li {
@@ -354,14 +403,14 @@ h1 {
 
 .requirements-col {
   border: 1px solid var(--stroke);
-  border-radius: 14px;
+  border-radius: 0;
   padding: 1rem;
-  background: rgba(7, 7, 7, 0.55);
+  background: rgba(45, 30, 22, 0.56);
 }
 
 .requirements-col h3 {
   margin: 0 0 0.6rem;
-  font-family: "Archivo Black", sans-serif;
+  font-family: "Fraunces", Georgia, serif;
   font-size: 1.1rem;
 }
 
@@ -376,14 +425,24 @@ h1 {
 
 .pricing {
   margin-top: 1rem;
+  max-width: 864px;
+  margin-inline: auto;
   border: 1px solid var(--stroke);
-  border-radius: 18px;
+  border-radius: 0;
   padding: 1.2rem;
-  background: linear-gradient(170deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  background:
+    linear-gradient(180deg, rgba(255, 248, 236, 0.05), rgba(255, 255, 255, 0.016)),
+    linear-gradient(135deg, rgba(118, 145, 79, 0.05), transparent 38%);
 }
 
 .pricing-head p {
   color: var(--muted);
+}
+
+.pricing-head {
+  max-width: 62ch;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .pricing-grid {
@@ -394,11 +453,30 @@ h1 {
   align-items: stretch;
 }
 
+.pricing-grid--single {
+  grid-template-columns: 1fr;
+  max-width: 576px;
+  margin: 1rem auto 0;
+}
+
+.pricing-grid--single .price-card--license {
+  justify-self: stretch;
+}
+
+.pricing-grid--single .price-card {
+  align-items: center;
+  text-align: center;
+}
+
+.pricing-grid--single .price-card .btn {
+  margin-inline: auto;
+}
+
 .price-card {
   border: 1px solid var(--stroke);
-  border-radius: 14px;
+  border-radius: 0;
   padding: 1rem;
-  background: rgba(7, 7, 7, 0.55);
+  background: rgba(45, 30, 22, 0.58);
   display: flex;
   flex-direction: column;
 }
@@ -412,13 +490,10 @@ h1 {
   justify-self: start;
 }
 
-.price-card--demo {
-  justify-self: end;
-}
-
 .price-card h3 {
   margin: 0;
-  font-family: "Archivo Black", sans-serif;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.25rem;
 }
 
 .price-card p {
@@ -432,7 +507,7 @@ h1 {
 .price {
   margin: 0.6rem 0;
   color: var(--text) !important;
-  font-family: "Archivo Black", sans-serif;
+  font-family: "Fraunces", Georgia, serif;
   font-size: 2rem;
 }
 
@@ -456,12 +531,11 @@ h1 {
 
 .release-item {
   border: 1px solid var(--stroke);
-  border-radius: 14px;
-  background: rgba(7, 7, 7, 0.55);
+  border-radius: 0;
+  background: rgba(45, 30, 22, 0.58);
   padding: 1rem;
   height: auto;
   min-height: 0;
-  overflow: visible;
 }
 
 .release-head {
@@ -474,7 +548,7 @@ h1 {
 
 .release-head h3 {
   margin: 0;
-  font-family: "Archivo Black", sans-serif;
+  font-family: "Fraunces", Georgia, serif;
   font-size: 1.2rem;
 }
 
@@ -508,9 +582,11 @@ h1 {
 .serial-help {
   margin-top: 1rem;
   border: 1px solid var(--stroke);
-  border-radius: 18px;
+  border-radius: 0;
   padding: 1.2rem;
-  background: linear-gradient(170deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  background:
+    linear-gradient(180deg, rgba(255, 248, 236, 0.05), rgba(255, 255, 255, 0.015)),
+    linear-gradient(135deg, rgba(118, 145, 79, 0.05), transparent 42%);
 }
 
 .serial-help p {
@@ -533,8 +609,8 @@ h1 {
 .serial-form input {
   width: 100%;
   border: 1px solid var(--stroke);
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0;
+  background: rgba(45, 30, 22, 0.58);
   color: var(--text);
   padding: 0.65rem 0.75rem;
   font: inherit;
@@ -570,8 +646,8 @@ h1 {
 .bug-form textarea {
   width: 100%;
   border: 1px solid var(--stroke);
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0;
+  background: rgba(45, 30, 22, 0.58);
   color: var(--text);
   padding: 0.65rem 0.75rem;
   font: inherit;
@@ -597,9 +673,9 @@ h1 {
 pre {
   margin: 1rem 0 0;
   padding: 1rem;
-  border-radius: 12px;
+  border-radius: 0;
   border: 1px solid var(--stroke);
-  background: var(--bg-alt);
+  background: rgba(45, 30, 22, 0.78);
   overflow-x: auto;
 }
 
@@ -652,8 +728,7 @@ footer {
     grid-template-columns: 1fr;
   }
 
-  .price-card--license,
-  .price-card--demo {
+  .price-card--license {
     justify-self: stretch;
   }
 
@@ -702,7 +777,7 @@ footer {
 
   .hero {
     padding: 1.25rem;
-    border-radius: 16px;
+    border-radius: 0;
     gap: 1rem;
   }
 
@@ -718,9 +793,11 @@ footer {
 .account {
   margin-top: 1rem;
   border: 1px solid var(--stroke);
-  border-radius: 18px;
+  border-radius: 0;
   padding: 1.2rem;
-  background: linear-gradient(170deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  background:
+    linear-gradient(180deg, rgba(255, 248, 236, 0.05), rgba(255, 255, 255, 0.015)),
+    linear-gradient(135deg, rgba(118, 145, 79, 0.05), transparent 42%);
 }
 
 .account p {
@@ -742,9 +819,9 @@ footer {
 .account-panel {
   margin-top: 0.8rem;
   border: 1px solid var(--stroke);
-  border-radius: 14px;
+  border-radius: 0;
   padding: 1rem;
-  background: rgba(0, 0, 0, 0.22);
+  background: rgba(45, 30, 22, 0.52);
 }
 
 .account-summary {
@@ -765,7 +842,7 @@ footer {
 
 .activation-item {
   border: 1px solid var(--stroke);
-  border-radius: 12px;
+  border-radius: 0;
   padding: 0.75rem;
   background: rgba(255, 255, 255, 0.02);
   display: flex;
