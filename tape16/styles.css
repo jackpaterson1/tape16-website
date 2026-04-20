@@ -294,17 +294,8 @@ h1 {
 }
 
 .buy-page main {
-  width: min(920px, 92vw);
-}
-
-.brand-banner--buy {
-  margin: 0 0 0.25rem;
-}
-
-.brand-banner--buy img {
-  width: min(680px, 84vw);
-  height: 96px;
-  object-position: center 54%;
+  width: min(820px, 92vw);
+  padding-top: 2rem;
 }
 
 .feature-grid article,
@@ -453,12 +444,13 @@ h1 {
 }
 
 .pricing--buy {
-  max-width: 760px;
+  max-width: 720px;
 }
 
 .buy-page .pricing--buy {
-  max-width: 860px;
-  padding: 1.4rem;
+  max-width: 720px;
+  padding: 1.6rem 1.4rem 1.4rem;
+  margin-top: 0;
 }
 
 .pricing-head p {
@@ -490,17 +482,18 @@ h1 {
 }
 
 .pricing-grid--buy-page {
-  margin-top: 1.2rem;
+  margin-top: 1rem;
 }
 
 .buy-page .pricing-grid--buy-page {
   grid-template-columns: 1fr;
-  max-width: 640px;
+  max-width: 520px;
   margin-inline: auto;
 }
 
 .buy-page .pricing-grid--buy-page .price-card {
   min-height: 0;
+  padding: 1.15rem;
 }
 
 .pricing-grid--single .price-card--license {
@@ -838,12 +831,8 @@ footer {
     height: 104px;
   }
 
-  .buy-page .brand-banner--buy img {
-    height: 72px;
-  }
-
   .buy-page .pricing--buy {
-    padding: 1rem;
+    padding: 1.2rem 1rem 1rem;
   }
 
   footer {
