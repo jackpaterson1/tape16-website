@@ -29,6 +29,10 @@ export default {
         return json({ ok: true, service: "tape16-api" }, 200, origin, env);
       }
 
+      if (method === "GET" && path === "/latest-release") {
+        return await handleLatestRelease(origin, env);
+      }
+
       if (method === "POST" && path === "/stripe/webhook") {
         return await handleStripeWebhook(request, env, origin, ctx);
       }
@@ -330,6 +334,36 @@ async function handleCreateCheckoutSession(request, env, origin) {
   }
 
   return json({ ok: true, url: stripeBody.url, id: stripeBody.id }, 200, origin, env);
+}
+
+async function handleLatestRelease(origin, env) {
+  const sourceUrl = "https://api.github.com/repos/jackpaterson1/TAPE-16-Public-Releases/releases/latest";
+  const response = await fetch(sourceUrl, {
+    headers: {
+      Accept: "application/vnd.github+json",
+      "User-Agent": "tape16-release-proxy",
+    },
+  });
+
+  if (!response.ok) {
+    return json({ ok: false, error: "Unable to fetch latest release" }, 502, origin, env);
+  }
+
+  const body = await response.json().catch(() => ({}));
+  return json(
+    {
+      ok: true,
+      tag_name: cleanString(body?.tag_name),
+      published_at: cleanString(body?.published_at),
+      updated_at: cleanString(body?.updated_at),
+      created_at: cleanString(body?.created_at),
+      html_url: cleanString(body?.html_url),
+      name: cleanString(body?.name),
+    },
+    200,
+    origin,
+    env,
+  );
 }
 
 async function issueOrReuseSerial({ orderId, email, source, paymentIntentId, env }) {
