@@ -378,7 +378,7 @@ function formatReleaseDate(value) {
 function renderBuildDate(value) {
   if (!currentBuildDateLabel) return;
   const formatted = formatReleaseDate(value);
-  currentBuildDateLabel.textContent = formatted || "date tag created";
+  currentBuildDateLabel.textContent = formatted || "Last updated";
 }
 
 function readCachedBuildLabel() {
@@ -411,9 +411,30 @@ async function updateCurrentBuildLabel() {
   if (!currentBuildLabel) return;
 
   const configuredLabel = configUrl(config.currentBuildLabel);
+  const latestReleaseApiUrl =
+    configUrl(config.latestReleaseApiUrl) ||
+    "https://api.github.com/repos/jackpaterson1/TAPE-16-Public-Releases/releases/latest";
+
   if (configuredLabel) {
     renderBuildLabel(configuredLabel);
-    renderBuildDate("");
+    const cached = readCachedBuildLabel();
+    if (cached.date) {
+      renderBuildDate(cached.date);
+      return;
+    }
+
+    try {
+      const response = await fetch(latestReleaseApiUrl, {
+        headers: { Accept: "application/vnd.github+json" },
+      });
+      if (!response.ok) throw new Error("Could not fetch latest release");
+      const body = await response.json().catch(() => ({}));
+      const date = String(body.updated_at || body.published_at || body.created_at || "").trim();
+      renderBuildDate(date);
+      writeCachedBuildLabel(configuredLabel, date);
+    } catch (error) {
+      renderBuildDate("");
+    }
     return;
   }
 
@@ -426,10 +447,6 @@ async function updateCurrentBuildLabel() {
     return;
   }
 
-  const latestReleaseApiUrl =
-    configUrl(config.latestReleaseApiUrl) ||
-    "https://api.github.com/repos/jackpaterson1/TAPE-16-Public-Releases/releases/latest";
-
   try {
     const response = await fetch(latestReleaseApiUrl, {
       headers: { Accept: "application/vnd.github+json" },
@@ -438,7 +455,7 @@ async function updateCurrentBuildLabel() {
     const body = await response.json().catch(() => ({}));
     const label = formatReleaseTag(body.tag_name);
     if (!label) throw new Error("No tag name in release payload");
-    const date = String(body.published_at || body.created_at || "").trim();
+    const date = String(body.updated_at || body.published_at || body.created_at || "").trim();
     renderBuildLabel(label);
     renderBuildDate(date);
     writeCachedBuildLabel(label, date);
