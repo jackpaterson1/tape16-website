@@ -410,42 +410,17 @@ function writeCachedBuildLabel(label, date) {
 async function updateCurrentBuildLabel() {
   if (!currentBuildLabel) return;
 
-  const configuredLabel = configUrl(config.currentBuildLabel);
-  const latestReleaseApiUrl =
-    configUrl(config.latestReleaseApiUrl) ||
-    "https://api.github.com/repos/jackpaterson1/TAPE-16-Public-Releases/releases/latest";
-
-  if (configuredLabel) {
-    renderBuildLabel(configuredLabel);
-    const cached = readCachedBuildLabel();
-    if (cached.date) {
-      renderBuildDate(cached.date);
-      return;
-    }
-
-    try {
-      const response = await fetch(latestReleaseApiUrl, {
-        headers: { Accept: "application/vnd.github+json" },
-      });
-      if (!response.ok) throw new Error("Could not fetch latest release");
-      const body = await response.json().catch(() => ({}));
-      const date = String(body.updated_at || body.published_at || body.created_at || "").trim();
-      renderBuildDate(date);
-      writeCachedBuildLabel(configuredLabel, date);
-    } catch (error) {
-      renderBuildDate("");
-    }
-    return;
-  }
-
   const cached = readCachedBuildLabel();
   if (cached.label) {
     renderBuildLabel(cached.label);
   }
-  if (cached.label && cached.date) {
+  if (cached.date) {
     renderBuildDate(cached.date);
-    return;
   }
+
+  const latestReleaseApiUrl =
+    configUrl(config.latestReleaseApiUrl) ||
+    "https://api.github.com/repos/jackpaterson1/TAPE-16-Public-Releases/releases/latest";
 
   try {
     const response = await fetch(latestReleaseApiUrl, {
@@ -460,8 +435,12 @@ async function updateCurrentBuildLabel() {
     renderBuildDate(date);
     writeCachedBuildLabel(label, date);
   } catch (error) {
-    renderBuildLabel("Latest on GitHub");
-    renderBuildDate("");
+    if (!cached.label) {
+      renderBuildLabel("Latest on GitHub");
+    }
+    if (!cached.date) {
+      renderBuildDate("");
+    }
   }
 }
 
