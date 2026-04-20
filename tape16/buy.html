@@ -32,7 +32,7 @@
       rdt("track", "PageVisit");
     </script>
   </head>
-  <body>
+  <body class="buy-page">
     <div class="page-bg" aria-hidden="true"></div>
 
     <header class="site-header">
@@ -50,7 +50,7 @@
     </header>
 
     <main>
-      <section class="brand-banner" aria-label="TAPE 16 branding">
+      <section class="brand-banner brand-banner--buy" aria-label="TAPE 16 branding">
         <img src="assets/tape16-wordmark-2048.png" alt="TAPE 16 wordmark" />
       </section>
 
@@ -74,7 +74,7 @@
         </div>
       </section>
 
-      <section class="pricing">
+      <section class="pricing pricing--buy">
         <div class="pricing-head">
           <p class="eyebrow">Buy TAPE 16</p>
           <h1>Secure checkout. Automatic serial delivery.</h1>
@@ -82,7 +82,7 @@
             Use this page to buy the main TAPE 16 license. After payment, your serial is issued automatically.
           </p>
         </div>
-        <div class="pricing-grid">
+        <div class="pricing-grid pricing-grid--single pricing-grid--buy-page">
           <article class="price-card price-card--license">
             <h3>Full License</h3>
             <p class="price"><span class="price-was">$59</span> $29 <span>USD</span></p>
@@ -90,11 +90,6 @@
             <p class="price-note">Secure Stripe checkout delivers your serial after purchase.</p>
             <a class="btn btn-primary" id="buy-link" href="https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02">Buy Now</a>
             <p id="buy-status" class="serial-status" role="status" aria-live="polite"></p>
-          </article>
-          <article class="price-card">
-            <h3>Need a download?</h3>
-            <p>After checkout you can grab the latest installer from the downloads page.</p>
-            <a class="btn btn-ghost" href="download.html">Open Downloads</a>
           </article>
         </div>
       </section>

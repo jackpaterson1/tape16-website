@@ -143,7 +143,7 @@ main {
   border: 1px solid var(--stroke);
   border-radius: 0;
   align-self: stretch;
-  height: clamp(520px, calc(100svh - 12rem), 780px);
+  height: clamp(420px, calc(100svh - 16rem), 620px);
   overflow: hidden;
   background: rgba(28, 19, 14, 0.34);
 }
@@ -291,6 +291,20 @@ h1 {
   object-fit: cover;
   object-position: center 48%;
   filter: drop-shadow(0 18px 30px rgba(255, 45, 45, 0.2));
+}
+
+.buy-page main {
+  width: min(920px, 92vw);
+}
+
+.brand-banner--buy {
+  margin: 0 0 0.25rem;
+}
+
+.brand-banner--buy img {
+  width: min(680px, 84vw);
+  height: 96px;
+  object-position: center 54%;
 }
 
 .feature-grid article,
@@ -442,6 +456,11 @@ h1 {
   max-width: 760px;
 }
 
+.buy-page .pricing--buy {
+  max-width: 860px;
+  padding: 1.4rem;
+}
+
 .pricing-head p {
   color: var(--muted);
 }
@@ -468,6 +487,20 @@ h1 {
 
 .pricing--buy .pricing-grid--single {
   max-width: 100%;
+}
+
+.pricing-grid--buy-page {
+  margin-top: 1.2rem;
+}
+
+.buy-page .pricing-grid--buy-page {
+  grid-template-columns: 1fr;
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+.buy-page .pricing-grid--buy-page .price-card {
+  min-height: 0;
 }
 
 .pricing-grid--single .price-card--license {
@@ -584,6 +617,10 @@ h1 {
   color: var(--accent-alt);
   font-weight: 700;
   text-decoration: none;
+}
+
+.buy-page .release-link {
+  margin-top: 0.9rem;
 }
 
 .release-link:hover {
@@ -799,6 +836,14 @@ footer {
 
   .brand-banner img {
     height: 104px;
+  }
+
+  .buy-page .brand-banner--buy img {
+    height: 72px;
+  }
+
+  .buy-page .pricing--buy {
+    padding: 1rem;
   }
 
   footer {
