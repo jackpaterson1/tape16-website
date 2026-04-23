@@ -138,6 +138,15 @@ main {
   flex-direction: column;
 }
 
+.hero-kicker {
+  margin: 0 0 0.9rem;
+  color: var(--accent-alt);
+  font-size: clamp(0.95rem, 1.05vw, 1.05rem);
+  line-height: 1.45;
+  font-weight: 600;
+  max-width: 36rem;
+}
+
 .hero-image-wrap {
   margin: 0;
   border: 1px solid var(--stroke);
