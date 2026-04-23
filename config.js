@@ -26,5 +26,5 @@ window.TAPE16_SITE_CONFIG = {
   // Example: "https://tape16-licensing.youraccount.workers.dev"
   accountApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
   // Latest release endpoint for displaying the current build automatically.
-  latestReleaseApiUrl: "https://tape16-licensing.emrmusicgroup.workers.dev/latest-release",
+  latestReleaseApiUrl: "https://api.github.com/repos/jackpaterson1/TAPE-16-Public-Releases/releases/latest",
 };
