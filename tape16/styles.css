@@ -312,7 +312,7 @@ h1 {
 }
 
 .buy-page main {
-  width: min(820px, 92vw);
+  width: min(1120px, 94vw);
   padding-top: 2rem;
 }
 
@@ -462,12 +462,12 @@ h1 {
 }
 
 .pricing--buy {
-  max-width: 720px;
+  max-width: 980px;
 }
 
 .buy-page .pricing--buy {
-  max-width: 720px;
-  padding: 1.6rem 1.4rem 1.4rem;
+  max-width: 980px;
+  padding: 1.8rem 1.8rem 1.6rem;
   margin-top: 0;
 }
 
@@ -505,13 +505,13 @@ h1 {
 
 .buy-page .pricing-grid--buy-page {
   grid-template-columns: 1fr;
-  max-width: 520px;
+  max-width: 760px;
   margin-inline: auto;
 }
 
 .buy-page .pricing-grid--buy-page .price-card {
   min-height: 0;
-  padding: 1.15rem;
+  padding: 1.35rem;
 }
 
 .pricing-grid--single .price-card--license {
