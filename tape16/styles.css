@@ -383,6 +383,12 @@ h1 {
   height: auto;
 }
 
+.remote-art video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .workflow ul {
   margin: 0;
   padding-left: 1.1rem;
