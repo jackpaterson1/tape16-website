@@ -1,13 +1,13 @@
 :root {
-  --bg: #1f140e;
-  --bg-alt: #312217;
-  --text: #f8ecd7;
-  --muted: #dbc29a;
-  --accent: #d06a28;
-  --accent-alt: #f0cf79;
-  --accent-deep: #76914f;
-  --stroke: rgba(240, 207, 160, 0.24);
-  --shadow: 0 22px 50px rgba(19, 11, 7, 0.46);
+  --bg: #070708;
+  --bg-alt: #111214;
+  --text: #f4f2ed;
+  --muted: #b9bcc2;
+  --accent: #d84a2f;
+  --accent-alt: #ff7255;
+  --accent-deep: #8a1212;
+  --stroke: rgba(255, 255, 255, 0.11);
+  --shadow: 0 26px 60px rgba(0, 0, 0, 0.66);
 }
 
 * {
@@ -27,9 +27,9 @@ body {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(circle at 15% 20%, rgba(240, 207, 121, 0.2), transparent 30%),
-    radial-gradient(circle at 80% 14%, rgba(208, 106, 40, 0.24), transparent 34%),
-    linear-gradient(160deg, #2d1d14 0%, #1f140e 48%, #130c08 100%);
+    radial-gradient(circle at 14% 18%, rgba(255, 94, 63, 0.08), transparent 28%),
+    radial-gradient(circle at 82% 16%, rgba(255, 94, 63, 0.06), transparent 32%),
+    linear-gradient(160deg, #111214 0%, #080809 52%, #050506 100%);
   z-index: -2;
 }
 
@@ -38,9 +38,9 @@ body {
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(circle, rgba(255, 239, 198, 0.07) 0.7px, transparent 0.7px),
-    radial-gradient(circle, rgba(255, 248, 236, 0.03) 1px, transparent 1px),
-    linear-gradient(115deg, transparent 46%, rgba(255, 214, 145, 0.05) 48%, transparent 50%);
+    radial-gradient(circle, rgba(255, 255, 255, 0.055) 0.7px, transparent 0.7px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(115deg, transparent 46%, rgba(255, 94, 63, 0.05) 48%, transparent 50%);
   background-size: 9px 9px, 17px 17px, 160px 160px;
   opacity: 0.22;
   mix-blend-mode: soft-light;
@@ -51,9 +51,9 @@ body {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 225, 183, 0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 225, 183, 0.022) 1px, transparent 1px),
-    linear-gradient(45deg, transparent 49%, rgba(118, 145, 79, 0.03) 50%, transparent 51%);
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(45deg, transparent 49%, rgba(216, 74, 47, 0.025) 50%, transparent 51%);
   background-size: 44px 44px, 44px 44px, 12px 12px;
   mask-image: radial-gradient(circle at center, black 34%, transparent 100%);
   opacity: 0.42;
@@ -68,7 +68,7 @@ body {
   position: sticky;
   top: 0;
   backdrop-filter: blur(10px);
-  background: rgba(34, 22, 15, 0.84);
+  background: rgba(9, 9, 10, 0.88);
   border-bottom: 1px solid var(--stroke);
   z-index: 10;
 }
@@ -121,12 +121,12 @@ main {
   grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
   gap: 1rem;
   align-items: start;
-  border: 1px solid rgba(240, 207, 160, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 0;
   background:
-    linear-gradient(180deg, rgba(255, 248, 236, 0.08), rgba(255, 255, 255, 0.02)),
-    linear-gradient(135deg, rgba(118, 145, 79, 0.09), transparent 42%),
-    linear-gradient(90deg, rgba(255, 219, 146, 0.04), transparent 30%, rgba(208, 106, 40, 0.04) 70%, transparent);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
+    linear-gradient(135deg, rgba(255, 91, 58, 0.06), transparent 38%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent 30%, rgba(216, 74, 47, 0.03) 72%, transparent);
   box-shadow: var(--shadow);
   animation: rise 700ms ease-out;
 }
@@ -155,7 +155,7 @@ main {
   width: 100%;
   aspect-ratio: 1280 / 800;
   overflow: hidden;
-  background: rgba(28, 19, 14, 0.34);
+  background: rgba(10, 10, 11, 0.42);
 }
 
 .hero-image {
@@ -233,16 +233,16 @@ h1 {
 }
 
 .btn-primary {
-  background: linear-gradient(180deg, #e29a57, #bf6228);
-  color: #1f1209;
-  box-shadow: 0 12px 28px rgba(185, 92, 39, 0.3);
-  border: 1px solid rgba(255, 225, 181, 0.28);
+  background: linear-gradient(180deg, #ea5a3a, #b72a1d);
+  color: #1a120c;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .btn-ghost {
   color: var(--text);
   border: 1px solid var(--stroke);
-  background: rgba(255, 248, 236, 0.05);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .btn-with-logo {
@@ -263,10 +263,10 @@ h1 {
 }
 
 .btn-download {
-  background: linear-gradient(180deg, #db8140, #b95d2c);
+  background: linear-gradient(180deg, #ff6b4f, #c63622);
   color: #ffffff !important;
   border: 1px solid transparent;
-  box-shadow: 0 12px 30px rgba(185, 92, 39, 0.3);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
 }
 
 .status-bar {
@@ -278,7 +278,7 @@ h1 {
   gap: 0.8rem;
   flex-wrap: wrap;
   color: var(--muted);
-  background: rgba(255, 248, 236, 0.05);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .status-bar strong {
@@ -321,13 +321,13 @@ h1 {
 .download,
 .requirements,
 .bug-report {
-  border: 1px solid rgba(240, 207, 160, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 0;
   padding: 1.2rem;
   background:
-    linear-gradient(180deg, rgba(255, 248, 236, 0.06), rgba(255, 255, 255, 0.018)),
-    linear-gradient(135deg, rgba(118, 145, 79, 0.06), transparent 44%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
+    linear-gradient(135deg, rgba(255, 91, 58, 0.04), transparent 44%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .feature-grid h2 {
@@ -361,8 +361,8 @@ h1 {
   border-radius: 0;
   padding: 1rem 1.1rem;
   background:
-    linear-gradient(180deg, rgba(255, 248, 236, 0.06), rgba(255, 255, 255, 0.02)),
-    linear-gradient(135deg, rgba(118, 145, 79, 0.05), transparent 46%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
+    linear-gradient(135deg, rgba(255, 91, 58, 0.035), transparent 46%);
 }
 
 .workflow-panel h2 {
@@ -374,7 +374,7 @@ h1 {
   border: 1px solid var(--stroke);
   border-radius: 0;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.42);
 }
 
 .remote-art img {
@@ -431,7 +431,7 @@ h1 {
   border: 1px solid var(--stroke);
   border-radius: 0;
   padding: 1rem;
-  background: rgba(45, 30, 22, 0.56);
+  background: rgba(16, 17, 19, 0.68);
 }
 
 .requirements-col h3 {
@@ -457,8 +457,8 @@ h1 {
   border-radius: 0;
   padding: 1.2rem;
   background:
-    linear-gradient(180deg, rgba(255, 248, 236, 0.05), rgba(255, 255, 255, 0.016)),
-    linear-gradient(135deg, rgba(118, 145, 79, 0.05), transparent 38%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    linear-gradient(135deg, rgba(255, 91, 58, 0.035), transparent 38%);
 }
 
 .pricing--buy {
@@ -531,7 +531,7 @@ h1 {
   border: 1px solid var(--stroke);
   border-radius: 0;
   padding: 1rem;
-  background: rgba(45, 30, 22, 0.58);
+  background: rgba(16, 17, 19, 0.72);
   display: flex;
   flex-direction: column;
 }
@@ -587,7 +587,7 @@ h1 {
 .release-item {
   border: 1px solid var(--stroke);
   border-radius: 0;
-  background: rgba(45, 30, 22, 0.58);
+  background: rgba(16, 17, 19, 0.72);
   padding: 1rem;
   height: auto;
   min-height: 0;
@@ -644,8 +644,8 @@ h1 {
   border-radius: 0;
   padding: 1.2rem;
   background:
-    linear-gradient(180deg, rgba(255, 248, 236, 0.05), rgba(255, 255, 255, 0.015)),
-    linear-gradient(135deg, rgba(118, 145, 79, 0.05), transparent 42%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    linear-gradient(135deg, rgba(255, 91, 58, 0.035), transparent 42%);
 }
 
 .serial-help p {
@@ -669,7 +669,7 @@ h1 {
   width: 100%;
   border: 1px solid var(--stroke);
   border-radius: 0;
-  background: rgba(45, 30, 22, 0.58);
+  background: rgba(16, 17, 19, 0.72);
   color: var(--text);
   padding: 0.65rem 0.75rem;
   font: inherit;
@@ -706,7 +706,7 @@ h1 {
   width: 100%;
   border: 1px solid var(--stroke);
   border-radius: 0;
-  background: rgba(45, 30, 22, 0.58);
+  background: rgba(16, 17, 19, 0.72);
   color: var(--text);
   padding: 0.65rem 0.75rem;
   font: inherit;
@@ -734,7 +734,7 @@ pre {
   padding: 1rem;
   border-radius: 0;
   border: 1px solid var(--stroke);
-  background: rgba(45, 30, 22, 0.78);
+  background: rgba(8, 8, 9, 0.86);
   overflow-x: auto;
 }
 
@@ -869,8 +869,8 @@ footer {
   border-radius: 0;
   padding: 1.2rem;
   background:
-    linear-gradient(180deg, rgba(255, 248, 236, 0.05), rgba(255, 255, 255, 0.015)),
-    linear-gradient(135deg, rgba(118, 145, 79, 0.05), transparent 42%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    linear-gradient(135deg, rgba(255, 91, 58, 0.035), transparent 42%);
 }
 
 .account p {
@@ -894,7 +894,7 @@ footer {
   border: 1px solid var(--stroke);
   border-radius: 0;
   padding: 1rem;
-  background: rgba(45, 30, 22, 0.52);
+  background: rgba(16, 17, 19, 0.66);
 }
 
 .account-summary {
