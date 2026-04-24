@@ -206,6 +206,11 @@ h1 {
   line-height: 1.7;
 }
 
+.hero-demo-copy {
+  color: var(--accent-alt);
+  font-weight: 700;
+}
+
 .hero-actions {
   margin-top: 1.4rem;
   display: flex;
