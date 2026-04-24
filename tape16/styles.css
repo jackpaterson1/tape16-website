@@ -207,10 +207,34 @@ h1 {
 }
 
 .hero-demo-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1.05rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 114, 85, 0.26);
+  background: linear-gradient(180deg, rgba(255, 114, 85, 0.16), rgba(255, 114, 85, 0.08));
   color: var(--accent-alt);
-  display: inline-block;
   font-weight: 900;
   letter-spacing: 0.01em;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.24);
+  max-width: none;
+}
+
+.hero-demo-copy strong {
+  color: inherit;
+  font-weight: inherit;
+}
+
+.hero-demo-cue {
+  flex: 0 0 auto;
+  font-size: 0.68rem;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ffd0bf;
+  opacity: 0.92;
 }
 
 .hero-actions {
