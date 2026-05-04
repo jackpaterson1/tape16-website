@@ -945,6 +945,11 @@ footer {
   color: var(--muted);
 }
 
+.account .account-warning {
+  color: var(--accent) !important;
+  font-weight: 800;
+}
+
 .account .serial-form {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
