@@ -309,12 +309,16 @@ h1 {
 }
 
 .btn-guide {
-  align-self: flex-start;
+  align-self: center;
   display: inline-flex;
   justify-content: center;
   min-width: 220px;
   text-align: center;
   white-space: nowrap;
+  background: linear-gradient(180deg, #ff6b4f, #c63622);
+  color: #ffffff !important;
+  border-color: transparent;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
 }
 
 .status-bar {
@@ -386,13 +390,16 @@ h1 {
 .feature-guide-card {
   grid-column: span 2;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.95rem;
+  text-align: center;
 }
 
 .feature-guide-card p {
-  max-width: 48rem;
+  margin-inline: auto;
+  max-width: 44rem;
 }
 
 .feature-grid p,
