@@ -95,6 +95,32 @@
         <ul class="release-list">
           <li class="release-item">
             <div class="release-head">
+              <h3>0.9.241</h3>
+              <span>May 15, 2026</span>
+            </div>
+            <ul>
+              <li>Added plugin manager shortcut <code>`</code> key.</li>
+              <li>Sends now work on MCU faders, with faders flushed after close.</li>
+              <li>Added virtual MIDI output for Tape 16.</li>
+              <li>Successfully linked Tape 16 as master to Logic Pro through MTC.</li>
+              <li>Improved Desktop Audio recording latency by 70ms for recording instruments from other DAWs into Tape 16.</li>
+              <li>Added grouped volume sends.</li>
+              <li>Stopped track 1 being selected by default in the ERASE menu.</li>
+              <li>Added outboard gear to bus, mono, and stereo tracks.</li>
+              <li>Added stereo track option, consuming 2 of 16 tracks.</li>
+              <li>Improved the built-in tape delay mod.</li>
+              <li>Added plugin recovery and offline placeholder work so crashed plugins can retain state.</li>
+              <li>Added Reset Plugin System button for plugin crash loops or quarantine issues.</li>
+              <li>Fixed Audio I/O beachball by deferring active channel checkbox changes instead of reopening CoreAudio on every click.</li>
+              <li>Fixed sample rate automatically changing to 44100 Hz on update.</li>
+              <li>Added MTC frame-rate options for DAW Sync.</li>
+              <li>Added warning to Tape Speed Setting.</li>
+              <li>Added a latency killer button for Windows.</li>
+            </ul>
+            <a class="release-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.241" target="_blank" rel="noreferrer">View release on GitHub</a>
+          </li>
+          <li class="release-item">
+            <div class="release-head">
               <h3>0.9.231</h3>
               <span>May 7, 2026</span>
             </div>
@@ -290,7 +316,7 @@
       <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
     </footer>
 
-    <script src="config.js?v=0.9.231"></script>
-    <script src="script.js?v=0.9.231"></script>
+    <script src="config.js?v=0.9.241"></script>
+    <script src="script.js?v=0.9.241"></script>
   </body>
 </html>
