@@ -151,11 +151,19 @@ main {
   margin: 0;
   border: 1px solid var(--stroke);
   border-radius: 0;
-  align-self: center;
   width: 100%;
   aspect-ratio: 1280 / 800;
   overflow: hidden;
   background: rgba(10, 10, 11, 0.42);
+}
+
+.hero-media {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .hero-image {
@@ -300,6 +308,15 @@ h1 {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
 }
 
+.btn-guide {
+  align-self: flex-start;
+  display: inline-flex;
+  justify-content: center;
+  min-width: 220px;
+  text-align: center;
+  white-space: nowrap;
+}
+
 .status-bar {
   margin-top: 1.4rem;
   border: 1px solid var(--stroke);
@@ -364,6 +381,18 @@ h1 {
 
 .feature-grid h2 {
   font-size: 1.45rem;
+}
+
+.feature-guide-card {
+  grid-column: span 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.feature-guide-card p {
+  max-width: 48rem;
 }
 
 .feature-grid p,
@@ -858,6 +887,10 @@ footer {
 
   .feature-grid {
     grid-template-columns: 1fr;
+  }
+
+  .feature-guide-card {
+    grid-column: auto;
   }
 
   .workflow {
