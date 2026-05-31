@@ -559,7 +559,7 @@ bindDownloadClickTracking(demoLink, "Download Demo");
 startPromoteKitTracking();
 bindDownloadClickTracking(directDownloadMacLink, "Direct Download Mac");
 bindDownloadClickTracking(directDownloadWindowsLink, "Direct Download Windows");
-bindDownloadClickTracking(directDownloadReleaseLink, "Direct on GitHub");
+bindDownloadClickTracking(directDownloadReleaseLink, "Direct Downloads");
 
 function setSerialStatus(message, isError) {
   if (!serialStatus) return;
