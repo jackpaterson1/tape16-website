@@ -6,3 +6,15 @@ keep_vars = true
 kv_namespaces = [
   { binding = "ORDERS_KV", id = "5df3d18ed4c04b89993606808dec5eb1" }
 ]
+
+[[d1_databases]]
+binding = "COMMUNITY_DB"
+database_name = "tape16-community"
+database_id = "c13b2792-5c32-42a3-9399-233ae1c95a3b"
+
+# Enable R2 in the Cloudflare dashboard, then create the bucket:
+# /opt/homebrew/bin/wrangler r2 bucket create tape16-community
+#
+# [[r2_buckets]]
+# binding = "COMMUNITY_BUCKET"
+# bucket_name = "tape16-community"

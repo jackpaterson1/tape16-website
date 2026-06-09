@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
     <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
-    <link rel="stylesheet" href="styles.css?v=themes-2" />
+    <link rel="stylesheet" href="styles.css?v=themes-3" />
       <script async src="https://www.googletagmanager.com/gtag/js?id=GT-TQK5FZD8"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -108,10 +108,19 @@
           <p>Each listing is an exported `.zip` package from the built-in TAPE 16 theme manager.</p>
         </div>
 
-        <div class="theme-empty">
+        <div class="theme-toolbar">
+          <label>
+            Search
+            <input id="theme-search" type="search" placeholder="Theme, creator, tags" />
+          </label>
+        </div>
+
+        <div id="theme-library-grid" class="theme-grid" aria-live="polite"></div>
+
+        <div id="theme-empty-state" class="theme-empty">
           <h3>No public themes yet</h3>
           <p>
-            The library will stay empty until real TAPE 16 themes are submitted and approved.
+            The library will stay empty until real TAPE 16 themes are uploaded.
           </p>
           <a class="btn btn-primary" href="#upload-theme">Upload First Theme</a>
         </div>
@@ -122,7 +131,7 @@
       <section class="bug-report" id="upload-theme">
         <h2>Upload A Theme</h2>
         <p>
-          Export from the TAPE 16 Themes window and upload the `.zip` package here. Approved themes can appear in the public library with creator credit.
+          Export from the TAPE 16 Themes window and upload the `.zip` package here. Your creator name can appear in the public library with the theme.
         </p>
         <form id="theme-upload-form" class="bug-form" enctype="multipart/form-data">
           <label>
@@ -179,7 +188,7 @@
       <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
     </footer>
 
-    <script src="config.js?v=0.9.272"></script>
-    <script src="script.js?v=themes-2"></script>
+    <script src="config.js?v=themes-3"></script>
+    <script src="script.js?v=themes-3"></script>
   </body>
 </html>

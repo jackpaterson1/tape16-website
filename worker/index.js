@@ -1,5 +1,7 @@
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
 const GENERIC_RESEND_MESSAGE = "If a matching purchase exists, the serial email has been sent.";
+const COMMUNITY_MAX_PACKAGE_BYTES = 25 * 1024 * 1024;
+const COMMUNITY_MAX_PREVIEW_BYTES = 5 * 1024 * 1024;
 
 const CHECKOUT_EVENT_TYPES = new Set([
   "checkout.session.completed",
@@ -31,6 +33,64 @@ export default {
 
       if (method === "GET" && path === "/latest-release") {
         return await handleLatestRelease(origin, env);
+      }
+
+      if (method === "GET" && path === "/themes") {
+        return await handleListCommunityItems("theme", origin, env);
+      }
+
+      if (method === "POST" && (path === "/themes" || path === "/submit-theme")) {
+        return await handleSubmitCommunityItem(request, "theme", origin, env);
+      }
+
+      {
+        const match = path.match(/^\/themes\/([^/]+)\/download$/);
+        if (method === "GET" && match) {
+          return await handleDownloadCommunityItem("theme", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/themes\/([^/]+)\/preview$/);
+        if (method === "GET" && match) {
+          return await handlePreviewCommunityItem("theme", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/themes\/([^/]+)\/rate$/);
+        if (method === "POST" && match) {
+          return await handleRateCommunityItem(request, "theme", match[1], origin, env);
+        }
+      }
+
+      if (method === "GET" && path === "/mods") {
+        return await handleListCommunityItems("mod", origin, env);
+      }
+
+      if (method === "POST" && (path === "/mods" || path === "/submit-mod")) {
+        return await handleSubmitCommunityItem(request, "mod", origin, env);
+      }
+
+      {
+        const match = path.match(/^\/mods\/([^/]+)\/download$/);
+        if (method === "GET" && match) {
+          return await handleDownloadCommunityItem("mod", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/mods\/([^/]+)\/preview$/);
+        if (method === "GET" && match) {
+          return await handlePreviewCommunityItem("mod", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/mods\/([^/]+)\/rate$/);
+        if (method === "POST" && match) {
+          return await handleRateCommunityItem(request, "mod", match[1], origin, env);
+        }
       }
 
       if (method === "POST" && path === "/stripe/webhook") {
@@ -366,6 +426,285 @@ async function handleLatestRelease(origin, env) {
   );
 }
 
+async function handleListCommunityItems(type, origin, env) {
+  const missing = missingCommunityBindings(env, { bucket: false });
+  if (missing) return json({ ok: false, error: missing }, 500, origin, env);
+
+  const rows = await env.COMMUNITY_DB.prepare(
+    `SELECT id, type, slug, name, creator_name, app_version, description, tags,
+      package_filename, package_size, preview_key, preview_filename, preview_size,
+      download_count, rating_count, rating_total, created_at, updated_at
+     FROM community_items
+     WHERE type = ?
+     ORDER BY created_at DESC
+     LIMIT 100`,
+  )
+    .bind(type)
+    .all();
+
+  return json(
+    {
+      ok: true,
+      items: (rows?.results || []).map((row) => publicCommunityItem(row)),
+    },
+    200,
+    origin,
+    env,
+  );
+}
+
+async function handleSubmitCommunityItem(request, type, origin, env) {
+  const missing = missingCommunityBindings(env);
+  if (missing) return json({ ok: false, error: missing }, 500, origin, env);
+
+  let form;
+  try {
+    form = await request.formData();
+  } catch {
+    return json({ ok: false, error: "Invalid upload form" }, 400, origin, env);
+  }
+
+  const kind = communityKind(type);
+  const email = cleanEmail(form.get("email"));
+  const creatorName = cleanString(form.get("creator") || form.get("creatorName"));
+  const name = cleanString(form.get(kind.nameField) || form.get("name"));
+  const appVersion = cleanString(form.get("appVersion"));
+  const description = cleanString(form.get("description")).slice(0, 1600);
+  const tags = normalizeCommunityTags(form.get("tags"));
+  const packageFile = readUploadFile(form, kind.fileField, "file", "package");
+  const previewFile = readUploadFile(form, "previewImage", "preview", "image");
+
+  if (!email || !creatorName || !name || !packageFile) {
+    return json(
+      { ok: false, error: "Email, creator name, item name, and ZIP file are required" },
+      400,
+      origin,
+      env,
+    );
+  }
+
+  if (!/\.zip$/i.test(packageFile.name || "")) {
+    return json({ ok: false, error: "Upload the exported ZIP package" }, 400, origin, env);
+  }
+
+  const packageBuffer = await packageFile.arrayBuffer();
+  if (!packageBuffer.byteLength || packageBuffer.byteLength > COMMUNITY_MAX_PACKAGE_BYTES) {
+    return json({ ok: false, error: "ZIP package must be 25MB or smaller" }, 400, origin, env);
+  }
+  if (!looksLikeZip(packageBuffer)) {
+    return json({ ok: false, error: "Theme package must be a valid ZIP file" }, 400, origin, env);
+  }
+
+  let previewBuffer = null;
+  if (previewFile) {
+    previewBuffer = await previewFile.arrayBuffer();
+    if (!previewBuffer.byteLength || previewBuffer.byteLength > COMMUNITY_MAX_PREVIEW_BYTES) {
+      return json({ ok: false, error: "Preview image must be 5MB or smaller" }, 400, origin, env);
+    }
+    if (!isAllowedPreviewFile(previewFile)) {
+      return json({ ok: false, error: "Preview image must be PNG, JPG, or WebP" }, 400, origin, env);
+    }
+  }
+
+  const id = makeCommunityId(type);
+  const slug = await uniqueCommunitySlug(env, slugify(name), id);
+  const now = new Date().toISOString();
+  const packageFilename = sanitizeFilename(packageFile.name || `${slug}.zip`, `${slug}.zip`);
+  const packageKey = `community/${kind.plural}/${id}/${packageFilename}`;
+  const packageSha256 = await sha256Hex(packageBuffer);
+
+  let previewKey = "";
+  let previewFilename = "";
+  if (previewFile && previewBuffer) {
+    previewFilename = sanitizeFilename(previewFile.name || `${slug}-preview.png`, `${slug}-preview.png`);
+    previewKey = `community/${kind.plural}/${id}/preview-${previewFilename}`;
+  }
+
+  await env.COMMUNITY_BUCKET.put(packageKey, packageBuffer, {
+    httpMetadata: {
+      contentType: "application/zip",
+      contentDisposition: `attachment; filename="${packageFilename.replaceAll('"', "")}"`,
+    },
+    customMetadata: {
+      id,
+      type,
+      slug,
+      sha256: packageSha256,
+    },
+  });
+
+  if (previewKey && previewBuffer) {
+    await env.COMMUNITY_BUCKET.put(previewKey, previewBuffer, {
+      httpMetadata: { contentType: previewFile.type || contentTypeForFilename(previewFilename) },
+      customMetadata: { id, type, slug },
+    });
+  }
+
+  const item = {
+    id,
+    type,
+    slug,
+    name,
+    creator_name: creatorName,
+    uploader_email: email,
+    app_version: appVersion,
+    description,
+    tags: JSON.stringify(tags),
+    package_key: packageKey,
+    package_filename: packageFilename,
+    package_size: packageBuffer.byteLength,
+    package_sha256: packageSha256,
+    preview_key: previewKey,
+    preview_filename: previewFilename,
+    preview_size: previewBuffer ? previewBuffer.byteLength : 0,
+    download_count: 0,
+    rating_count: 0,
+    rating_total: 0,
+    created_at: now,
+    updated_at: now,
+  };
+
+  await env.COMMUNITY_DB.prepare(
+    `INSERT INTO community_items (
+      id, type, slug, name, creator_name, uploader_email, app_version, description, tags,
+      package_key, package_filename, package_size, package_sha256,
+      preview_key, preview_filename, preview_size,
+      download_count, rating_count, rating_total, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  )
+    .bind(
+      item.id,
+      item.type,
+      item.slug,
+      item.name,
+      item.creator_name,
+      item.uploader_email,
+      item.app_version,
+      item.description,
+      item.tags,
+      item.package_key,
+      item.package_filename,
+      item.package_size,
+      item.package_sha256,
+      item.preview_key,
+      item.preview_filename,
+      item.preview_size,
+      item.download_count,
+      item.rating_count,
+      item.rating_total,
+      item.created_at,
+      item.updated_at,
+    )
+    .run();
+
+  return json(
+    {
+      ok: true,
+      [`${type}Id`]: id,
+      slug,
+      item: publicCommunityItem(item),
+    },
+    201,
+    origin,
+    env,
+  );
+}
+
+async function handleDownloadCommunityItem(type, slugOrId, origin, env) {
+  const missing = missingCommunityBindings(env);
+  if (missing) return json({ ok: false, error: missing }, 500, origin, env);
+
+  const item = await getCommunityItem(env, type, slugOrId);
+  if (!item) return json({ ok: false, error: "Item not found" }, 404, origin, env);
+
+  const object = await env.COMMUNITY_BUCKET.get(item.package_key);
+  if (!object) return json({ ok: false, error: "Package file not found" }, 404, origin, env);
+
+  await env.COMMUNITY_DB.prepare(
+    "UPDATE community_items SET download_count = download_count + 1, updated_at = ? WHERE id = ?",
+  )
+    .bind(new Date().toISOString(), item.id)
+    .run();
+
+  return new Response(object.body, {
+    status: 200,
+    headers: {
+      ...corsHeaders(origin, env),
+      "Content-Type": "application/zip",
+      "Content-Length": String(object.size || item.package_size || 0),
+      "Content-Disposition": `attachment; filename="${item.package_filename.replaceAll('"', "")}"`,
+      "Cache-Control": "private, max-age=0",
+    },
+  });
+}
+
+async function handlePreviewCommunityItem(type, slugOrId, origin, env) {
+  const missing = missingCommunityBindings(env);
+  if (missing) return json({ ok: false, error: missing }, 500, origin, env);
+
+  const item = await getCommunityItem(env, type, slugOrId);
+  if (!item || !item.preview_key) return json({ ok: false, error: "Preview not found" }, 404, origin, env);
+
+  const object = await env.COMMUNITY_BUCKET.get(item.preview_key);
+  if (!object) return json({ ok: false, error: "Preview not found" }, 404, origin, env);
+
+  return new Response(object.body, {
+    status: 200,
+    headers: {
+      ...corsHeaders(origin, env),
+      "Content-Type": object.httpMetadata?.contentType || contentTypeForFilename(item.preview_filename),
+      "Content-Length": String(object.size || item.preview_size || 0),
+      "Cache-Control": "public, max-age=3600",
+    },
+  });
+}
+
+async function handleRateCommunityItem(request, type, slugOrId, origin, env) {
+  const missing = missingCommunityBindings(env, { bucket: false });
+  if (missing) return json({ ok: false, error: missing }, 500, origin, env);
+
+  let payload = {};
+  try {
+    payload = await request.json();
+  } catch {
+    payload = {};
+  }
+
+  const rating = Number(payload.rating);
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    return json({ ok: false, error: "Rating must be between 1 and 5" }, 400, origin, env);
+  }
+
+  const item = await getCommunityItem(env, type, slugOrId);
+  if (!item) return json({ ok: false, error: "Item not found" }, 404, origin, env);
+
+  const voterKey = await ratingVoterKey(request, env);
+  const now = new Date().toISOString();
+  await env.COMMUNITY_DB.prepare(
+    `INSERT INTO community_ratings (item_id, voter_key, rating, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT(item_id, voter_key)
+     DO UPDATE SET rating = excluded.rating, updated_at = excluded.updated_at`,
+  )
+    .bind(item.id, voterKey, rating, now, now)
+    .run();
+
+  const totals = await env.COMMUNITY_DB.prepare(
+    "SELECT COUNT(*) AS rating_count, COALESCE(SUM(rating), 0) AS rating_total FROM community_ratings WHERE item_id = ?",
+  )
+    .bind(item.id)
+    .first();
+
+  await env.COMMUNITY_DB.prepare(
+    "UPDATE community_items SET rating_count = ?, rating_total = ?, updated_at = ? WHERE id = ?",
+  )
+    .bind(Number(totals?.rating_count || 0), Number(totals?.rating_total || 0), now, item.id)
+    .run();
+
+  const updated = await getCommunityItem(env, type, item.slug);
+  return json({ ok: true, item: publicCommunityItem(updated), rating }, 200, origin, env);
+}
+
 async function issueOrReuseSerial({ orderId, email, source, paymentIntentId, env }) {
   const cleanOrderId = cleanString(orderId);
   const cleanOrderEmail = cleanEmail(email);
@@ -506,6 +845,167 @@ function readSessionEmail(session) {
   );
 }
 
+function missingCommunityBindings(env, options = {}) {
+  if (!env.COMMUNITY_DB) return "Missing COMMUNITY_DB binding";
+  if (options.bucket !== false && !env.COMMUNITY_BUCKET) return "Missing COMMUNITY_BUCKET binding";
+  return "";
+}
+
+function communityKind(type) {
+  return type === "mod"
+    ? { plural: "mods", nameField: "modName", fileField: "modFile" }
+    : { plural: "themes", nameField: "themeName", fileField: "themeFile" };
+}
+
+function readUploadFile(form, ...names) {
+  for (const name of names) {
+    const value = form.get(name);
+    if (value && typeof value === "object" && typeof value.arrayBuffer === "function") {
+      if (value.size > 0 && value.name) return value;
+    }
+  }
+  return null;
+}
+
+function makeCommunityId(type) {
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  const suffix = [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${type}_${suffix}`;
+}
+
+function slugify(value) {
+  const slug = cleanString(value)
+    .toLowerCase()
+    .replace(/['"]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+  return slug || "community-item";
+}
+
+async function uniqueCommunitySlug(env, baseSlug, id) {
+  const base = baseSlug || "community-item";
+  for (let i = 0; i < 100; i += 1) {
+    const candidate = i === 0 ? base : `${base}-${i + 1}`;
+    const existing = await env.COMMUNITY_DB.prepare("SELECT id FROM community_items WHERE slug = ?")
+      .bind(candidate)
+      .first();
+    if (!existing) return candidate;
+  }
+  return `${base}-${id.replace(/[^a-z0-9]/gi, "").slice(-8).toLowerCase()}`;
+}
+
+function sanitizeFilename(value, fallback) {
+  const clean = cleanString(value)
+    .replace(/[/\\?%*:|"<>]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 120);
+  return clean || fallback;
+}
+
+function normalizeCommunityTags(value) {
+  return cleanString(value)
+    .split(",")
+    .map((tag) => tag.trim().toLowerCase())
+    .filter(Boolean)
+    .slice(0, 8);
+}
+
+function looksLikeZip(buffer) {
+  const bytes = new Uint8Array(buffer);
+  return bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4b;
+}
+
+function isAllowedPreviewFile(file) {
+  const name = cleanString(file?.name).toLowerCase();
+  const type = cleanString(file?.type).toLowerCase();
+  const allowedExt = /\.(png|jpe?g|webp)$/i.test(name);
+  const allowedType = !type || ["image/png", "image/jpeg", "image/webp"].includes(type);
+  return allowedExt && allowedType;
+}
+
+function contentTypeForFilename(filename) {
+  const name = cleanString(filename).toLowerCase();
+  if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
+  if (name.endsWith(".webp")) return "image/webp";
+  if (name.endsWith(".png")) return "image/png";
+  return "application/octet-stream";
+}
+
+async function getCommunityItem(env, type, slugOrId) {
+  const key = cleanString(decodeURIComponent(slugOrId || ""));
+  if (!key) return null;
+
+  return await env.COMMUNITY_DB.prepare(
+    `SELECT id, type, slug, name, creator_name, app_version, description, tags,
+      package_key, package_filename, package_size, package_sha256,
+      preview_key, preview_filename, preview_size,
+      download_count, rating_count, rating_total, created_at, updated_at
+     FROM community_items
+     WHERE type = ? AND (slug = ? OR id = ?)
+     LIMIT 1`,
+  )
+    .bind(type, key, key)
+    .first();
+}
+
+function publicCommunityItem(row) {
+  if (!row) return null;
+  const tags = parseCommunityTags(row.tags);
+  const ratingCount = Number(row.rating_count || 0);
+  const ratingTotal = Number(row.rating_total || 0);
+  const ratingAverage = ratingCount ? Math.round((ratingTotal / ratingCount) * 10) / 10 : 0;
+  const kind = communityKind(row.type);
+  const basePath = `/${kind.plural}/${encodeURIComponent(row.slug)}`;
+
+  return {
+    id: row.id,
+    type: row.type,
+    slug: row.slug,
+    name: row.name,
+    creatorName: row.creator_name,
+    appVersion: row.app_version || "",
+    description: row.description || "",
+    tags,
+    packageFilename: row.package_filename,
+    packageSize: Number(row.package_size || 0),
+    packageSha256: row.package_sha256 || "",
+    previewUrl: row.preview_key ? `${basePath}/preview` : "",
+    downloadUrl: `${basePath}/download`,
+    ratingUrl: `${basePath}/rate`,
+    downloadCount: Number(row.download_count || 0),
+    ratingCount,
+    ratingAverage,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function parseCommunityTags(value) {
+  if (Array.isArray(value)) return value;
+  try {
+    const parsed = JSON.parse(value || "[]");
+    return Array.isArray(parsed) ? parsed.map(cleanString).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
+async function ratingVoterKey(request, env) {
+  const ip = request.headers.get("CF-Connecting-IP") || "";
+  const ua = request.headers.get("User-Agent") || "";
+  const salt = env.RATING_SALT || "tape16-community-ratings";
+  return await sha256Hex(`${salt}:${ip}:${ua}`);
+}
+
+async function sha256Hex(value) {
+  const data = typeof value === "string" ? new TextEncoder().encode(value) : value;
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 function cleanString(value) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -539,9 +1039,15 @@ function json(body, status = 200, origin = "", env) {
 }
 
 function corsHeaders(origin, env) {
-  const allowed = (env.ALLOWED_ORIGIN || "").trim();
+  const allowed = (env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const isLocalDevOrigin = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i.test(origin);
   const outOrigin =
-    !allowed ? "*" : origin && origin === allowed ? allowed : allowed;
+    origin && (isLocalDevOrigin || allowed.includes(origin))
+      ? origin
+      : allowed[0] || "*";
 
   return {
     "Access-Control-Allow-Origin": outOrigin,

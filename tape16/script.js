@@ -30,6 +30,8 @@ const themeUploadForm = document.getElementById("theme-upload-form");
 const themeUploadStatus = document.getElementById("theme-form-status");
 const themeUploadSubmitBtn = document.getElementById("theme-submit-btn");
 const themeDownloadStatus = document.getElementById("theme-download-status");
+const themeLibraryGrid = document.getElementById("theme-library-grid");
+const themeEmptyState = document.getElementById("theme-empty-state");
 const themeSearch = document.getElementById("theme-search");
 const fullDownloadLink = document.getElementById("full-download-link");
 const downloadPageDemoLink = document.getElementById("download-page-demo-link");
@@ -669,7 +671,11 @@ if (bugForm) {
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok || !body.ok) {
-        throw new Error(body.error || "Submit failed");
+        const message =
+          body.error === "Missing COMMUNITY_BUCKET"
+            ? "Theme file storage is not enabled yet. Please try again later."
+            : body.error || "Submit failed";
+        throw new Error(message);
       }
       const reportIdText = body.reportId ? ` (${body.reportId})` : "";
       setBugStatus(`Bug report submitted${reportIdText}. Thank you.`, false);
@@ -757,6 +763,115 @@ function setThemeDownloadStatus(message, isError) {
   themeDownloadStatus.style.color = isError ? "#ff9d87" : "#f7c34b";
 }
 
+function themeApiBaseUrl() {
+  return (
+    configUrl(config.themeApiBaseUrl) ||
+    configUrl(config.supportApiBaseUrl) ||
+    configUrl(config.serialApiBaseUrl) ||
+    ""
+  );
+}
+
+function themeApiUrl(path) {
+  const value = String(path || "").trim();
+  if (!value) return "";
+  if (/^https?:\/\//i.test(value)) return value;
+  const base = themeApiBaseUrl();
+  if (!base) return value;
+  return `${base.replace(/\/+$/, "")}/${value.replace(/^\/+/, "")}`;
+}
+
+function formatFileSize(bytes) {
+  const size = Number(bytes || 0);
+  if (!Number.isFinite(size) || size <= 0) return "";
+  if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`;
+  return `${Math.round((size / (1024 * 1024)) * 10) / 10} MB`;
+}
+
+function themeCardHtml(item) {
+  const tags = Array.isArray(item.tags) ? item.tags.filter(Boolean) : [];
+  const downloadUrl = themeApiUrl(item.downloadUrl);
+  const previewUrl = themeApiUrl(item.previewUrl);
+  const ratingUrl = themeApiUrl(item.ratingUrl);
+  const size = formatFileSize(item.packageSize);
+  const downloads = Number(item.downloadCount || 0);
+  const ratingCount = Number(item.ratingCount || 0);
+  const ratingAverage = Number(item.ratingAverage || 0);
+  const score = ratingCount ? `${ratingAverage}/5` : "New";
+  const meta = [
+    item.appVersion ? `TAPE 16 ${item.appVersion}` : "",
+    size,
+    downloads === 1 ? "1 download" : `${downloads} downloads`,
+  ].filter(Boolean);
+  const preview = previewUrl
+    ? `<img src="${escapeHtml(previewUrl)}" alt="${escapeHtml(item.name)} preview" loading="lazy" />`
+    : `<span>${escapeHtml(String(item.packageFilename || "ZIP").replace(/^.*\./, "").toUpperCase())}</span>`;
+
+  return `
+    <article
+      class="theme-card"
+      data-theme-id="${escapeHtml(item.id || item.slug || "")}"
+      data-theme-name="${escapeHtml(item.name || "")}"
+      data-theme-creator="${escapeHtml(item.creatorName || "")}"
+      data-theme-tags="${escapeHtml(tags.join(" "))}"
+      data-rating-url="${escapeHtml(ratingUrl)}"
+    >
+      <div class="theme-preview">${preview}</div>
+      <div class="theme-card-head">
+        <div>
+          <h3>${escapeHtml(item.name || "Untitled Theme")}</h3>
+          <p>By ${escapeHtml(item.creatorName || "Unknown creator")}</p>
+        </div>
+        <strong class="theme-score">${escapeHtml(score)}</strong>
+      </div>
+      <p>${escapeHtml(item.description || "No description supplied.")}</p>
+      <div class="theme-meta">
+        ${meta.map((value) => `<span>${escapeHtml(value)}</span>`).join("")}
+        ${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
+      </div>
+      <div class="theme-rating" aria-label="Rate ${escapeHtml(item.name || "theme")}">
+        ${[1, 2, 3, 4, 5]
+          .map(
+            (rating) =>
+              `<button class="theme-rating-button" type="button" data-rating="${rating}" aria-label="${rating} out of 5">${rating}</button>`,
+          )
+          .join("")}
+      </div>
+      <a class="btn btn-primary theme-download" href="${escapeHtml(downloadUrl)}" data-theme-download>Download ZIP</a>
+    </article>
+  `;
+}
+
+function renderThemeLibrary(items) {
+  if (!themeLibraryGrid) return;
+  const themes = Array.isArray(items) ? items : [];
+  themeLibraryGrid.innerHTML = themes.map(themeCardHtml).join("");
+  if (themeEmptyState) themeEmptyState.hidden = themes.length > 0;
+  themeLibraryGrid.hidden = themes.length === 0;
+  bindThemeRatings();
+  bindThemeDownloads();
+  if (themeSearch) themeSearch.dispatchEvent(new Event("input"));
+}
+
+async function loadThemeLibrary() {
+  if (!themeLibraryGrid) return;
+  const supportBase = themeApiBaseUrl();
+  if (!supportBase) {
+    setThemeDownloadStatus("Theme library service is not configured yet.", true);
+    return;
+  }
+
+  try {
+    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/themes`);
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || !body.ok) throw new Error(body.error || "Theme library failed");
+    renderThemeLibrary(body.items || []);
+    setThemeDownloadStatus("", false);
+  } catch (error) {
+    setThemeDownloadStatus("Could not load themes right now. Please try again shortly.", true);
+  }
+}
+
 function readThemeRatings() {
   try {
     const raw = localStorage.getItem(THEME_RATINGS_STORAGE_KEY);
@@ -795,7 +910,9 @@ function bindThemeRatings() {
     if (savedRating) updateThemeRatingUi(card, savedRating);
 
     card.querySelectorAll(".theme-rating-button").forEach((button) => {
-      button.addEventListener("click", () => {
+      if (button.dataset.bound === "true") return;
+      button.dataset.bound = "true";
+      button.addEventListener("click", async () => {
         const rating = Number(button.dataset.rating || 0);
         if (!themeId || rating < 1 || rating > 5) return;
 
@@ -808,6 +925,25 @@ function bindThemeRatings() {
           rating,
           page_location: window.location.href,
         });
+
+        const ratingUrl = card.dataset.ratingUrl || "";
+        if (!ratingUrl) return;
+        try {
+          const response = await fetch(ratingUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ rating }),
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok || !body.ok || !body.item) throw new Error("Rating failed");
+          const scoreEl = card.querySelector(".theme-score");
+          if (scoreEl) {
+            const count = Number(body.item.ratingCount || 0);
+            scoreEl.textContent = count ? `${Number(body.item.ratingAverage || 0)}/5` : "New";
+          }
+        } catch (error) {
+          setThemeDownloadStatus("Saved locally, but could not sync that rating yet.", true);
+        }
       });
     });
   });
@@ -834,6 +970,8 @@ function bindThemeSearch() {
 
 function bindThemeDownloads() {
   document.querySelectorAll("[data-theme-download]").forEach((link) => {
+    if (link.dataset.bound === "true") return;
+    link.dataset.bound = "true";
     link.addEventListener("click", (event) => {
       const href = link.getAttribute("href") || "";
       const card = link.closest(".theme-card");
@@ -849,7 +987,7 @@ function bindThemeDownloads() {
 
       event.preventDefault();
       setThemeDownloadStatus(
-        "Theme files are not attached yet. Add each approved theme file URL to enable downloads.",
+        "Theme files are not attached yet. Add each theme file URL to enable downloads.",
         true
       );
     });
@@ -860,11 +998,7 @@ if (themeUploadForm) {
   themeUploadForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const supportBase =
-      configUrl(config.themeApiBaseUrl) ||
-      configUrl(config.supportApiBaseUrl) ||
-      configUrl(config.serialApiBaseUrl) ||
-      "";
+    const supportBase = themeApiBaseUrl();
     if (!supportBase) {
       setThemeUploadStatus("Theme upload service is not configured yet. Please contact support.", true);
       return;
@@ -908,19 +1042,24 @@ if (themeUploadForm) {
         throw new Error(body.error || "Submit failed");
       }
       const themeIdText = body.themeId ? ` (${body.themeId})` : "";
-      setThemeUploadStatus(`Theme submitted for review${themeIdText}. Thank you.`, false);
+      setThemeUploadStatus(`Theme uploaded${themeIdText}. Thank you.`, false);
       themeUploadForm.reset();
+      await loadThemeLibrary();
     } catch (error) {
-      setThemeUploadStatus("Could not submit theme right now. Please try again shortly.", true);
+      setThemeUploadStatus(
+        error instanceof Error && error.message
+          ? error.message
+          : "Could not submit theme right now. Please try again shortly.",
+        true
+      );
     } finally {
       if (themeUploadSubmitBtn) themeUploadSubmitBtn.removeAttribute("disabled");
     }
   });
 }
 
-bindThemeRatings();
 bindThemeSearch();
-bindThemeDownloads();
+loadThemeLibrary();
 
 function accountApiBaseUrl() {
   return configUrl(config.accountApiBaseUrl) || "";

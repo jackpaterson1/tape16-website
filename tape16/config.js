@@ -22,8 +22,8 @@ window.TAPE16_SITE_CONFIG = {
   serialApiBaseUrl: "",
   // Optional dedicated support API. If empty, serialApiBaseUrl is used.
   supportApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
-  // Optional dedicated theme API. If empty, supportApiBaseUrl is used.
-  themeApiBaseUrl: "",
+  // Community themes/mods API. Uses the same Cloudflare Worker as support.
+  themeApiBaseUrl: "https://tape16-api.emrmusicgroup.workers.dev",
   // Account/licensing API base (Cloudflare Worker recommended).
   // Example: "https://tape16-licensing.youraccount.workers.dev"
   accountApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
