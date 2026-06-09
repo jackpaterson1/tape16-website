@@ -935,13 +935,12 @@ h1 {
 .theme-toolbar {
   margin-top: 1rem;
   display: grid;
-  grid-template-columns: minmax(220px, 420px);
+  grid-template-columns: minmax(190px, 280px) minmax(220px, 420px);
   gap: 0.6rem;
   align-items: end;
 }
 
-.theme-filter,
-.theme-rating-button {
+.theme-filter {
   border: 1px solid var(--stroke);
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.03);
@@ -956,8 +955,7 @@ h1 {
   padding: 0.55rem 0.85rem;
 }
 
-.theme-filter.is-active,
-.theme-rating-button.is-active {
+.theme-filter.is-active {
   border-color: rgba(255, 114, 85, 0.72);
   background: rgba(255, 114, 85, 0.18);
   color: var(--accent-alt);
@@ -970,7 +968,8 @@ h1 {
   font-size: 0.92rem;
 }
 
-.theme-toolbar input {
+.theme-toolbar input,
+.theme-toolbar select {
   width: 100%;
   border: 1px solid var(--stroke);
   border-radius: 0;
@@ -1059,13 +1058,7 @@ h1 {
   margin: 0.25rem 0 0;
 }
 
-.theme-score {
-  color: var(--accent-alt);
-  font-size: 1.2rem;
-}
-
-.theme-meta,
-.theme-rating {
+.theme-meta {
   display: flex;
   gap: 0.45rem;
   flex-wrap: wrap;
@@ -1080,16 +1073,6 @@ h1 {
   padding: 0.28rem 0.45rem;
   color: var(--muted);
   font-size: 0.82rem;
-}
-
-.theme-rating {
-  margin-top: 0.8rem;
-}
-
-.theme-rating-button {
-  width: 34px;
-  height: 34px;
-  padding: 0;
 }
 
 .theme-download {

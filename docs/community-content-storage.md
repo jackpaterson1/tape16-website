@@ -2,9 +2,9 @@
 
 Community themes and future mods use Cloudflare:
 
-- D1 stores public item metadata, ratings, download counts, and private uploader email addresses.
+- D1 stores public item metadata, download counts, recent download events, and private uploader email addresses.
 - R2 stores uploaded ZIP packages and preview images.
-- The Worker exposes `/themes`, `/submit-theme`, `/themes/:slug/download`, `/themes/:slug/preview`, and `/themes/:slug/rate`.
+- The Worker exposes `/themes`, `/submit-theme`, `/themes/:slug/download`, and `/themes/:slug/preview`.
 
 Uploader email addresses are stored in D1 for owner/contact use, but they are not returned by public API responses.
 
@@ -22,6 +22,11 @@ Migration applied:
 ```sh
 /opt/homebrew/bin/wrangler d1 migrations apply tape16-community --remote
 ```
+
+Applied migrations:
+
+- `0001_community_content.sql`
+- `0002_community_downloads.sql`
 
 ## R2 Bucket
 

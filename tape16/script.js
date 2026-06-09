@@ -32,6 +32,7 @@ const themeUploadSubmitBtn = document.getElementById("theme-submit-btn");
 const themeDownloadStatus = document.getElementById("theme-download-status");
 const themeLibraryGrid = document.getElementById("theme-library-grid");
 const themeEmptyState = document.getElementById("theme-empty-state");
+const themeSort = document.getElementById("theme-sort");
 const themeSearch = document.getElementById("theme-search");
 const fullDownloadLink = document.getElementById("full-download-link");
 const downloadPageDemoLink = document.getElementById("download-page-demo-link");
@@ -63,7 +64,6 @@ const BUILD_VERSION_CACHE_KEY = "tape16_latest_build_cache_v1";
 const BUILD_VERSION_CACHE_TTL_MS = 10 * 60 * 1000;
 const REDDIT_MATCH_STORAGE_KEY = "tape16_reddit_match_v1";
 const PROMOTEKIT_REFERRAL_STORAGE_KEY = "tape16_promotekit_referral_v1";
-const THEME_RATINGS_STORAGE_KEY = "tape16_theme_ratings_v1";
 
 function configUrl(value) {
   if (typeof value !== "string") return "";
@@ -788,16 +788,14 @@ function themeCardHtml(item) {
   const tags = Array.isArray(item.tags) ? item.tags.filter(Boolean) : [];
   const downloadUrl = themeApiUrl(item.downloadUrl);
   const previewUrl = themeApiUrl(item.previewUrl);
-  const ratingUrl = themeApiUrl(item.ratingUrl);
   const size = formatFileSize(item.packageSize);
   const downloads = Number(item.downloadCount || 0);
-  const ratingCount = Number(item.ratingCount || 0);
-  const ratingAverage = Number(item.ratingAverage || 0);
-  const score = ratingCount ? `${ratingAverage}/5` : "New";
+  const periodDownloads = Number(item.periodDownloadCount || 0);
   const meta = [
     item.appVersion ? `TAPE 16 ${item.appVersion}` : "",
     size,
     downloads === 1 ? "1 download" : `${downloads} downloads`,
+    periodDownloads === 1 ? "1 in selected range" : `${periodDownloads} in selected range`,
   ].filter(Boolean);
   const preview = previewUrl
     ? `<img src="${escapeHtml(previewUrl)}" alt="${escapeHtml(item.name)} preview" loading="lazy" />`
@@ -810,7 +808,6 @@ function themeCardHtml(item) {
       data-theme-name="${escapeHtml(item.name || "")}"
       data-theme-creator="${escapeHtml(item.creatorName || "")}"
       data-theme-tags="${escapeHtml(tags.join(" "))}"
-      data-rating-url="${escapeHtml(ratingUrl)}"
     >
       <div class="theme-preview">${preview}</div>
       <div class="theme-card-head">
@@ -818,20 +815,11 @@ function themeCardHtml(item) {
           <h3>${escapeHtml(item.name || "Untitled Theme")}</h3>
           <p>By ${escapeHtml(item.creatorName || "Unknown creator")}</p>
         </div>
-        <strong class="theme-score">${escapeHtml(score)}</strong>
       </div>
       <p>${escapeHtml(item.description || "No description supplied.")}</p>
       <div class="theme-meta">
         ${meta.map((value) => `<span>${escapeHtml(value)}</span>`).join("")}
         ${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
-      </div>
-      <div class="theme-rating" aria-label="Rate ${escapeHtml(item.name || "theme")}">
-        ${[1, 2, 3, 4, 5]
-          .map(
-            (rating) =>
-              `<button class="theme-rating-button" type="button" data-rating="${rating}" aria-label="${rating} out of 5">${rating}</button>`,
-          )
-          .join("")}
       </div>
       <a class="btn btn-primary theme-download" href="${escapeHtml(downloadUrl)}" data-theme-download>Download ZIP</a>
     </article>
@@ -844,7 +832,6 @@ function renderThemeLibrary(items) {
   themeLibraryGrid.innerHTML = themes.map(themeCardHtml).join("");
   if (themeEmptyState) themeEmptyState.hidden = themes.length > 0;
   themeLibraryGrid.hidden = themes.length === 0;
-  bindThemeRatings();
   bindThemeDownloads();
   if (themeSearch) themeSearch.dispatchEvent(new Event("input"));
 }
@@ -858,7 +845,8 @@ async function loadThemeLibrary() {
   }
 
   try {
-    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/themes`);
+    const sort = themeSort ? String(themeSort.value || "popular_1_month") : "popular_1_month";
+    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/themes?sort=${encodeURIComponent(sort)}`);
     const body = await response.json().catch(() => ({}));
     if (!response.ok || !body.ok) throw new Error(body.error || "Theme library failed");
     renderThemeLibrary(body.items || []);
@@ -866,83 +854,6 @@ async function loadThemeLibrary() {
   } catch (error) {
     setThemeDownloadStatus("Could not load themes right now. Please try again shortly.", true);
   }
-}
-
-function readThemeRatings() {
-  try {
-    const raw = localStorage.getItem(THEME_RATINGS_STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : {};
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch (error) {
-    return {};
-  }
-}
-
-function writeThemeRatings(ratings) {
-  try {
-    localStorage.setItem(THEME_RATINGS_STORAGE_KEY, JSON.stringify(ratings || {}));
-  } catch (error) {
-    // Ignore storage errors.
-  }
-}
-
-function updateThemeRatingUi(card, rating) {
-  if (!card) return;
-  card.querySelectorAll(".theme-rating-button").forEach((button) => {
-    const value = Number(button.dataset.rating || 0);
-    button.classList.toggle("is-active", value <= rating);
-    button.setAttribute("aria-pressed", value === rating ? "true" : "false");
-  });
-}
-
-function bindThemeRatings() {
-  const cards = document.querySelectorAll(".theme-card[data-theme-id]");
-  if (!cards.length) return;
-
-  const savedRatings = readThemeRatings();
-  cards.forEach((card) => {
-    const themeId = card.dataset.themeId;
-    const savedRating = Number(savedRatings[themeId] || 0);
-    if (savedRating) updateThemeRatingUi(card, savedRating);
-
-    card.querySelectorAll(".theme-rating-button").forEach((button) => {
-      if (button.dataset.bound === "true") return;
-      button.dataset.bound = "true";
-      button.addEventListener("click", async () => {
-        const rating = Number(button.dataset.rating || 0);
-        if (!themeId || rating < 1 || rating > 5) return;
-
-        const nextRatings = readThemeRatings();
-        nextRatings[themeId] = rating;
-        writeThemeRatings(nextRatings);
-        updateThemeRatingUi(card, rating);
-        trackAnalyticsEvent("theme_rating", {
-          theme_id: themeId,
-          rating,
-          page_location: window.location.href,
-        });
-
-        const ratingUrl = card.dataset.ratingUrl || "";
-        if (!ratingUrl) return;
-        try {
-          const response = await fetch(ratingUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ rating }),
-          });
-          const body = await response.json().catch(() => ({}));
-          if (!response.ok || !body.ok || !body.item) throw new Error("Rating failed");
-          const scoreEl = card.querySelector(".theme-score");
-          if (scoreEl) {
-            const count = Number(body.item.ratingCount || 0);
-            scoreEl.textContent = count ? `${Number(body.item.ratingAverage || 0)}/5` : "New";
-          }
-        } catch (error) {
-          setThemeDownloadStatus("Saved locally, but could not sync that rating yet.", true);
-        }
-      });
-    });
-  });
 }
 
 function bindThemeSearch() {
@@ -962,6 +873,17 @@ function bindThemeSearch() {
 
   themeSearch.addEventListener("input", applyThemeSearch);
   themeSearch.addEventListener("change", applyThemeSearch);
+}
+
+function bindThemeSort() {
+  if (!themeSort) return;
+  themeSort.addEventListener("change", () => {
+    loadThemeLibrary();
+    trackAnalyticsEvent("theme_sort_change", {
+      sort: themeSort.value,
+      page_location: window.location.href,
+    });
+  });
 }
 
 function bindThemeDownloads() {
@@ -1060,6 +982,7 @@ if (themeUploadForm) {
 }
 
 bindThemeSearch();
+bindThemeSort();
 loadThemeLibrary();
 
 function accountApiBaseUrl() {

@@ -36,7 +36,7 @@ export default {
       }
 
       if (method === "GET" && path === "/themes") {
-        return await handleListCommunityItems("theme", origin, env);
+        return await handleListCommunityItems("theme", origin, env, url.searchParams);
       }
 
       if (method === "POST" && (path === "/themes" || path === "/submit-theme")) {
@@ -57,15 +57,8 @@ export default {
         }
       }
 
-      {
-        const match = path.match(/^\/themes\/([^/]+)\/rate$/);
-        if (method === "POST" && match) {
-          return await handleRateCommunityItem(request, "theme", match[1], origin, env);
-        }
-      }
-
       if (method === "GET" && path === "/mods") {
-        return await handleListCommunityItems("mod", origin, env);
+        return await handleListCommunityItems("mod", origin, env, url.searchParams);
       }
 
       if (method === "POST" && (path === "/mods" || path === "/submit-mod")) {
@@ -83,13 +76,6 @@ export default {
         const match = path.match(/^\/mods\/([^/]+)\/preview$/);
         if (method === "GET" && match) {
           return await handlePreviewCommunityItem("mod", match[1], origin, env);
-        }
-      }
-
-      {
-        const match = path.match(/^\/mods\/([^/]+)\/rate$/);
-        if (method === "POST" && match) {
-          return await handleRateCommunityItem(request, "mod", match[1], origin, env);
         }
       }
 
@@ -426,25 +412,45 @@ async function handleLatestRelease(origin, env) {
   );
 }
 
-async function handleListCommunityItems(type, origin, env) {
+async function handleListCommunityItems(type, origin, env, searchParams = new URLSearchParams()) {
   const missing = missingCommunityBindings(env, { bucket: false });
   if (missing) return json({ ok: false, error: missing }, 500, origin, env);
 
-  const rows = await env.COMMUNITY_DB.prepare(
-    `SELECT id, type, slug, name, creator_name, app_version, description, tags,
-      package_filename, package_size, preview_key, preview_filename, preview_size,
-      download_count, rating_count, rating_total, created_at, updated_at
-     FROM community_items
-     WHERE type = ?
-     ORDER BY created_at DESC
-     LIMIT 100`,
-  )
-    .bind(type)
-    .all();
+  const sort = normalizeCommunitySort(searchParams.get("sort"));
+  const windowStart = communitySortWindowStart(sort);
+  const query = windowStart
+    ? `SELECT i.id, i.type, i.slug, i.name, i.creator_name, i.app_version, i.description, i.tags,
+        i.package_filename, i.package_size, i.preview_key, i.preview_filename, i.preview_size,
+        i.download_count, COALESCE(d.period_download_count, 0) AS period_download_count,
+        i.created_at, i.updated_at
+       FROM community_items i
+       LEFT JOIN (
+         SELECT item_id, COUNT(*) AS period_download_count
+         FROM community_downloads
+         WHERE downloaded_at >= ?
+         GROUP BY item_id
+       ) d ON d.item_id = i.id
+       WHERE i.type = ?
+       ORDER BY period_download_count DESC, i.download_count DESC, i.created_at DESC
+       LIMIT 100`
+    : `SELECT i.id, i.type, i.slug, i.name, i.creator_name, i.app_version, i.description, i.tags,
+        i.package_filename, i.package_size, i.preview_key, i.preview_filename, i.preview_size,
+        i.download_count, i.download_count AS period_download_count,
+        i.created_at, i.updated_at
+       FROM community_items i
+       WHERE i.type = ?
+       ORDER BY i.download_count DESC, i.created_at DESC
+       LIMIT 100`;
+
+  const statement = env.COMMUNITY_DB.prepare(query);
+  const rows = windowStart
+    ? await statement.bind(windowStart, type).all()
+    : await statement.bind(type).all();
 
   return json(
     {
       ok: true,
+      sort,
       items: (rows?.results || []).map((row) => publicCommunityItem(row)),
     },
     200,
@@ -558,8 +564,6 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
     preview_filename: previewFilename,
     preview_size: previewBuffer ? previewBuffer.byteLength : 0,
     download_count: 0,
-    rating_count: 0,
-    rating_total: 0,
     created_at: now,
     updated_at: now,
   };
@@ -569,8 +573,8 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
       id, type, slug, name, creator_name, uploader_email, app_version, description, tags,
       package_key, package_filename, package_size, package_sha256,
       preview_key, preview_filename, preview_size,
-      download_count, rating_count, rating_total, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      download_count, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   )
     .bind(
       item.id,
@@ -590,8 +594,6 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
       item.preview_filename,
       item.preview_size,
       item.download_count,
-      item.rating_count,
-      item.rating_total,
       item.created_at,
       item.updated_at,
     )
@@ -620,11 +622,15 @@ async function handleDownloadCommunityItem(type, slugOrId, origin, env) {
   const object = await env.COMMUNITY_BUCKET.get(item.package_key);
   if (!object) return json({ ok: false, error: "Package file not found" }, 404, origin, env);
 
-  await env.COMMUNITY_DB.prepare(
-    "UPDATE community_items SET download_count = download_count + 1, updated_at = ? WHERE id = ?",
-  )
-    .bind(new Date().toISOString(), item.id)
-    .run();
+  const now = new Date().toISOString();
+  await env.COMMUNITY_DB.batch([
+    env.COMMUNITY_DB.prepare(
+      "UPDATE community_items SET download_count = download_count + 1, updated_at = ? WHERE id = ?",
+    ).bind(now, item.id),
+    env.COMMUNITY_DB.prepare(
+      "INSERT INTO community_downloads (id, item_id, downloaded_at) VALUES (?, ?, ?)",
+    ).bind(makeCommunityDownloadId(), item.id, now),
+  ]);
 
   return new Response(object.body, {
     status: 200,
@@ -657,52 +663,6 @@ async function handlePreviewCommunityItem(type, slugOrId, origin, env) {
       "Cache-Control": "public, max-age=3600",
     },
   });
-}
-
-async function handleRateCommunityItem(request, type, slugOrId, origin, env) {
-  const missing = missingCommunityBindings(env, { bucket: false });
-  if (missing) return json({ ok: false, error: missing }, 500, origin, env);
-
-  let payload = {};
-  try {
-    payload = await request.json();
-  } catch {
-    payload = {};
-  }
-
-  const rating = Number(payload.rating);
-  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-    return json({ ok: false, error: "Rating must be between 1 and 5" }, 400, origin, env);
-  }
-
-  const item = await getCommunityItem(env, type, slugOrId);
-  if (!item) return json({ ok: false, error: "Item not found" }, 404, origin, env);
-
-  const voterKey = await ratingVoterKey(request, env);
-  const now = new Date().toISOString();
-  await env.COMMUNITY_DB.prepare(
-    `INSERT INTO community_ratings (item_id, voter_key, rating, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?)
-     ON CONFLICT(item_id, voter_key)
-     DO UPDATE SET rating = excluded.rating, updated_at = excluded.updated_at`,
-  )
-    .bind(item.id, voterKey, rating, now, now)
-    .run();
-
-  const totals = await env.COMMUNITY_DB.prepare(
-    "SELECT COUNT(*) AS rating_count, COALESCE(SUM(rating), 0) AS rating_total FROM community_ratings WHERE item_id = ?",
-  )
-    .bind(item.id)
-    .first();
-
-  await env.COMMUNITY_DB.prepare(
-    "UPDATE community_items SET rating_count = ?, rating_total = ?, updated_at = ? WHERE id = ?",
-  )
-    .bind(Number(totals?.rating_count || 0), Number(totals?.rating_total || 0), now, item.id)
-    .run();
-
-  const updated = await getCommunityItem(env, type, item.slug);
-  return json({ ok: true, item: publicCommunityItem(updated), rating }, 200, origin, env);
 }
 
 async function issueOrReuseSerial({ orderId, email, source, paymentIntentId, env }) {
@@ -874,6 +834,32 @@ function makeCommunityId(type) {
   return `${type}_${suffix}`;
 }
 
+function makeCommunityDownloadId() {
+  const bytes = new Uint8Array(10);
+  crypto.getRandomValues(bytes);
+  const suffix = [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `dl_${suffix}`;
+}
+
+function normalizeCommunitySort(value) {
+  const sort = cleanString(value).toLowerCase().replace(/-/g, "_");
+  if (sort === "downloads" || sort === "all_time" || sort === "all") return "downloads";
+  if (sort === "popular_3_months" || sort === "3_months" || sort === "three_months") {
+    return "popular_3_months";
+  }
+  if (sort === "popular_1_week" || sort === "1_week" || sort === "week") return "popular_1_week";
+  return "popular_1_month";
+}
+
+function communitySortWindowStart(sort) {
+  const now = Date.now();
+  const day = 24 * 60 * 60 * 1000;
+  if (sort === "popular_3_months") return new Date(now - 90 * day).toISOString();
+  if (sort === "popular_1_week") return new Date(now - 7 * day).toISOString();
+  if (sort === "popular_1_month") return new Date(now - 30 * day).toISOString();
+  return "";
+}
+
 function slugify(value) {
   const slug = cleanString(value)
     .toLowerCase()
@@ -942,7 +928,7 @@ async function getCommunityItem(env, type, slugOrId) {
     `SELECT id, type, slug, name, creator_name, app_version, description, tags,
       package_key, package_filename, package_size, package_sha256,
       preview_key, preview_filename, preview_size,
-      download_count, rating_count, rating_total, created_at, updated_at
+      download_count, created_at, updated_at
      FROM community_items
      WHERE type = ? AND (slug = ? OR id = ?)
      LIMIT 1`,
@@ -954,11 +940,9 @@ async function getCommunityItem(env, type, slugOrId) {
 function publicCommunityItem(row) {
   if (!row) return null;
   const tags = parseCommunityTags(row.tags);
-  const ratingCount = Number(row.rating_count || 0);
-  const ratingTotal = Number(row.rating_total || 0);
-  const ratingAverage = ratingCount ? Math.round((ratingTotal / ratingCount) * 10) / 10 : 0;
   const kind = communityKind(row.type);
   const basePath = `/${kind.plural}/${encodeURIComponent(row.slug)}`;
+  const downloadCount = Number(row.download_count || 0);
 
   return {
     id: row.id,
@@ -974,10 +958,8 @@ function publicCommunityItem(row) {
     packageSha256: row.package_sha256 || "",
     previewUrl: row.preview_key ? `${basePath}/preview` : "",
     downloadUrl: `${basePath}/download`,
-    ratingUrl: `${basePath}/rate`,
-    downloadCount: Number(row.download_count || 0),
-    ratingCount,
-    ratingAverage,
+    downloadCount,
+    periodDownloadCount: Number(row.period_download_count ?? downloadCount),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -991,13 +973,6 @@ function parseCommunityTags(value) {
   } catch {
     return [];
   }
-}
-
-async function ratingVoterKey(request, env) {
-  const ip = request.headers.get("CF-Connecting-IP") || "";
-  const ua = request.headers.get("User-Agent") || "";
-  const salt = env.RATING_SALT || "tape16-community-ratings";
-  return await sha256Hex(`${salt}:${ip}:${ua}`);
 }
 
 async function sha256Hex(value) {
