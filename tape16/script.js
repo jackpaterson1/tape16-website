@@ -671,11 +671,7 @@ if (bugForm) {
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok || !body.ok) {
-        const message =
-          body.error === "Missing COMMUNITY_BUCKET"
-            ? "Theme file storage is not enabled yet. Please try again later."
-            : body.error || "Submit failed";
-        throw new Error(message);
+        throw new Error(body.error || "Submit failed");
       }
       const reportIdText = body.reportId ? ` (${body.reportId})` : "";
       setBugStatus(`Bug report submitted${reportIdText}. Thank you.`, false);
@@ -1039,7 +1035,12 @@ if (themeUploadForm) {
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok || !body.ok) {
-        throw new Error(body.error || "Submit failed");
+        const message = String(body.error || "");
+        throw new Error(
+          message.includes("COMMUNITY_BUCKET") || message.includes("file storage")
+            ? "Theme file storage is not enabled yet. Please try again later."
+            : message || "Submit failed"
+        );
       }
       const themeIdText = body.themeId ? ` (${body.themeId})` : "";
       setThemeUploadStatus(`Theme uploaded${themeIdText}. Thank you.`, false);

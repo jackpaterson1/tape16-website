@@ -846,8 +846,8 @@ function readSessionEmail(session) {
 }
 
 function missingCommunityBindings(env, options = {}) {
-  if (!env.COMMUNITY_DB) return "Missing COMMUNITY_DB binding";
-  if (options.bucket !== false && !env.COMMUNITY_BUCKET) return "Missing COMMUNITY_BUCKET binding";
+  if (!env.COMMUNITY_DB) return "Community database is not configured yet";
+  if (options.bucket !== false && !env.COMMUNITY_BUCKET) return "Community file storage is not enabled yet";
   return "";
 }
 
