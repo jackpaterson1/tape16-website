@@ -1002,7 +1002,8 @@ h1 {
 }
 
 .theme-preview {
-  height: 150px;
+  aspect-ratio: 16 / 9;
+  width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.12);
   margin-bottom: 0.9rem;
   background: rgba(7, 7, 8, 0.86);
@@ -1014,7 +1015,7 @@ h1 {
 .theme-preview img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .theme-preview span {
