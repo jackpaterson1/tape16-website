@@ -1,6 +1,6 @@
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
 const GENERIC_RESEND_MESSAGE = "If a matching purchase exists, the serial email has been sent.";
-const COMMUNITY_MAX_PACKAGE_BYTES = 25 * 1024 * 1024;
+const COMMUNITY_MAX_PACKAGE_BYTES = 50 * 1024 * 1024;
 const COMMUNITY_MAX_PREVIEW_BYTES = 5 * 1024 * 1024;
 
 const CHECKOUT_EVENT_TYPES = new Set([
@@ -489,7 +489,7 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
 
   const packageBuffer = await packageFile.arrayBuffer();
   if (!packageBuffer.byteLength || packageBuffer.byteLength > COMMUNITY_MAX_PACKAGE_BYTES) {
-    return json({ ok: false, error: "ZIP package must be 25MB or smaller" }, 400, origin, env);
+    return json({ ok: false, error: "ZIP package must be 50MB or smaller" }, 400, origin, env);
   }
   if (!looksLikeZip(packageBuffer)) {
     return json({ ok: false, error: "Theme package must be a valid ZIP file" }, 400, origin, env);

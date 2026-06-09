@@ -1019,8 +1019,8 @@ if (themeUploadForm) {
 
     const files = [themeFile, previewImage].filter(Boolean);
     const totalSize = files.reduce((sum, file) => sum + (file.size || 0), 0);
-    if (totalSize > 25 * 1024 * 1024) {
-      setThemeUploadStatus("Theme upload exceeds 25MB total.", true);
+    if (totalSize > 50 * 1024 * 1024) {
+      setThemeUploadStatus("Theme upload exceeds 50MB total.", true);
       return;
     }
 
