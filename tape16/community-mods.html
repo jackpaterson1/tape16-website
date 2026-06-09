@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TAPE 16 | Community Mods</title>
+    <meta
+      name="description"
+      content="Upload, rate, and download community mods for TAPE 16."
+    />
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="stylesheet" href="styles.css?v=community-mods-1" />
+      <script async src="https://www.googletagmanager.com/gtag/js?id=GT-TQK5FZD8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "GT-TQK5FZD8");
+      gtag("config", "G-BEW6NC5PCV");
+    </script>
+  <!-- Reddit Pixel -->
+  <script>
+  !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js?pixel_id=a2_in5atqp7amcu",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
+  var rdtMatch = {};
+  try {
+    var rawMatch = window.localStorage ? localStorage.getItem("tape16_reddit_match_v1") : "";
+    var parsedMatch = rawMatch ? JSON.parse(rawMatch) : {};
+    if (parsedMatch && typeof parsedMatch === "object") {
+      if (parsedMatch.email) rdtMatch.email = String(parsedMatch.email).trim().toLowerCase();
+      if (parsedMatch.phoneNumber) rdtMatch.phoneNumber = String(parsedMatch.phoneNumber).trim();
+      if (parsedMatch.externalId) rdtMatch.externalId = String(parsedMatch.externalId).trim();
+      if (parsedMatch.idfa) rdtMatch.idfa = String(parsedMatch.idfa).trim();
+      if (parsedMatch.aaid) rdtMatch.aaid = String(parsedMatch.aaid).trim();
+    }
+  } catch (e) {}
+  if (Object.keys(rdtMatch).length > 0) {
+    rdt("init", "a2_in5atqp7amcu", rdtMatch);
+  } else {
+    rdt("init", "a2_in5atqp7amcu");
+  }
+  rdt("track", "PageVisit");
+  </script>
+  <!-- DO NOT MODIFY UNLESS TO REPLACE A USER IDENTIFIER -->
+  <!-- End Reddit Pixel -->
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,"script",
+  "https://connect.facebook.net/en_US/fbevents.js");
+  fbq("init", "1292961342163447");
+  fbq("track", "PageView");
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1292961342163447&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+
+</head>
+  <body>
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="TAPE 16 home">
+        <img src="assets/tape16-logo.png" alt="TAPE 16 logo" />
+        <span>TAPE 16</span>
+      </a>
+      <nav>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#workflow">Workflow</a>
+        <a href="index.html#pricing">Pricing</a>
+        <a href="affiliate.html">Affiliates</a>
+        <a href="feature-request.html">Request Feature</a>
+        <a href="bugs.html">Bugs</a>
+        <a href="changenotes.html">Change Notes</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="brand-banner" aria-label="TAPE 16 branding">
+        <img src="assets/tape16-wordmark-2048.png" alt="TAPE 16 wordmark" />
+      </section>
+
+      <section class="mods-hero" id="community-mods">
+        <div>
+          <p class="eyebrow">Community Mods</p>
+          <h1>Community Mods</h1>
+          <p class="hero-copy">
+            Download and share community-made extensions for TAPE 16, starting with exported theme ZIPs.
+          </p>
+        </div>
+      </section>
+
+      <section class="community-mod-choices" aria-label="Community mod categories">
+        <a class="community-mod-box community-mod-box--active" href="themes.html">
+          <p class="eyebrow">Available</p>
+          <h2>Themes</h2>
+          <p>Upload, browse, rate, and download exported TAPE 16 theme ZIPs.</p>
+          <span class="btn btn-primary">Open Themes</span>
+        </a>
+        <article class="community-mod-box community-mod-box--disabled" aria-disabled="true">
+          <p class="eyebrow">Coming Soon</p>
+          <h2>Mods</h2>
+          <p>Tape modulation presets and deeper community mod packages will appear here later.</p>
+          <span class="btn btn-ghost">Mods Coming Soon</span>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      <p>JB Paterson | EMR Music Group</p>
+      <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
+    </footer>
+
+    <script src="config.js?v=0.9.272"></script>
+    <script src="script.js?v=community-mods-1"></script>
+  </body>
+</html>

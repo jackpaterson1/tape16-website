@@ -26,6 +26,11 @@ const bugSubmitBtn = document.getElementById("bug-submit-btn");
 const featureForm = document.getElementById("feature-request-form");
 const featureStatus = document.getElementById("feature-form-status");
 const featureSubmitBtn = document.getElementById("feature-submit-btn");
+const themeUploadForm = document.getElementById("theme-upload-form");
+const themeUploadStatus = document.getElementById("theme-form-status");
+const themeUploadSubmitBtn = document.getElementById("theme-submit-btn");
+const themeDownloadStatus = document.getElementById("theme-download-status");
+const themeSearch = document.getElementById("theme-search");
 const fullDownloadLink = document.getElementById("full-download-link");
 const downloadPageDemoLink = document.getElementById("download-page-demo-link");
 const downloadCtaLink = document.getElementById("download-cta-link");
@@ -56,6 +61,7 @@ const BUILD_VERSION_CACHE_KEY = "tape16_latest_build_cache_v1";
 const BUILD_VERSION_CACHE_TTL_MS = 10 * 60 * 1000;
 const REDDIT_MATCH_STORAGE_KEY = "tape16_reddit_match_v1";
 const PROMOTEKIT_REFERRAL_STORAGE_KEY = "tape16_promotekit_referral_v1";
+const THEME_RATINGS_STORAGE_KEY = "tape16_theme_ratings_v1";
 
 function configUrl(value) {
   if (typeof value !== "string") return "";
@@ -738,6 +744,183 @@ if (featureForm) {
     }
   });
 }
+
+function setThemeUploadStatus(message, isError) {
+  if (!themeUploadStatus) return;
+  themeUploadStatus.textContent = message;
+  themeUploadStatus.style.color = isError ? "#ff9d87" : "#f7c34b";
+}
+
+function setThemeDownloadStatus(message, isError) {
+  if (!themeDownloadStatus) return;
+  themeDownloadStatus.textContent = message;
+  themeDownloadStatus.style.color = isError ? "#ff9d87" : "#f7c34b";
+}
+
+function readThemeRatings() {
+  try {
+    const raw = localStorage.getItem(THEME_RATINGS_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function writeThemeRatings(ratings) {
+  try {
+    localStorage.setItem(THEME_RATINGS_STORAGE_KEY, JSON.stringify(ratings || {}));
+  } catch (error) {
+    // Ignore storage errors.
+  }
+}
+
+function updateThemeRatingUi(card, rating) {
+  if (!card) return;
+  card.querySelectorAll(".theme-rating-button").forEach((button) => {
+    const value = Number(button.dataset.rating || 0);
+    button.classList.toggle("is-active", value <= rating);
+    button.setAttribute("aria-pressed", value === rating ? "true" : "false");
+  });
+}
+
+function bindThemeRatings() {
+  const cards = document.querySelectorAll(".theme-card[data-theme-id]");
+  if (!cards.length) return;
+
+  const savedRatings = readThemeRatings();
+  cards.forEach((card) => {
+    const themeId = card.dataset.themeId;
+    const savedRating = Number(savedRatings[themeId] || 0);
+    if (savedRating) updateThemeRatingUi(card, savedRating);
+
+    card.querySelectorAll(".theme-rating-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const rating = Number(button.dataset.rating || 0);
+        if (!themeId || rating < 1 || rating > 5) return;
+
+        const nextRatings = readThemeRatings();
+        nextRatings[themeId] = rating;
+        writeThemeRatings(nextRatings);
+        updateThemeRatingUi(card, rating);
+        trackAnalyticsEvent("theme_rating", {
+          theme_id: themeId,
+          rating,
+          page_location: window.location.href,
+        });
+      });
+    });
+  });
+}
+
+function bindThemeSearch() {
+  if (!themeSearch) return;
+
+  const applyThemeSearch = () => {
+    const query = String(themeSearch.value || "").trim().toLowerCase();
+    document.querySelectorAll(".theme-card[data-theme-id]").forEach((card) => {
+      const haystack = [
+        card.dataset.themeName,
+        card.dataset.themeCreator,
+        card.dataset.themeTags,
+      ].join(" ").toLowerCase();
+      card.hidden = query ? !haystack.includes(query) : false;
+    });
+  };
+
+  themeSearch.addEventListener("input", applyThemeSearch);
+  themeSearch.addEventListener("change", applyThemeSearch);
+}
+
+function bindThemeDownloads() {
+  document.querySelectorAll("[data-theme-download]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const href = link.getAttribute("href") || "";
+      const card = link.closest(".theme-card");
+      const themeId = card?.dataset.themeId || "";
+
+      trackAnalyticsEvent("theme_download_click", {
+        theme_id: themeId,
+        destination: href,
+        page_location: window.location.href,
+      });
+
+      if (href && href !== "#") return;
+
+      event.preventDefault();
+      setThemeDownloadStatus(
+        "Theme files are not attached yet. Add each approved theme file URL to enable downloads.",
+        true
+      );
+    });
+  });
+}
+
+if (themeUploadForm) {
+  themeUploadForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const supportBase =
+      configUrl(config.themeApiBaseUrl) ||
+      configUrl(config.supportApiBaseUrl) ||
+      configUrl(config.serialApiBaseUrl) ||
+      "";
+    if (!supportBase) {
+      setThemeUploadStatus("Theme upload service is not configured yet. Please contact support.", true);
+      return;
+    }
+
+    const formData = new FormData(themeUploadForm);
+    const email = String(formData.get("email") || "").trim().toLowerCase();
+    const creator = String(formData.get("creator") || "").trim();
+    const themeName = String(formData.get("themeName") || "").trim();
+    const themeFile = document.getElementById("theme-file")?.files?.[0] || null;
+    const previewImage = document.getElementById("theme-preview-image")?.files?.[0] || null;
+
+    if (!email || !creator || !themeName || !themeFile) {
+      setThemeUploadStatus("Email, creator name, theme name, and theme file are required.", true);
+      return;
+    }
+    saveRedditMatch({ email });
+    if (!/\.zip$/i.test(themeFile.name || "")) {
+      setThemeUploadStatus("Upload the ZIP exported from the TAPE 16 Themes window.", true);
+      return;
+    }
+
+    const files = [themeFile, previewImage].filter(Boolean);
+    const totalSize = files.reduce((sum, file) => sum + (file.size || 0), 0);
+    if (totalSize > 25 * 1024 * 1024) {
+      setThemeUploadStatus("Theme upload exceeds 25MB total.", true);
+      return;
+    }
+
+    if (themeUploadSubmitBtn) themeUploadSubmitBtn.setAttribute("disabled", "disabled");
+    setThemeUploadStatus("Submitting theme...", false);
+
+    try {
+      const endpoint = `${supportBase.replace(/\/+$/, "")}/submit-theme`;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        body: formData,
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok || !body.ok) {
+        throw new Error(body.error || "Submit failed");
+      }
+      const themeIdText = body.themeId ? ` (${body.themeId})` : "";
+      setThemeUploadStatus(`Theme submitted for review${themeIdText}. Thank you.`, false);
+      themeUploadForm.reset();
+    } catch (error) {
+      setThemeUploadStatus("Could not submit theme right now. Please try again shortly.", true);
+    } finally {
+      if (themeUploadSubmitBtn) themeUploadSubmitBtn.removeAttribute("disabled");
+    }
+  });
+}
+
+bindThemeRatings();
+bindThemeSearch();
+bindThemeDownloads();
 
 function accountApiBaseUrl() {
   return configUrl(config.accountApiBaseUrl) || "";
