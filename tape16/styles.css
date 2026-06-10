@@ -665,6 +665,32 @@ h1 {
   width: fit-content;
 }
 
+.checkout-divider {
+  width: min(280px, 100%);
+  margin: 0.85rem auto 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+}
+
+.checkout-divider::before,
+.checkout-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--stroke);
+}
+
+.paypal-checkout {
+  width: min(320px, 100%);
+  min-height: 44px;
+  margin: 0 auto;
+}
+
 .price-card--license {
   justify-self: start;
 }

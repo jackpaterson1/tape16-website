@@ -20,6 +20,8 @@ const serialForm = document.getElementById("serial-resend-form");
 const serialStatus = document.getElementById("serial-form-status");
 const serialSubmitBtn = document.getElementById("serial-submit-btn");
 const buyStatus = document.getElementById("buy-status");
+const checkoutDivider = document.getElementById("checkout-divider");
+const paypalButtonContainer = document.getElementById("paypal-button-container");
 const bugForm = document.getElementById("bug-report-form");
 const bugStatus = document.getElementById("bug-form-status");
 const bugSubmitBtn = document.getElementById("bug-submit-btn");
@@ -292,6 +294,65 @@ function setBuyStatus(message, isError) {
   buyStatus.style.color = isError ? "#ff9d87" : "#f7c34b";
 }
 
+function checkoutApiBaseUrl() {
+  return (
+    configUrl(config.supportApiBaseUrl) ||
+    configUrl(config.accountApiBaseUrl) ||
+    configUrl(config.serialApiBaseUrl) ||
+    ""
+  );
+}
+
+function checkoutEndpoint(path) {
+  const apiBase = checkoutApiBaseUrl();
+  const cleanPath = configUrl(path);
+  if (!apiBase || !cleanPath) return "";
+  return `${apiBase.replace(/\/+$/, "")}${cleanPath.startsWith("/") ? cleanPath : `/${cleanPath}`}`;
+}
+
+function loadScriptOnce(src, id) {
+  return new Promise((resolve, reject) => {
+    if (id) {
+      const existing = document.getElementById(id);
+      if (existing) {
+        existing.addEventListener("load", () => resolve(existing), { once: true });
+        existing.addEventListener("error", () => reject(new Error("Script load failed")), { once: true });
+        if (existing.dataset.loaded === "1") resolve(existing);
+        return;
+      }
+    }
+
+    const script = document.createElement("script");
+    if (id) script.id = id;
+    script.src = src;
+    script.async = true;
+    script.addEventListener("load", () => {
+      script.dataset.loaded = "1";
+      resolve(script);
+    });
+    script.addEventListener("error", () => reject(new Error("Script load failed")));
+    document.head.appendChild(script);
+  });
+}
+
+async function loadPayPalSdk() {
+  if (window.paypal && typeof window.paypal.Buttons === "function") return window.paypal;
+  const clientId = configUrl(config.paypalClientId);
+  if (!clientId) throw new Error("PayPal client ID is not configured.");
+  const currency = String(config.paypalCurrency || "USD").trim().toUpperCase() || "USD";
+  const params = new URLSearchParams({
+    "client-id": clientId,
+    currency,
+    intent: "capture",
+    components: "buttons",
+  });
+  await loadScriptOnce(`https://www.paypal.com/sdk/js?${params.toString()}`, "paypal-sdk");
+  if (!window.paypal || typeof window.paypal.Buttons !== "function") {
+    throw new Error("PayPal SDK did not initialize.");
+  }
+  return window.paypal;
+}
+
 function renderCheckoutResult() {
   if (!checkoutResultSection || !checkoutResultTitle || !checkoutResultCopy) return;
 
@@ -305,7 +366,7 @@ function renderCheckoutResult() {
     if (checkoutResultEyebrow) checkoutResultEyebrow.textContent = "Payment complete";
     checkoutResultTitle.textContent = "Thanks for your purchase.";
     checkoutResultCopy.textContent =
-      "Your Stripe payment went through. Your serial will be emailed automatically.";
+      "Your payment went through. Your serial will be emailed automatically.";
     if (checkoutResultCardTitle) checkoutResultCardTitle.textContent = "Next step";
     if (checkoutResultCardCopy) {
       checkoutResultCardCopy.textContent =
@@ -326,7 +387,7 @@ function renderCheckoutResult() {
     if (checkoutResultCardTitle) checkoutResultCardTitle.textContent = "Try again";
     if (checkoutResultCardCopy) {
       checkoutResultCardCopy.textContent =
-        "Use the buy page to restart the secure Stripe checkout.";
+        "Use the buy page to restart secure checkout.";
     }
     if (checkoutResultPrimaryLink) {
       checkoutResultPrimaryLink.textContent = "Back to Buy Page";
@@ -468,10 +529,7 @@ if (buyLink) {
     buyLink.addEventListener("click", async (event) => {
       event.preventDefault();
 
-      const apiBase =
-        configUrl(config.supportApiBaseUrl) ||
-        configUrl(config.serialApiBaseUrl) ||
-        "";
+      const apiBase = checkoutApiBaseUrl();
       if (!apiBase) {
         if (checkoutUrl) {
           window.open(checkoutUrl, "_blank", "noopener,noreferrer");
@@ -512,6 +570,84 @@ if (buyLink) {
     });
   }
 }
+
+async function configurePayPalCheckout() {
+  if (!paypalButtonContainer) return;
+
+  const paypalCheckoutEnabled =
+    config.paypalCheckoutEnabled === true || String(config.paypalCheckoutEnabled) === "true";
+  const createOrderEndpoint = checkoutEndpoint(config.paypalCreateOrderPath || "/paypal/create-order");
+  const captureOrderEndpoint = checkoutEndpoint(config.paypalCaptureOrderPath || "/paypal/capture-order");
+
+  if (!paypalCheckoutEnabled) {
+    paypalButtonContainer.hidden = true;
+    if (checkoutDivider) checkoutDivider.hidden = true;
+    return;
+  }
+
+  if (!createOrderEndpoint || !captureOrderEndpoint) {
+    setBuyStatus("PayPal checkout is not configured yet.", true);
+    return;
+  }
+
+  try {
+    const paypal = await loadPayPalSdk();
+    paypalButtonContainer.hidden = false;
+    if (checkoutDivider) checkoutDivider.hidden = false;
+    paypal
+      .Buttons({
+        style: {
+          layout: "vertical",
+          color: "gold",
+          shape: "rect",
+          label: "paypal",
+          height: 44,
+        },
+        async createOrder() {
+          setBuyStatus("Starting PayPal checkout...", false);
+          const response = await fetch(createOrderEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ clientReferenceId: `site-${Date.now()}` }),
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok || !body.ok || !body.orderId) {
+            throw new Error(body.error || "PayPal order creation failed");
+          }
+          return body.orderId;
+        },
+        async onApprove(data) {
+          setBuyStatus("Finalising PayPal payment...", false);
+          const response = await fetch(captureOrderEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId: data.orderID }),
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok || !body.ok) {
+            throw new Error(body.error || "PayPal capture failed");
+          }
+          setBuyStatus("Payment complete. Your serial email is on the way.", false);
+          window.location.assign("success.html?checkout=success");
+        },
+        onCancel() {
+          setBuyStatus("PayPal checkout cancelled.", true);
+        },
+        onError(error) {
+          console.error("PayPal checkout error", error);
+          setBuyStatus("Could not complete PayPal checkout. Try again in a moment.", true);
+        },
+      })
+      .render(paypalButtonContainer);
+  } catch (error) {
+    console.error("PayPal setup error", error);
+    paypalButtonContainer.hidden = true;
+    if (checkoutDivider) checkoutDivider.hidden = true;
+    setBuyStatus("PayPal checkout is not available yet.", true);
+  }
+}
+
+configurePayPalCheckout();
 
 const pinnedReleaseDownloadUrl =
   "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.272/TAPE-16-v0.9.272-macOS.dmg";

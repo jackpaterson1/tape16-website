@@ -12,6 +12,12 @@ window.TAPE16_SITE_CONFIG = {
   // Optional explicit return URLs. If empty, backend falls back to env/origin defaults.
   stripeSuccessUrl: "https://emrmusicgroup.com/tape16/success.html",
   stripeCancelUrl: "https://emrmusicgroup.com/tape16/cancel.html",
+  // PayPal checkout can be enabled after sandbox/live testing.
+  paypalCheckoutEnabled: false,
+  paypalClientId: "",
+  paypalCurrency: "USD",
+  paypalCreateOrderPath: "/paypal/create-order",
+  paypalCaptureOrderPath: "/paypal/capture-order",
   // Point this to your demo build asset.
   demoDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.272/TAPE-16-v0.9.272-macOS.dmg",
   // Point this to your full-license build asset.
