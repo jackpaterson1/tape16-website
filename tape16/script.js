@@ -37,7 +37,9 @@ const themeEmptyState = document.getElementById("theme-empty-state");
 const themeSort = document.getElementById("theme-sort");
 const themeSearch = document.getElementById("theme-search");
 const fullDownloadLink = document.getElementById("full-download-link");
-const downloadPageDemoLink = document.getElementById("download-page-demo-link");
+const downloadPageWindowsLink =
+  document.getElementById("download-page-windows-link") ||
+  document.getElementById("download-page-demo-link");
 const downloadCtaLink = document.getElementById("download-cta-link");
 const getTape16Link = document.getElementById("get-tape-16-link");
 const directDownloadMacLink = document.getElementById("direct-download-mac-link");
@@ -675,8 +677,8 @@ if (fullDownloadLink) {
   configureDirectDownloadLink(fullDownloadLink, fullUrl);
 }
 
-if (downloadPageDemoLink) {
-  configureDirectDownloadLink(downloadPageDemoLink, windowsDownloadUrl);
+if (downloadPageWindowsLink) {
+  configureDirectDownloadLink(downloadPageWindowsLink, windowsDownloadUrl);
 }
 
 if (downloadCtaLink) {
@@ -703,7 +705,7 @@ if (directDownloadReleaseLink) {
 bindDownloadClickTracking(getTape16Link, "Get TAPE 16");
 bindDownloadClickTracking(downloadCtaLink, "Download Full Installer");
 bindDownloadClickTracking(fullDownloadLink, "Download Full");
-bindDownloadClickTracking(downloadPageDemoLink, "Download Windows");
+bindDownloadClickTracking(downloadPageWindowsLink, "Download Windows");
 bindDownloadClickTracking(demoLink, "Download Demo");
 
 startPromoteKitTracking();
