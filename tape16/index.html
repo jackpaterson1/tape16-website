@@ -389,7 +389,10 @@
             <p class="price"><span class="price-was">$59</span> $29 <span>USD</span></p>
             <p>One-time purchase with full recording workflow and export options.</p>
             <p class="price-note">Secure checkout. Your serial is delivered automatically after purchase.</p>
-            <a class="btn btn-primary" id="buy-link" href="https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02" target="_blank" rel="noreferrer">Buy For $29</a>
+            <div class="checkout-actions">
+              <a class="btn btn-primary" id="buy-link" href="https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02" target="_blank" rel="noreferrer">Buy With Card</a>
+              <div class="paypal-checkout paypal-checkout--inline" id="paypal-button-container" hidden></div>
+            </div>
             <p id="buy-status" class="serial-status" role="status" aria-live="polite"></p>
           </article>
         </div>
@@ -490,7 +493,7 @@
     </footer>
 
     <script async src="https://cdn.promotekit.com/pk.js" data-promotekit="a9cad7b0-60ef-486a-b876-e9ddbcb4631e"></script>
-    <script src="config.js?v=0.9.272"></script>
-    <script src="script.js?v=0.9.272"></script>
+    <script src="config.js?v=paypal-3"></script>
+    <script src="script.js?v=paypal-3"></script>
   </body>
 </html>

@@ -594,50 +594,56 @@ async function configurePayPalCheckout() {
     const paypal = await loadPayPalSdk();
     paypalButtonContainer.hidden = false;
     if (checkoutDivider) checkoutDivider.hidden = false;
+    const buttonOptions = {
+      style: {
+        layout: "vertical",
+        color: "gold",
+        shape: "rect",
+        label: "paypal",
+        height: 44,
+      },
+      async createOrder() {
+        setBuyStatus("Starting PayPal checkout...", false);
+        const response = await fetch(createOrderEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ clientReferenceId: `site-${Date.now()}` }),
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok || !body.ok || !body.orderId) {
+          throw new Error(body.error || "PayPal order creation failed");
+        }
+        return body.orderId;
+      },
+      async onApprove(data) {
+        setBuyStatus("Finalising PayPal payment...", false);
+        const response = await fetch(captureOrderEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId: data.orderID }),
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok || !body.ok) {
+          throw new Error(body.error || "PayPal capture failed");
+        }
+        setBuyStatus("Payment complete. Your serial email is on the way.", false);
+        window.location.assign("success.html?checkout=success");
+      },
+      onCancel() {
+        setBuyStatus("PayPal checkout cancelled.", true);
+      },
+      onError(error) {
+        console.error("PayPal checkout error", error);
+        setBuyStatus("Could not complete PayPal checkout. Try again in a moment.", true);
+      },
+    };
+
+    if (paypal.FUNDING && paypal.FUNDING.PAYPAL) {
+      buttonOptions.fundingSource = paypal.FUNDING.PAYPAL;
+    }
+
     paypal
-      .Buttons({
-        style: {
-          layout: "vertical",
-          color: "gold",
-          shape: "rect",
-          label: "paypal",
-          height: 44,
-        },
-        async createOrder() {
-          setBuyStatus("Starting PayPal checkout...", false);
-          const response = await fetch(createOrderEndpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ clientReferenceId: `site-${Date.now()}` }),
-          });
-          const body = await response.json().catch(() => ({}));
-          if (!response.ok || !body.ok || !body.orderId) {
-            throw new Error(body.error || "PayPal order creation failed");
-          }
-          return body.orderId;
-        },
-        async onApprove(data) {
-          setBuyStatus("Finalising PayPal payment...", false);
-          const response = await fetch(captureOrderEndpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderId: data.orderID }),
-          });
-          const body = await response.json().catch(() => ({}));
-          if (!response.ok || !body.ok) {
-            throw new Error(body.error || "PayPal capture failed");
-          }
-          setBuyStatus("Payment complete. Your serial email is on the way.", false);
-          window.location.assign("success.html?checkout=success");
-        },
-        onCancel() {
-          setBuyStatus("PayPal checkout cancelled.", true);
-        },
-        onError(error) {
-          console.error("PayPal checkout error", error);
-          setBuyStatus("Could not complete PayPal checkout. Try again in a moment.", true);
-        },
-      })
+      .Buttons(buttonOptions)
       .render(paypalButtonContainer);
   } catch (error) {
     console.error("PayPal setup error", error);
