@@ -596,6 +596,7 @@ async function configurePayPalCheckout() {
     const paypal = await loadPayPalSdk();
     paypalButtonContainer.hidden = false;
     if (checkoutDivider) checkoutDivider.hidden = false;
+    let paypalCheckoutStarted = false;
     const buttonOptions = {
       style: {
         layout: "vertical",
@@ -605,6 +606,7 @@ async function configurePayPalCheckout() {
         height: 44,
       },
       async createOrder() {
+        paypalCheckoutStarted = true;
         setBuyStatus("Starting PayPal checkout...", false);
         const response = await fetch(createOrderEndpoint, {
           method: "POST",
@@ -632,11 +634,17 @@ async function configurePayPalCheckout() {
         window.location.assign("success.html?checkout=success");
       },
       onCancel() {
+        paypalCheckoutStarted = false;
         setBuyStatus("PayPal checkout cancelled.", true);
       },
       onError(error) {
         console.error("PayPal checkout error", error);
-        setBuyStatus("Could not complete PayPal checkout. Try again in a moment.", true);
+        if (paypalCheckoutStarted) {
+          setBuyStatus("Could not complete PayPal checkout. Try again in a moment.", true);
+        } else {
+          setBuyStatus("", false);
+        }
+        paypalCheckoutStarted = false;
       },
     };
 

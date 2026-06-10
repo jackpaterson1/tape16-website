@@ -5,12 +5,12 @@ window.TAPE16_SITE_CONFIG = {
   // Replace this with your live checkout URL (Stripe / Gumroad / Paddle / etc).
   buyNowUrl: "https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02",
   // Stripe direct checkout-session flow (recommended only when you host that endpoint).
-  stripeCheckoutEnabled: false,
+  stripeCheckoutEnabled: true,
   // Optional custom endpoint path if different from default.
   // Example: "/stripe/create-checkout-session"
   stripeCheckoutPath: "/stripe/create-checkout-session",
   // Optional explicit return URLs. If empty, backend falls back to env/origin defaults.
-  stripeSuccessUrl: "https://emrmusicgroup.com/tape16/success.html",
+  stripeSuccessUrl: "https://emrmusicgroup.com/tape16/success.html?checkout=success",
   stripeCancelUrl: "https://emrmusicgroup.com/tape16/cancel.html",
   // PayPal checkout can be enabled after sandbox/live testing.
   paypalCheckoutEnabled: true,

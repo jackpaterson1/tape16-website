@@ -103,7 +103,7 @@
             <p class="price"><span class="price-was">$59</span> $29 <span>USD</span></p>
             <p>One-time purchase with the full tape workflow and activation support.</p>
             <p class="price-note">Secure checkout delivers your serial after purchase.</p>
-            <a class="btn btn-primary" id="buy-link" href="https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02">Buy Now</a>
+            <a class="btn btn-primary" id="buy-link" href="https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02">Buy With Card</a>
             <div class="checkout-divider" id="checkout-divider" hidden><span>or</span></div>
             <div class="paypal-checkout" id="paypal-button-container" hidden></div>
             <p id="buy-status" class="serial-status" role="status" aria-live="polite"></p>
@@ -122,9 +122,9 @@
     <script>
       window.TAPE16_SITE_CONFIG = {
         buyNowUrl: "https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02",
-        stripeCheckoutEnabled: false,
+        stripeCheckoutEnabled: true,
         stripeCheckoutPath: "/stripe/create-checkout-session",
-        stripeSuccessUrl: "https://emrmusicgroup.com/tape16/success.html",
+        stripeSuccessUrl: "https://emrmusicgroup.com/tape16/success.html?checkout=success",
         stripeCancelUrl: "https://emrmusicgroup.com/tape16/cancel.html",
         paypalCheckoutEnabled: true,
         paypalClientId: "AQhF2O4Fc58fqDba7GkHRqx24RsgkcpMkYHFdZAX4bdvj4OfmsqCvR5B4_6_kZdvDhs458ot9CKQrjex",
@@ -135,6 +135,6 @@
         accountApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
       };
     </script>
-    <script src="script.js?v=paypal-live-1"></script>
+    <script src="script.js?v=checkout-fix-1"></script>
   </body>
 </html>
