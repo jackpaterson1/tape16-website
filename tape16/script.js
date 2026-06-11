@@ -597,6 +597,10 @@ async function configurePayPalCheckout() {
     paypalButtonContainer.hidden = false;
     if (checkoutDivider) checkoutDivider.hidden = false;
     let paypalCheckoutStarted = false;
+    let paypalOrderInFlight = false;
+    let activePayPalOrderId = "";
+    let activePayPalClientReferenceId = "";
+    let paypalCapturePromise = null;
     const buttonOptions = {
       style: {
         layout: "vertical",
@@ -606,35 +610,67 @@ async function configurePayPalCheckout() {
         height: 44,
       },
       async createOrder() {
-        paypalCheckoutStarted = true;
-        setBuyStatus("Starting PayPal checkout...", false);
-        const response = await fetch(createOrderEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ clientReferenceId: `site-${Date.now()}` }),
-        });
-        const body = await response.json().catch(() => ({}));
-        if (!response.ok || !body.ok || !body.orderId) {
-          throw new Error(body.error || "PayPal order creation failed");
+        if (activePayPalOrderId) return activePayPalOrderId;
+        if (paypalOrderInFlight) {
+          throw new Error("PayPal order creation is already in progress");
         }
-        return body.orderId;
+
+        paypalCheckoutStarted = true;
+        paypalOrderInFlight = true;
+        activePayPalClientReferenceId =
+          activePayPalClientReferenceId ||
+          `site-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        setBuyStatus("Starting PayPal checkout...", false);
+        try {
+          const response = await fetch(createOrderEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ clientReferenceId: activePayPalClientReferenceId }),
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok || !body.ok || !body.orderId) {
+            throw new Error(body.error || "PayPal order creation failed");
+          }
+          activePayPalOrderId = body.orderId;
+          return activePayPalOrderId;
+        } catch (error) {
+          activePayPalClientReferenceId = "";
+          activePayPalOrderId = "";
+          throw error;
+        } finally {
+          paypalOrderInFlight = false;
+        }
       },
       async onApprove(data) {
-        setBuyStatus("Finalising PayPal payment...", false);
-        const response = await fetch(captureOrderEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId: data.orderID }),
-        });
-        const body = await response.json().catch(() => ({}));
-        if (!response.ok || !body.ok) {
-          throw new Error(body.error || "PayPal capture failed");
+        if (paypalCapturePromise) return paypalCapturePromise;
+
+        paypalCapturePromise = (async () => {
+          setBuyStatus("Finalising PayPal payment...", false);
+          const response = await fetch(captureOrderEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId: data.orderID }),
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok || !body.ok) {
+            throw new Error(body.error || "PayPal capture failed");
+          }
+          setBuyStatus("Payment complete. Your serial email is on the way.", false);
+          window.location.assign("success.html?checkout=success");
+        })();
+
+        try {
+          return await paypalCapturePromise;
+        } catch (error) {
+          paypalCapturePromise = null;
+          throw error;
         }
-        setBuyStatus("Payment complete. Your serial email is on the way.", false);
-        window.location.assign("success.html?checkout=success");
       },
       onCancel() {
         paypalCheckoutStarted = false;
+        activePayPalOrderId = "";
+        activePayPalClientReferenceId = "";
+        paypalCapturePromise = null;
         setBuyStatus("PayPal checkout cancelled.", true);
       },
       onError(error) {
@@ -645,6 +681,9 @@ async function configurePayPalCheckout() {
           setBuyStatus("", false);
         }
         paypalCheckoutStarted = false;
+        activePayPalOrderId = "";
+        activePayPalClientReferenceId = "";
+        paypalCapturePromise = null;
       },
     };
 
