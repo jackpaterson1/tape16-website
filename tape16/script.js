@@ -637,6 +637,7 @@ async function configurePayPalCheckout() {
     let activePayPalClientReferenceId = "";
     let paypalCapturePromise = null;
     let paypalCaptureStarted = false;
+    let paypalApproveReceived = false;
     let paypalPaymentCompleted = hasRecentPayPalSuccess();
 
     if (paypalPaymentCompleted) {
@@ -648,6 +649,7 @@ async function configurePayPalCheckout() {
     function clearPayPalState() {
       paypalCheckoutStarted = false;
       paypalCaptureStarted = false;
+      paypalApproveReceived = false;
       activePayPalOrderId = "";
       activePayPalClientReferenceId = "";
       paypalCapturePromise = null;
@@ -705,6 +707,7 @@ async function configurePayPalCheckout() {
       async onApprove(data) {
         if (paypalCapturePromise) return paypalCapturePromise;
 
+        paypalApproveReceived = true;
         paypalCaptureStarted = true;
         paypalCapturePromise = (async () => {
           setBuyStatus("Finalising PayPal payment...", false);
@@ -728,13 +731,13 @@ async function configurePayPalCheckout() {
         try {
           return await paypalCapturePromise;
         } catch (error) {
-          paypalCapturePromise = null;
-          paypalCaptureStarted = false;
-          throw error;
+          console.error("PayPal capture confirmation error", error);
+          finishPayPalCheckout();
+          return { ok: true, redirectedAfterApprovalError: true };
         }
       },
       onCancel() {
-        if (paypalPaymentCompleted || paypalCaptureStarted) {
+        if (paypalPaymentCompleted || paypalCaptureStarted || paypalApproveReceived) {
           setBuyStatus("Finalising PayPal payment...", false);
           return;
         }
@@ -747,15 +750,15 @@ async function configurePayPalCheckout() {
           finishPayPalCheckout();
           return;
         }
+        if (paypalApproveReceived) {
+          finishPayPalCheckout();
+          return;
+        }
         if (paypalCaptureStarted && paypalCapturePromise) {
           setBuyStatus("Finalising PayPal payment...", false);
           paypalCapturePromise.catch(() => {
             if (!paypalPaymentCompleted) {
-              clearPayPalState();
-              setBuyStatus(
-                "We could not confirm PayPal checkout. If PayPal showed a completed payment, do not pay again. Check your email for the serial or contact support.",
-                true,
-              );
+              finishPayPalCheckout();
             }
           });
           return;
