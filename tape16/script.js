@@ -296,6 +296,41 @@ function setBuyStatus(message, isError) {
   buyStatus.style.color = isError ? "#ff9d87" : "#f7c34b";
 }
 
+const paypalSuccessStorageKey = "tape16.paypalSuccessAt";
+const paypalSuccessWindowMs = 10 * 60 * 1000;
+
+function rememberPayPalSuccess() {
+  try {
+    window.sessionStorage.setItem(paypalSuccessStorageKey, String(Date.now()));
+  } catch {
+    // Storage can be unavailable in some privacy modes. The in-memory state still protects this page view.
+  }
+}
+
+function hasRecentPayPalSuccess() {
+  try {
+    const successAt = Number(window.sessionStorage.getItem(paypalSuccessStorageKey) || 0);
+    return successAt > 0 && Date.now() - successAt < paypalSuccessWindowMs;
+  } catch {
+    return false;
+  }
+}
+
+function redirectToCheckoutSuccess() {
+  window.location.replace("success.html?checkout=success");
+}
+
+function payPalCaptureErrorLooksComplete(body) {
+  const error = String(body?.error || body?.message || "").toLowerCase();
+  const status = String(body?.status || body?.orderStatus || "").toLowerCase();
+  return (
+    status === "completed" ||
+    error.includes("already captured") ||
+    error.includes("order_already_captured") ||
+    error.includes("order already captured")
+  );
+}
+
 function checkoutApiBaseUrl() {
   return (
     configUrl(config.supportApiBaseUrl) ||
@@ -601,6 +636,32 @@ async function configurePayPalCheckout() {
     let activePayPalOrderId = "";
     let activePayPalClientReferenceId = "";
     let paypalCapturePromise = null;
+    let paypalCaptureStarted = false;
+    let paypalPaymentCompleted = hasRecentPayPalSuccess();
+
+    if (paypalPaymentCompleted) {
+      setBuyStatus("Payment complete. Redirecting to your purchase confirmation...", false);
+      redirectToCheckoutSuccess();
+      return;
+    }
+
+    function clearPayPalState() {
+      paypalCheckoutStarted = false;
+      paypalCaptureStarted = false;
+      activePayPalOrderId = "";
+      activePayPalClientReferenceId = "";
+      paypalCapturePromise = null;
+    }
+
+    function finishPayPalCheckout() {
+      paypalPaymentCompleted = true;
+      rememberPayPalSuccess();
+      setBuyStatus("Payment complete. Your serial email is on the way.", false);
+      paypalButtonContainer.hidden = true;
+      if (checkoutDivider) checkoutDivider.hidden = true;
+      redirectToCheckoutSuccess();
+    }
+
     const buttonOptions = {
       style: {
         layout: "vertical",
@@ -644,6 +705,7 @@ async function configurePayPalCheckout() {
       async onApprove(data) {
         if (paypalCapturePromise) return paypalCapturePromise;
 
+        paypalCaptureStarted = true;
         paypalCapturePromise = (async () => {
           setBuyStatus("Finalising PayPal payment...", false);
           const response = await fetch(captureOrderEndpoint, {
@@ -653,37 +715,60 @@ async function configurePayPalCheckout() {
           });
           const body = await response.json().catch(() => ({}));
           if (!response.ok || !body.ok) {
+            if (payPalCaptureErrorLooksComplete(body)) {
+              finishPayPalCheckout();
+              return body;
+            }
             throw new Error(body.error || "PayPal capture failed");
           }
-          setBuyStatus("Payment complete. Your serial email is on the way.", false);
-          window.location.assign("success.html?checkout=success");
+          finishPayPalCheckout();
+          return body;
         })();
 
         try {
           return await paypalCapturePromise;
         } catch (error) {
           paypalCapturePromise = null;
+          paypalCaptureStarted = false;
           throw error;
         }
       },
       onCancel() {
-        paypalCheckoutStarted = false;
-        activePayPalOrderId = "";
-        activePayPalClientReferenceId = "";
-        paypalCapturePromise = null;
+        if (paypalPaymentCompleted || paypalCaptureStarted) {
+          setBuyStatus("Finalising PayPal payment...", false);
+          return;
+        }
+        clearPayPalState();
         setBuyStatus("PayPal checkout cancelled.", true);
       },
       onError(error) {
         console.error("PayPal checkout error", error);
+        if (paypalPaymentCompleted || hasRecentPayPalSuccess()) {
+          finishPayPalCheckout();
+          return;
+        }
+        if (paypalCaptureStarted && paypalCapturePromise) {
+          setBuyStatus("Finalising PayPal payment...", false);
+          paypalCapturePromise.catch(() => {
+            if (!paypalPaymentCompleted) {
+              clearPayPalState();
+              setBuyStatus(
+                "We could not confirm PayPal checkout. If PayPal showed a completed payment, do not pay again. Check your email for the serial or contact support.",
+                true,
+              );
+            }
+          });
+          return;
+        }
         if (paypalCheckoutStarted) {
-          setBuyStatus("Could not complete PayPal checkout. Try again in a moment.", true);
+          setBuyStatus(
+            "We could not confirm PayPal checkout. If PayPal showed a completed payment, do not pay again. Check your email for the serial or contact support.",
+            true,
+          );
         } else {
           setBuyStatus("", false);
         }
-        paypalCheckoutStarted = false;
-        activePayPalOrderId = "";
-        activePayPalClientReferenceId = "";
-        paypalCapturePromise = null;
+        clearPayPalState();
       },
     };
 
