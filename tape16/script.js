@@ -793,11 +793,11 @@ async function configurePayPalCheckout() {
 configurePayPalCheckout();
 
 const pinnedReleaseDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.272/TAPE-16-v0.9.272-macOS.dmg";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.281/TAPE-16-v0.9.281-macOS.dmg";
 const pinnedWindowsDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.272/TAPE-16-v0.9.272-Windows-Setup.zip";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.281/TAPE-16-v0.9.281-Windows-Setup.zip";
 const pinnedGithubReleaseUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.272";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.281";
 const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || pinnedReleaseDownloadUrl;
 const windowsDownloadUrl = configUrl(config.windowsDownloadUrl) || pinnedWindowsDownloadUrl;
 const githubReleaseUrl = configUrl(config.githubReleaseUrl) || pinnedGithubReleaseUrl;
@@ -1063,6 +1063,28 @@ function formatFileSize(bytes) {
   return `${Math.round((size / (1024 * 1024)) * 10) / 10} MB`;
 }
 
+function selectedThemeDownloadRangeLabel() {
+  const selectedValue = String(themeSort?.value || "");
+  const fallbackOption = Array.from(themeSort?.options || []).find((option) => option.value === selectedValue);
+  const optionText =
+    themeSort?.selectedOptions?.[0]?.textContent ||
+    fallbackOption?.textContent ||
+    "";
+  const range = String(optionText)
+    .replace(/^most\s+downloads\s*/i, "")
+    .replace(/^in\s+/i, "")
+    .trim()
+    .toLowerCase();
+  return range || "selected range";
+}
+
+function formatPeriodDownloads(count) {
+  const downloads = Number(count || 0);
+  const range = selectedThemeDownloadRangeLabel();
+  const countText = downloads === 1 ? "1" : String(downloads);
+  return range === "all time" ? `${countText} all time` : `${countText} in ${range}`;
+}
+
 function themeCardHtml(item) {
   const tags = Array.isArray(item.tags) ? item.tags.filter(Boolean) : [];
   const downloadUrl = themeApiUrl(item.downloadUrl);
@@ -1074,7 +1096,7 @@ function themeCardHtml(item) {
     item.appVersion ? `TAPE 16 ${item.appVersion}` : "",
     size,
     downloads === 1 ? "1 download" : `${downloads} downloads`,
-    periodDownloads === 1 ? "1 in selected range" : `${periodDownloads} in selected range`,
+    formatPeriodDownloads(periodDownloads),
   ].filter(Boolean);
   const preview = previewUrl
     ? `<img src="${escapeHtml(previewUrl)}" alt="${escapeHtml(item.name)} preview" loading="lazy" />`
