@@ -60,6 +60,9 @@ export default {
         if (method === "PATCH" && match) {
           return await handleUpdateCommunityItem(request, "theme", match[1], origin, env);
         }
+        if (method === "DELETE" && match) {
+          return await handleDeleteCommunityItem(request, "theme", match[1], origin, env);
+        }
       }
 
       {
@@ -954,6 +957,29 @@ async function handleReplaceCommunityPreview(request, type, slugOrId, origin, en
   return json({ ok: true, item: managedCommunityItem(item) }, 200, origin, env);
 }
 
+async function handleDeleteCommunityItem(request, type, slugOrId, origin, env) {
+  const missing = missingCommunityBindings(env);
+  if (missing) return json({ ok: false, error: missing }, 500, origin, env);
+
+  const owned = await requireOwnedCommunityItem(request, env, type, slugOrId);
+  if (!owned.ok) return json({ ok: false, error: owned.error }, owned.status, origin, env);
+
+  const item = owned.item;
+  await env.COMMUNITY_DB.batch([
+    env.COMMUNITY_DB.prepare("DELETE FROM community_ratings WHERE item_id = ?").bind(item.id),
+    env.COMMUNITY_DB.prepare("DELETE FROM community_downloads WHERE item_id = ?").bind(item.id),
+    env.COMMUNITY_DB.prepare("DELETE FROM community_items WHERE id = ?").bind(item.id),
+  ]);
+
+  const objectDeletes = [item.package_key, item.preview_key]
+    .map((key) => cleanString(key))
+    .filter((key, index, keys) => key && keys.indexOf(key) === index)
+    .map((key) => env.COMMUNITY_BUCKET.delete(key).catch(() => {}));
+  await Promise.all(objectDeletes);
+
+  return json({ ok: true, deleted: true, itemId: item.id, slug: item.slug }, 200, origin, env);
+}
+
 async function handleDownloadCommunityItem(type, slugOrId, origin, env) {
   const missing = missingCommunityBindings(env);
   if (missing) return json({ ok: false, error: missing }, 500, origin, env);
@@ -1562,7 +1588,7 @@ function corsHeaders(origin, env) {
 
   return {
     "Access-Control-Allow-Origin": outOrigin,
-    "Access-Control-Allow-Methods": "GET,POST,PATCH,OPTIONS",
+    "Access-Control-Allow-Methods": "GET,POST,PATCH,DELETE,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type,Stripe-Signature,Authorization",
     "Access-Control-Max-Age": "86400",
   };

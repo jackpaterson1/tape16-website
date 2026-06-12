@@ -1295,13 +1295,23 @@ h1 {
 .theme-manage-actions {
   margin-top: 0.8rem;
   display: grid;
-  grid-template-columns: auto minmax(180px, 1fr) minmax(180px, 1fr);
+  grid-template-columns: auto minmax(180px, 1fr) minmax(180px, 1fr) auto;
   gap: 0.7rem;
   align-items: end;
 }
 
 .theme-file-action .btn {
   width: fit-content;
+}
+
+.theme-delete-btn {
+  border-color: rgba(255, 114, 85, 0.48);
+  color: #ff9d87;
+}
+
+.theme-delete-btn:hover {
+  border-color: rgba(255, 114, 85, 0.78);
+  color: #ffd0c4;
 }
 
 pre {

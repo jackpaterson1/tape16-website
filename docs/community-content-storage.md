@@ -4,7 +4,7 @@ Community themes and future mods use Cloudflare:
 
 - D1 stores public item metadata, download counts, recent download events, and private uploader email addresses.
 - R2 stores uploaded ZIP packages and preview images.
-- The Worker exposes `/themes`, `/submit-theme`, `/themes/:slug/download`, and `/themes/:slug/preview`.
+- The Worker exposes public browse/upload/download/preview routes, plus protected theme account edit, replacement, and delete routes.
 - Theme accounts use purchase email + serial login through `ORDERS_KV`, the licensing `LICENSES` KV namespace, and signed 24-hour bearer tokens.
 
 Uploader email addresses are stored in D1 for owner/contact use, but they are not returned by public API responses.

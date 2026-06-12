@@ -1221,6 +1221,7 @@ function themeManageItemHtml(item) {
           <input name="previewImage" type="file" accept=".png,.jpg,.jpeg,.webp" />
           <button class="btn btn-ghost" type="button" data-theme-manage-preview>Upload Preview</button>
         </div>
+        <button class="btn btn-ghost theme-delete-btn" type="button" data-theme-manage-delete>Delete Theme</button>
       </div>
       <p class="serial-status theme-manage-status" role="status" aria-live="polite"></p>
     </article>
@@ -1397,6 +1398,37 @@ async function replaceManagedThemeFile(itemEl, kind) {
     await loadThemeAccountThemes({ silent: true });
   } catch (error) {
     setThemeManageStatus(itemEl, isPreview ? "Could not replace preview right now." : "Could not replace ZIP right now.", true);
+  }
+}
+
+async function deleteManagedTheme(itemEl) {
+  const session = readThemeAccountSession();
+  const supportBase = themeApiBaseUrl();
+  const slug = itemEl?.dataset.themeSlug || "";
+  if (!session || !supportBase || !slug) return;
+
+  const name =
+    itemEl.querySelector('[name="themeName"]')?.value?.trim() ||
+    itemEl.querySelector("h3")?.textContent?.trim() ||
+    "this theme";
+  const confirmed = window.confirm(
+    `Delete "${name}"? This removes it from the public theme library and cannot be undone.`,
+  );
+  if (!confirmed) return;
+
+  setThemeManageStatus(itemEl, "Deleting theme...", false);
+  try {
+    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/themes/${encodeURIComponent(slug)}`, {
+      method: "DELETE",
+      headers: themeAccountAuthHeaders(session),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || !body.ok) throw new Error(body.error || "Delete failed");
+    setThemeManageStatus(itemEl, "Theme deleted.", false);
+    await loadThemeLibrary();
+    await loadThemeAccountThemes({ silent: true });
+  } catch (error) {
+    setThemeManageStatus(itemEl, "Could not delete theme right now.", true);
   }
 }
 
@@ -1715,6 +1747,10 @@ if (themeAccountList) {
     }
     if (element.closest("[data-theme-manage-preview]")) {
       await replaceManagedThemeFile(itemEl, "preview");
+      return;
+    }
+    if (element.closest("[data-theme-manage-delete]")) {
+      await deleteManagedTheme(itemEl);
     }
   });
 }
