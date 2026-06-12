@@ -13,6 +13,46 @@ for (const link of links) {
   });
 }
 
+const siteHeader = document.querySelector(".site-header");
+const navToggle = siteHeader?.querySelector(".nav-toggle") || null;
+const siteNav = siteHeader?.querySelector("nav") || null;
+
+if (siteHeader && navToggle && siteNav) {
+  if (!siteNav.id) siteNav.id = "site-navigation";
+  navToggle.setAttribute("aria-controls", siteNav.id);
+
+  const setMenuOpen = (open) => {
+    siteHeader.classList.toggle("is-nav-open", open);
+    navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    navToggle.setAttribute("aria-label", open ? "Close navigation menu" : "Open navigation menu");
+  };
+
+  navToggle.addEventListener("click", () => {
+    setMenuOpen(!siteHeader.classList.contains("is-nav-open"));
+  });
+
+  siteNav.addEventListener("click", (event) => {
+    const target = event.target;
+    const element =
+      target instanceof Element
+        ? target
+        : target instanceof Node
+          ? target.parentElement
+          : null;
+    if (element?.closest("a") && window.matchMedia("(max-width: 700px)").matches) {
+      setMenuOpen(false);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setMenuOpen(false);
+  });
+
+  window.addEventListener("resize", () => {
+    if (!window.matchMedia("(max-width: 700px)").matches) setMenuOpen(false);
+  });
+}
+
 const config = window.TAPE16_SITE_CONFIG || {};
 const buyLink = document.getElementById("buy-link");
 const demoLink = document.getElementById("demo-link");
