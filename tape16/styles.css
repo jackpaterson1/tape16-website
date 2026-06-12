@@ -1142,6 +1142,40 @@ h1 {
   line-height: 1.65;
 }
 
+.theme-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.theme-card.is-description-expanded .theme-description {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.theme-description-toggle {
+  width: fit-content;
+  border: 0;
+  background: transparent;
+  color: var(--accent-alt);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0;
+  margin: -0.35rem 0 0.75rem;
+  cursor: pointer;
+}
+
+.theme-description-toggle:hover {
+  text-decoration: underline;
+}
+
+.theme-description-toggle[hidden] {
+  display: none;
+}
+
 .theme-card-head p {
   margin: 0.25rem 0 0;
 }

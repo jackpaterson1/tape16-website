@@ -1461,7 +1461,8 @@ function themeCardHtml(item) {
           <p>By ${escapeHtml(item.creatorName || "Unknown creator")}</p>
         </div>
       </div>
-      <p>${escapeHtml(item.description || "No description supplied.")}</p>
+      <p class="theme-description" data-theme-description>${escapeHtml(item.description || "No description supplied.")}</p>
+      <button class="theme-description-toggle" type="button" data-theme-description-toggle hidden>See more...</button>
       <div class="theme-meta">
         ${meta.map((value) => `<span>${escapeHtml(value)}</span>`).join("")}
         ${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
@@ -1478,6 +1479,7 @@ function renderThemeLibrary(items) {
   if (themeEmptyState) themeEmptyState.hidden = themes.length > 0;
   themeLibraryGrid.hidden = themes.length === 0;
   bindThemeDownloads();
+  bindThemeDescriptionToggles();
   if (themeSearch) themeSearch.dispatchEvent(new Event("input"));
 }
 
@@ -1553,6 +1555,35 @@ function bindThemeDownloads() {
         "Theme files are not attached yet. Add each theme file URL to enable downloads.",
         true
       );
+    });
+  });
+}
+
+function bindThemeDescriptionToggles() {
+  document.querySelectorAll("[data-theme-description-toggle]").forEach((button) => {
+    if (button.dataset.bound === "true") return;
+    button.dataset.bound = "true";
+    const card = button.closest(".theme-card");
+    const description = card?.querySelector("[data-theme-description]");
+    if (!card || !description) return;
+    button.setAttribute("aria-expanded", "false");
+
+    const updateVisibility = () => {
+      const expanded = card.classList.contains("is-description-expanded");
+      if (expanded) {
+        button.hidden = false;
+        return;
+      }
+      button.hidden = description.scrollHeight <= description.clientHeight + 1;
+    };
+
+    updateVisibility();
+    window.setTimeout(updateVisibility, 0);
+
+    button.addEventListener("click", () => {
+      const expanded = card.classList.toggle("is-description-expanded");
+      button.textContent = expanded ? "See less" : "See more...";
+      button.setAttribute("aria-expanded", expanded ? "true" : "false");
     });
   });
 }
