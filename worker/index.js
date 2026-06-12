@@ -464,15 +464,9 @@ async function handleThemeAccountLogin(request, origin, env) {
     return json({ ok: false, error: "Email and serial are required" }, 400, origin, env);
   }
 
-  const orderId = cleanString(await env.ORDERS_KV.get(await themeLoginKey(email, serial)));
-  if (!orderId) return json({ ok: false, error: "Invalid email or serial" }, 401, origin, env);
+  const account = await findThemeAccountByEmailAndSerial(env, email, serial);
+  if (!account) return json({ ok: false, error: "Invalid email or serial" }, 401, origin, env);
 
-  const order = await readOrder(env, orderId);
-  if (!isValidThemeAccountOrder(order, email, serial)) {
-    return json({ ok: false, error: "Invalid email or serial" }, 401, origin, env);
-  }
-
-  const account = await themeAccountFromOrder(order);
   const expiresInSeconds = 24 * 60 * 60;
   const token = await signThemeAccountToken(account, env, expiresInSeconds);
   return json(
@@ -549,24 +543,43 @@ async function handleThemeLoginIndexBackfill(request, origin, env, searchParams 
   }
 
   const cursor = cleanString(payload.cursor || searchParams.get("cursor"));
-  const listOptions = { prefix: "order:", limit: 1000 };
+  const source = cleanString(payload.source || searchParams.get("source")) === "licenses" ? "licenses" : "orders";
+  const namespace = source === "licenses" ? env.LICENSES : env.ORDERS_KV;
+  if (!namespace) return json({ ok: false, error: `${source} storage is not configured` }, 500, origin, env);
+
+  const listOptions = { prefix: source === "licenses" ? "lic:" : "order:", limit: 1000 };
   if (cursor) listOptions.cursor = cursor;
-  const page = await env.ORDERS_KV.list(listOptions);
+  const page = await namespace.list(listOptions);
 
   let processed = 0;
   let indexed = 0;
   for (const key of page.keys || []) {
-    const orderId = cleanString(key.name).replace(/^order:/, "");
-    const order = await readOrder(env, orderId);
     processed += 1;
-    if (!order || !cleanEmail(order.email) || !normalizeSerial(order.serial)) continue;
-    await writeThemeLoginIndex(env, order);
-    indexed += 1;
+    if (source === "licenses") {
+      const serial = cleanString(key.name).replace(/^lic:/, "");
+      const license = await readLicense(env, serial);
+      if (!license || !cleanEmail(license.email) || !normalizeSerial(license.serial) || license.revoked === true) {
+        continue;
+      }
+      await writeThemeLoginIndex(env, {
+        orderId: cleanString(license.orderId) || normalizeSerial(license.serial),
+        email: license.email,
+        serial: license.serial,
+      });
+      indexed += 1;
+    } else {
+      const orderId = cleanString(key.name).replace(/^order:/, "");
+      const order = await readOrder(env, orderId);
+      if (!order || !cleanEmail(order.email) || !normalizeSerial(order.serial)) continue;
+      await writeThemeLoginIndex(env, order);
+      indexed += 1;
+    }
   }
 
   return json(
     {
       ok: true,
+      source,
       cursor: page.list_complete ? "" : page.cursor || "",
       listComplete: Boolean(page.list_complete),
       processed,
@@ -1119,6 +1132,19 @@ async function readOrder(env, orderId) {
   }
 }
 
+async function readLicense(env, serial) {
+  if (!env.LICENSES) return null;
+  const cleanSerial = normalizeSerial(serial);
+  if (!cleanSerial) return null;
+  const raw = await env.LICENSES.get(`lic:${cleanSerial}`);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 function orderKey(orderId) {
   return `order:${orderId}`;
 }
@@ -1155,8 +1181,43 @@ async function themeAccountFromOrder(order) {
     email,
     serial: normalizeSerial(order.serial),
     orderId: cleanString(order.orderId),
+    source: "order",
     ownerKey: await themeOwnerKey(email),
   };
+}
+
+async function themeAccountFromLicense(license) {
+  const email = cleanEmail(license?.email);
+  const serial = normalizeSerial(license?.serial);
+  if (!email || !serial || license?.revoked === true) return null;
+  return {
+    email,
+    serial,
+    orderId: cleanString(license?.orderId) || serial,
+    source: "license",
+    ownerKey: await themeOwnerKey(email),
+  };
+}
+
+async function findThemeAccountByEmailAndSerial(env, email, serial) {
+  const cleanAccountEmail = cleanEmail(email);
+  const cleanAccountSerial = normalizeSerial(serial);
+  if (!cleanAccountEmail || !cleanAccountSerial) return null;
+
+  const orderId = cleanString(await env.ORDERS_KV.get(await themeLoginKey(cleanAccountEmail, cleanAccountSerial)));
+  if (orderId) {
+    const order = await readOrder(env, orderId);
+    if (isValidThemeAccountOrder(order, cleanAccountEmail, cleanAccountSerial)) {
+      return await themeAccountFromOrder(order);
+    }
+  }
+
+  const license = await readLicense(env, cleanAccountSerial);
+  if (license && cleanEmail(license.email) === cleanAccountEmail && license.revoked !== true) {
+    return await themeAccountFromLicense(license);
+  }
+
+  return null;
 }
 
 async function optionalThemeAccount(request, env) {
@@ -1177,12 +1238,20 @@ async function requireThemeAccount(request, env) {
   const payload = await verifyThemeAccountToken(match[1], env);
   if (!payload) return { ok: false, status: 401, error: "Invalid or expired theme account session" };
 
-  const order = await readOrder(env, payload.orderId);
-  if (!isValidThemeAccountOrder(order, payload.email, payload.serial)) {
-    return { ok: false, status: 401, error: "Theme account session is no longer valid" };
+  let account = null;
+  if (payload.source === "license") {
+    const license = await readLicense(env, payload.serial);
+    if (license && cleanEmail(license.email) === payload.email && license.revoked !== true) {
+      account = await themeAccountFromLicense(license);
+    }
+  } else {
+    const order = await readOrder(env, payload.orderId);
+    if (isValidThemeAccountOrder(order, payload.email, payload.serial)) {
+      account = await themeAccountFromOrder(order);
+    }
   }
 
-  const account = await themeAccountFromOrder(order);
+  if (!account) return { ok: false, status: 401, error: "Theme account session is no longer valid" };
   return { ok: true, account };
 }
 
@@ -1205,6 +1274,7 @@ async function signThemeAccountToken(account, env, expiresInSeconds) {
     email: account.email,
     serial: account.serial,
     orderId: account.orderId,
+    source: account.source || "order",
     ownerKey: account.ownerKey,
     exp,
   };
@@ -1233,9 +1303,10 @@ async function verifyThemeAccountToken(token, env) {
   const email = cleanEmail(payload.email);
   const serial = normalizeSerial(payload.serial);
   const orderId = cleanString(payload.orderId);
+  const source = cleanString(payload.source) === "license" ? "license" : "order";
   const ownerKey = cleanString(payload.ownerKey);
   if (!email || !serial || !orderId || !ownerKey) return null;
-  return { email, serial, orderId, ownerKey, exp: Number(payload.exp) };
+  return { email, serial, orderId, source, ownerKey, exp: Number(payload.exp) };
 }
 
 function readSessionEmail(session) {
