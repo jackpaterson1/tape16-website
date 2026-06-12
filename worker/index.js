@@ -39,8 +39,41 @@ export default {
         return await handleListCommunityItems("theme", origin, env, url.searchParams);
       }
 
+      if (method === "POST" && path === "/theme-account/login") {
+        return await handleThemeAccountLogin(request, origin, env);
+      }
+
+      if (method === "GET" && path === "/theme-account/themes") {
+        return await handleThemeAccountThemes(request, origin, env);
+      }
+
+      if (method === "POST" && path === "/admin/theme-login-index/backfill") {
+        return await handleThemeLoginIndexBackfill(request, origin, env, url.searchParams);
+      }
+
       if (method === "POST" && (path === "/themes" || path === "/submit-theme")) {
         return await handleSubmitCommunityItem(request, "theme", origin, env);
+      }
+
+      {
+        const match = path.match(/^\/themes\/([^/]+)$/);
+        if (method === "PATCH" && match) {
+          return await handleUpdateCommunityItem(request, "theme", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/themes\/([^/]+)\/package$/);
+        if (method === "POST" && match) {
+          return await handleReplaceCommunityPackage(request, "theme", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/themes\/([^/]+)\/preview$/);
+        if (method === "POST" && match) {
+          return await handleReplaceCommunityPreview(request, "theme", match[1], origin, env);
+        }
       }
 
       {
@@ -412,6 +445,139 @@ async function handleLatestRelease(origin, env) {
   );
 }
 
+async function handleThemeAccountLogin(request, origin, env) {
+  if (!env.ORDERS_KV) return json({ ok: false, error: "Order storage is not configured" }, 500, origin, env);
+  if (!env.THEME_ACCOUNT_TOKEN_SECRET) {
+    return json({ ok: false, error: "Theme account auth is not configured" }, 500, origin, env);
+  }
+
+  let payload = {};
+  try {
+    payload = await request.json();
+  } catch {
+    return json({ ok: false, error: "Invalid JSON payload" }, 400, origin, env);
+  }
+
+  const email = cleanEmail(payload.email);
+  const serial = normalizeSerial(payload.serial);
+  if (!email || !serial) {
+    return json({ ok: false, error: "Email and serial are required" }, 400, origin, env);
+  }
+
+  const orderId = cleanString(await env.ORDERS_KV.get(await themeLoginKey(email, serial)));
+  if (!orderId) return json({ ok: false, error: "Invalid email or serial" }, 401, origin, env);
+
+  const order = await readOrder(env, orderId);
+  if (!isValidThemeAccountOrder(order, email, serial)) {
+    return json({ ok: false, error: "Invalid email or serial" }, 401, origin, env);
+  }
+
+  const account = await themeAccountFromOrder(order);
+  const expiresInSeconds = 24 * 60 * 60;
+  const token = await signThemeAccountToken(account, env, expiresInSeconds);
+  return json(
+    {
+      ok: true,
+      token,
+      expiresInSeconds,
+      email: account.email,
+      serial: account.serial,
+    },
+    200,
+    origin,
+    env,
+  );
+}
+
+async function handleThemeAccountThemes(request, origin, env) {
+  const missing = missingCommunityBindings(env, { bucket: false });
+  if (missing) return json({ ok: false, error: missing }, 500, origin, env);
+
+  const accountResult = await requireThemeAccount(request, env);
+  if (!accountResult.ok) return json({ ok: false, error: accountResult.error }, accountResult.status, origin, env);
+
+  const account = accountResult.account;
+  const now = new Date().toISOString();
+  await env.COMMUNITY_DB.prepare(
+    `UPDATE community_items
+     SET owner_key = ?, owner_email = ?, owner_order_id = ?, updated_at = ?
+     WHERE type = 'theme'
+       AND (owner_key IS NULL OR owner_key = '')
+       AND lower(uploader_email) = ?`,
+  )
+    .bind(account.ownerKey, account.email, account.orderId, now, account.email)
+    .run();
+
+  const rows = await env.COMMUNITY_DB.prepare(
+    `SELECT id, type, slug, name, creator_name, app_version, description, tags,
+      package_key, package_filename, package_size, package_sha256,
+      preview_key, preview_filename, preview_size,
+      download_count, created_at, updated_at
+     FROM community_items
+     WHERE type = 'theme' AND owner_key = ?
+     ORDER BY updated_at DESC, created_at DESC
+     LIMIT 100`,
+  )
+    .bind(account.ownerKey)
+    .all();
+
+  return json(
+    {
+      ok: true,
+      items: (rows?.results || []).map((row) => managedCommunityItem(row)),
+    },
+    200,
+    origin,
+    env,
+  );
+}
+
+async function handleThemeLoginIndexBackfill(request, origin, env, searchParams = new URLSearchParams()) {
+  if (!env.ADMIN_BACKFILL_SECRET) {
+    return json({ ok: false, error: "Backfill auth is not configured" }, 500, origin, env);
+  }
+  const expected = `Bearer ${env.ADMIN_BACKFILL_SECRET}`;
+  const actual = request.headers.get("Authorization") || "";
+  if (!safeEqual(actual, expected)) return json({ ok: false, error: "Unauthorized" }, 401, origin, env);
+  if (!env.ORDERS_KV) return json({ ok: false, error: "Order storage is not configured" }, 500, origin, env);
+
+  let payload = {};
+  try {
+    payload = await request.json();
+  } catch {
+    payload = {};
+  }
+
+  const cursor = cleanString(payload.cursor || searchParams.get("cursor"));
+  const listOptions = { prefix: "order:", limit: 1000 };
+  if (cursor) listOptions.cursor = cursor;
+  const page = await env.ORDERS_KV.list(listOptions);
+
+  let processed = 0;
+  let indexed = 0;
+  for (const key of page.keys || []) {
+    const orderId = cleanString(key.name).replace(/^order:/, "");
+    const order = await readOrder(env, orderId);
+    processed += 1;
+    if (!order || !cleanEmail(order.email) || !normalizeSerial(order.serial)) continue;
+    await writeThemeLoginIndex(env, order);
+    indexed += 1;
+  }
+
+  return json(
+    {
+      ok: true,
+      cursor: page.list_complete ? "" : page.cursor || "",
+      listComplete: Boolean(page.list_complete),
+      processed,
+      indexed,
+    },
+    200,
+    origin,
+    env,
+  );
+}
+
 async function handleListCommunityItems(type, origin, env, searchParams = new URLSearchParams()) {
   const missing = missingCommunityBindings(env, { bucket: false });
   if (missing) return json({ ok: false, error: missing }, 500, origin, env);
@@ -463,6 +629,10 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
   const missing = missingCommunityBindings(env);
   if (missing) return json({ ok: false, error: missing }, 500, origin, env);
 
+  const accountResult = await optionalThemeAccount(request, env);
+  if (!accountResult.ok) return json({ ok: false, error: accountResult.error }, accountResult.status, origin, env);
+  const account = type === "theme" ? accountResult.account : null;
+
   let form;
   try {
     form = await request.formData();
@@ -471,7 +641,7 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
   }
 
   const kind = communityKind(type);
-  const email = cleanEmail(form.get("email"));
+  const email = account ? account.email : cleanEmail(form.get("email"));
   const creatorName = cleanString(form.get("creator") || form.get("creatorName"));
   const name = cleanString(form.get(kind.nameField) || form.get("name"));
   const appVersion = cleanString(form.get("appVersion"));
@@ -564,6 +734,9 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
     preview_filename: previewFilename,
     preview_size: previewBuffer ? previewBuffer.byteLength : 0,
     download_count: 0,
+    owner_key: account ? account.ownerKey : "",
+    owner_email: account ? account.email : "",
+    owner_order_id: account ? account.orderId : "",
     created_at: now,
     updated_at: now,
   };
@@ -573,8 +746,8 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
       id, type, slug, name, creator_name, uploader_email, app_version, description, tags,
       package_key, package_filename, package_size, package_sha256,
       preview_key, preview_filename, preview_size,
-      download_count, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      download_count, owner_key, owner_email, owner_order_id, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   )
     .bind(
       item.id,
@@ -594,6 +767,9 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
       item.preview_filename,
       item.preview_size,
       item.download_count,
+      item.owner_key,
+      item.owner_email,
+      item.owner_order_id,
       item.created_at,
       item.updated_at,
     )
@@ -610,6 +786,159 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
     origin,
     env,
   );
+}
+
+async function handleUpdateCommunityItem(request, type, slugOrId, origin, env) {
+  const missing = missingCommunityBindings(env, { bucket: false });
+  if (missing) return json({ ok: false, error: missing }, 500, origin, env);
+
+  const owned = await requireOwnedCommunityItem(request, env, type, slugOrId);
+  if (!owned.ok) return json({ ok: false, error: owned.error }, owned.status, origin, env);
+
+  let payload = {};
+  try {
+    payload = await request.json();
+  } catch {
+    return json({ ok: false, error: "Invalid JSON payload" }, 400, origin, env);
+  }
+
+  const kind = communityKind(type);
+  const name = cleanString(payload[kind.nameField] || payload.name);
+  const creatorName = cleanString(payload.creator || payload.creatorName);
+  const appVersion = cleanString(payload.appVersion);
+  const description = cleanString(payload.description).slice(0, 1600);
+  const tags = JSON.stringify(normalizeCommunityTags(payload.tags));
+  if (!name || !creatorName) {
+    return json({ ok: false, error: "Creator name and item name are required" }, 400, origin, env);
+  }
+
+  const now = new Date().toISOString();
+  await env.COMMUNITY_DB.prepare(
+    `UPDATE community_items
+     SET name = ?, creator_name = ?, app_version = ?, description = ?, tags = ?, updated_at = ?
+     WHERE id = ?`,
+  )
+    .bind(name, creatorName, appVersion, description, tags, now, owned.item.id)
+    .run();
+
+  const item = await getCommunityItem(env, type, owned.item.id);
+  return json({ ok: true, item: managedCommunityItem(item) }, 200, origin, env);
+}
+
+async function handleReplaceCommunityPackage(request, type, slugOrId, origin, env) {
+  const missing = missingCommunityBindings(env);
+  if (missing) return json({ ok: false, error: missing }, 500, origin, env);
+
+  const owned = await requireOwnedCommunityItem(request, env, type, slugOrId);
+  if (!owned.ok) return json({ ok: false, error: owned.error }, owned.status, origin, env);
+
+  let form;
+  try {
+    form = await request.formData();
+  } catch {
+    return json({ ok: false, error: "Invalid upload form" }, 400, origin, env);
+  }
+
+  const kind = communityKind(type);
+  const packageFile = readUploadFile(form, kind.fileField, "themeFile", "file", "package");
+  if (!packageFile) return json({ ok: false, error: "ZIP file is required" }, 400, origin, env);
+  if (!/\.zip$/i.test(packageFile.name || "")) {
+    return json({ ok: false, error: "Upload the exported ZIP package" }, 400, origin, env);
+  }
+
+  const packageBuffer = await packageFile.arrayBuffer();
+  if (!packageBuffer.byteLength || packageBuffer.byteLength > COMMUNITY_MAX_PACKAGE_BYTES) {
+    return json({ ok: false, error: "ZIP package must be 50MB or smaller" }, 400, origin, env);
+  }
+  if (!looksLikeZip(packageBuffer)) {
+    return json({ ok: false, error: "Theme package must be a valid ZIP file" }, 400, origin, env);
+  }
+
+  const packageFilename = sanitizeFilename(packageFile.name || `${owned.item.slug}.zip`, `${owned.item.slug}.zip`);
+  const packageKey = `community/${kind.plural}/${owned.item.id}/${Date.now()}-${packageFilename}`;
+  const packageSha256 = await sha256Hex(packageBuffer);
+  const oldPackageKey = owned.item.package_key;
+
+  await env.COMMUNITY_BUCKET.put(packageKey, packageBuffer, {
+    httpMetadata: {
+      contentType: "application/zip",
+      contentDisposition: `attachment; filename="${packageFilename.replaceAll('"', "")}"`,
+    },
+    customMetadata: {
+      id: owned.item.id,
+      type,
+      slug: owned.item.slug,
+      sha256: packageSha256,
+    },
+  });
+
+  const now = new Date().toISOString();
+  await env.COMMUNITY_DB.prepare(
+    `UPDATE community_items
+     SET package_key = ?, package_filename = ?, package_size = ?, package_sha256 = ?, updated_at = ?
+     WHERE id = ?`,
+  )
+    .bind(packageKey, packageFilename, packageBuffer.byteLength, packageSha256, now, owned.item.id)
+    .run();
+
+  if (oldPackageKey && oldPackageKey !== packageKey) {
+    await env.COMMUNITY_BUCKET.delete(oldPackageKey).catch(() => {});
+  }
+
+  const item = await getCommunityItem(env, type, owned.item.id);
+  return json({ ok: true, item: managedCommunityItem(item) }, 200, origin, env);
+}
+
+async function handleReplaceCommunityPreview(request, type, slugOrId, origin, env) {
+  const missing = missingCommunityBindings(env);
+  if (missing) return json({ ok: false, error: missing }, 500, origin, env);
+
+  const owned = await requireOwnedCommunityItem(request, env, type, slugOrId);
+  if (!owned.ok) return json({ ok: false, error: owned.error }, owned.status, origin, env);
+
+  let form;
+  try {
+    form = await request.formData();
+  } catch {
+    return json({ ok: false, error: "Invalid upload form" }, 400, origin, env);
+  }
+
+  const kind = communityKind(type);
+  const previewFile = readUploadFile(form, "previewImage", "preview", "image");
+  if (!previewFile) return json({ ok: false, error: "Preview image is required" }, 400, origin, env);
+
+  const previewBuffer = await previewFile.arrayBuffer();
+  if (!previewBuffer.byteLength || previewBuffer.byteLength > COMMUNITY_MAX_PREVIEW_BYTES) {
+    return json({ ok: false, error: "Preview image must be 5MB or smaller" }, 400, origin, env);
+  }
+  if (!isAllowedPreviewFile(previewFile)) {
+    return json({ ok: false, error: "Preview image must be PNG, JPG, or WebP" }, 400, origin, env);
+  }
+
+  const previewFilename = sanitizeFilename(previewFile.name || `${owned.item.slug}-preview.png`, `${owned.item.slug}-preview.png`);
+  const previewKey = `community/${kind.plural}/${owned.item.id}/${Date.now()}-preview-${previewFilename}`;
+  const oldPreviewKey = owned.item.preview_key;
+
+  await env.COMMUNITY_BUCKET.put(previewKey, previewBuffer, {
+    httpMetadata: { contentType: previewFile.type || contentTypeForFilename(previewFilename) },
+    customMetadata: { id: owned.item.id, type, slug: owned.item.slug },
+  });
+
+  const now = new Date().toISOString();
+  await env.COMMUNITY_DB.prepare(
+    `UPDATE community_items
+     SET preview_key = ?, preview_filename = ?, preview_size = ?, updated_at = ?
+     WHERE id = ?`,
+  )
+    .bind(previewKey, previewFilename, previewBuffer.byteLength, now, owned.item.id)
+    .run();
+
+  if (oldPreviewKey && oldPreviewKey !== previewKey) {
+    await env.COMMUNITY_BUCKET.delete(oldPreviewKey).catch(() => {});
+  }
+
+  const item = await getCommunityItem(env, type, owned.item.id);
+  return json({ ok: true, item: managedCommunityItem(item) }, 200, origin, env);
 }
 
 async function handleDownloadCommunityItem(type, slugOrId, origin, env) {
@@ -678,6 +1007,7 @@ async function issueOrReuseSerial({ orderId, email, source, paymentIntentId, env
     if (cleanPaymentIntentId) {
       await env.ORDERS_KV.put(paymentIntentKey(cleanPaymentIntentId), existing.orderId);
     }
+    await writeThemeLoginIndex(env, existing);
     return { ok: true, issued: false, order: existing };
   }
 
@@ -693,6 +1023,7 @@ async function issueOrReuseSerial({ orderId, email, source, paymentIntentId, env
     createdAt: new Date().toISOString(),
   };
   await env.ORDERS_KV.put(orderKey(cleanOrderId), JSON.stringify(order));
+  await writeThemeLoginIndex(env, order);
   if (cleanPaymentIntentId) {
     await env.ORDERS_KV.put(paymentIntentKey(cleanPaymentIntentId), cleanOrderId);
   }
@@ -796,6 +1127,117 @@ function paymentIntentKey(paymentIntentId) {
   return `pi:${paymentIntentId}`;
 }
 
+async function themeLoginKey(email, serial) {
+  return `theme_login:${await sha256Hex(cleanEmail(email))}:${await sha256Hex(normalizeSerial(serial))}`;
+}
+
+async function writeThemeLoginIndex(env, order) {
+  const email = cleanEmail(order?.email);
+  const serial = normalizeSerial(order?.serial);
+  const orderId = cleanString(order?.orderId);
+  if (!env.ORDERS_KV || !email || !serial || !orderId) return false;
+  await env.ORDERS_KV.put(await themeLoginKey(email, serial), orderId);
+  return true;
+}
+
+function isValidThemeAccountOrder(order, email, serial) {
+  if (!order || order.revoked === true) return false;
+  return cleanEmail(order.email) === cleanEmail(email) && normalizeSerial(order.serial) === normalizeSerial(serial);
+}
+
+async function themeOwnerKey(email) {
+  return await sha256Hex(`theme-owner:${cleanEmail(email)}`);
+}
+
+async function themeAccountFromOrder(order) {
+  const email = cleanEmail(order.email);
+  return {
+    email,
+    serial: normalizeSerial(order.serial),
+    orderId: cleanString(order.orderId),
+    ownerKey: await themeOwnerKey(email),
+  };
+}
+
+async function optionalThemeAccount(request, env) {
+  const header = request.headers.get("Authorization") || "";
+  if (!header) return { ok: true, account: null };
+  return await requireThemeAccount(request, env);
+}
+
+async function requireThemeAccount(request, env) {
+  if (!env.THEME_ACCOUNT_TOKEN_SECRET) {
+    return { ok: false, status: 500, error: "Theme account auth is not configured" };
+  }
+
+  const header = request.headers.get("Authorization") || "";
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  if (!match) return { ok: false, status: 401, error: "Missing theme account session" };
+
+  const payload = await verifyThemeAccountToken(match[1], env);
+  if (!payload) return { ok: false, status: 401, error: "Invalid or expired theme account session" };
+
+  const order = await readOrder(env, payload.orderId);
+  if (!isValidThemeAccountOrder(order, payload.email, payload.serial)) {
+    return { ok: false, status: 401, error: "Theme account session is no longer valid" };
+  }
+
+  const account = await themeAccountFromOrder(order);
+  return { ok: true, account };
+}
+
+async function requireOwnedCommunityItem(request, env, type, slugOrId) {
+  const accountResult = await requireThemeAccount(request, env);
+  if (!accountResult.ok) return accountResult;
+
+  const item = await getCommunityItem(env, type, slugOrId);
+  if (!item) return { ok: false, status: 404, error: "Item not found" };
+  if (cleanString(item.owner_key) !== accountResult.account.ownerKey) {
+    return { ok: false, status: 403, error: "You do not own this theme" };
+  }
+  return { ok: true, account: accountResult.account, item };
+}
+
+async function signThemeAccountToken(account, env, expiresInSeconds) {
+  const exp = Math.floor(Date.now() / 1000) + Math.max(60, Number(expiresInSeconds || 0));
+  const header = { alg: "HS256", typ: "JWT" };
+  const payload = {
+    email: account.email,
+    serial: account.serial,
+    orderId: account.orderId,
+    ownerKey: account.ownerKey,
+    exp,
+  };
+  const encodedHeader = base64UrlEncodeJson(header);
+  const encodedPayload = base64UrlEncodeJson(payload);
+  const signingInput = `${encodedHeader}.${encodedPayload}`;
+  const signature = await hmacSha256Base64Url(env.THEME_ACCOUNT_TOKEN_SECRET, signingInput);
+  return `${signingInput}.${signature}`;
+}
+
+async function verifyThemeAccountToken(token, env) {
+  const parts = cleanString(token).split(".");
+  if (parts.length !== 3) return null;
+  const signingInput = `${parts[0]}.${parts[1]}`;
+  const expected = await hmacSha256Base64Url(env.THEME_ACCOUNT_TOKEN_SECRET, signingInput);
+  if (!safeEqual(parts[2], expected)) return null;
+
+  let payload;
+  try {
+    payload = JSON.parse(base64UrlDecodeString(parts[1]));
+  } catch {
+    return null;
+  }
+
+  if (!payload || Math.floor(Date.now() / 1000) >= Number(payload.exp || 0)) return null;
+  const email = cleanEmail(payload.email);
+  const serial = normalizeSerial(payload.serial);
+  const orderId = cleanString(payload.orderId);
+  const ownerKey = cleanString(payload.ownerKey);
+  if (!email || !serial || !orderId || !ownerKey) return null;
+  return { email, serial, orderId, ownerKey, exp: Number(payload.exp) };
+}
+
 function readSessionEmail(session) {
   return (
     session?.customer_details?.email ||
@@ -892,6 +1334,10 @@ function sanitizeFilename(value, fallback) {
 }
 
 function normalizeCommunityTags(value) {
+  if (Array.isArray(value)) {
+    return value.map((tag) => cleanString(tag).toLowerCase()).filter(Boolean).slice(0, 8);
+  }
+
   return cleanString(value)
     .split(",")
     .map((tag) => tag.trim().toLowerCase())
@@ -928,7 +1374,7 @@ async function getCommunityItem(env, type, slugOrId) {
     `SELECT id, type, slug, name, creator_name, app_version, description, tags,
       package_key, package_filename, package_size, package_sha256,
       preview_key, preview_filename, preview_size,
-      download_count, created_at, updated_at
+      download_count, owner_key, owner_email, owner_order_id, created_at, updated_at
      FROM community_items
      WHERE type = ? AND (slug = ? OR id = ?)
      LIMIT 1`,
@@ -965,6 +1411,17 @@ function publicCommunityItem(row) {
   };
 }
 
+function managedCommunityItem(row) {
+  const item = publicCommunityItem(row);
+  if (!item) return null;
+  return {
+    ...item,
+    hasPreview: Boolean(row.preview_key),
+    previewFilename: row.preview_filename || "",
+    previewSize: Number(row.preview_size || 0),
+  };
+}
+
 function parseCommunityTags(value) {
   if (Array.isArray(value)) return value;
   try {
@@ -988,6 +1445,14 @@ function cleanString(value) {
 function cleanEmail(value) {
   const out = cleanString(value).toLowerCase();
   return out.includes("@") ? out : "";
+}
+
+function normalizeSerial(serialIn) {
+  return String(serialIn || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[\u2010\u2011\u2012\u2013\u2014\u2212]/g, "-")
+    .replace(/[^0-9A-Z-]/g, "");
 }
 
 function createSerial() {
@@ -1026,8 +1491,8 @@ function corsHeaders(origin, env) {
 
   return {
     "Access-Control-Allow-Origin": outOrigin,
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type,Stripe-Signature",
+    "Access-Control-Allow-Methods": "GET,POST,PATCH,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type,Stripe-Signature,Authorization",
     "Access-Control-Max-Age": "86400",
   };
 }
@@ -1070,6 +1535,40 @@ async function hmacSha256Hex(secret, message) {
   );
   const sig = await crypto.subtle.sign("HMAC", key, msgData);
   return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function hmacSha256Base64Url(secret, message) {
+  const enc = new TextEncoder();
+  const keyData = enc.encode(secret);
+  const msgData = enc.encode(message);
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, msgData);
+  return base64UrlEncodeBytes(new Uint8Array(sig));
+}
+
+function base64UrlEncodeJson(value) {
+  return base64UrlEncodeBytes(new TextEncoder().encode(JSON.stringify(value)));
+}
+
+function base64UrlEncodeBytes(bytes) {
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function base64UrlDecodeString(value) {
+  const base64 = cleanString(value).replace(/-/g, "+").replace(/_/g, "/");
+  const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
 }
 
 function safeEqual(a, b) {

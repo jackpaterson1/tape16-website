@@ -36,6 +36,15 @@ const themeLibraryGrid = document.getElementById("theme-library-grid");
 const themeEmptyState = document.getElementById("theme-empty-state");
 const themeSort = document.getElementById("theme-sort");
 const themeSearch = document.getElementById("theme-search");
+const themeAccountLoginForm = document.getElementById("theme-account-login-form");
+const themeAccountStatus = document.getElementById("theme-account-status");
+const themeAccountLoginBtn = document.getElementById("theme-account-login-btn");
+const themeAccountRefreshBtn = document.getElementById("theme-account-refresh-btn");
+const themeAccountLogoutBtn = document.getElementById("theme-account-logout-btn");
+const themeAccountPanel = document.getElementById("theme-account-panel");
+const themeAccountSummary = document.getElementById("theme-account-summary");
+const themeAccountList = document.getElementById("theme-account-list");
+const themeEmailInput = document.getElementById("theme-email");
 const fullDownloadLink = document.getElementById("full-download-link");
 const downloadPageWindowsLink =
   document.getElementById("download-page-windows-link") ||
@@ -64,6 +73,7 @@ const checkoutResultCardCopy = document.getElementById("checkout-result-card-cop
 const checkoutResultPrimaryLink = document.getElementById("checkout-result-primary-link");
 
 const ACCOUNT_SESSION_KEY = "tape16_account_session_v1";
+const THEME_ACCOUNT_SESSION_KEY = "tape16_theme_account_session_v1";
 const BUILD_VERSION_CACHE_KEY = "tape16_latest_build_cache_v1";
 const BUILD_VERSION_CACHE_TTL_MS = 10 * 60 * 1000;
 const REDDIT_MATCH_STORAGE_KEY = "tape16_reddit_match_v1";
@@ -1056,6 +1066,300 @@ function themeApiUrl(path) {
   return `${base.replace(/\/+$/, "")}/${value.replace(/^\/+/, "")}`;
 }
 
+function setThemeAccountStatus(message, isError) {
+  if (!themeAccountStatus) return;
+  themeAccountStatus.textContent = message;
+  themeAccountStatus.style.color = isError ? "#ff9d87" : "#f7c34b";
+}
+
+function readThemeAccountSession() {
+  try {
+    const raw = localStorage.getItem(THEME_ACCOUNT_SESSION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    if (!parsed.token || !parsed.expiresAt || Date.now() >= Number(parsed.expiresAt)) {
+      return null;
+    }
+    return parsed;
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeThemeAccountSession(session) {
+  try {
+    localStorage.setItem(THEME_ACCOUNT_SESSION_KEY, JSON.stringify(session));
+  } catch (error) {
+    // Ignore storage errors; signed-in state can still continue for this page.
+  }
+}
+
+function clearThemeAccountSession() {
+  try {
+    localStorage.removeItem(THEME_ACCOUNT_SESSION_KEY);
+  } catch (error) {
+    // Ignore storage errors.
+  }
+}
+
+function themeAccountAuthHeaders(session, extra = {}) {
+  return {
+    ...extra,
+    Authorization: `Bearer ${session.token}`,
+  };
+}
+
+function setThemeAccountLoading(loading) {
+  if (themeAccountLoginBtn) themeAccountLoginBtn.disabled = loading;
+  if (themeAccountRefreshBtn) themeAccountRefreshBtn.disabled = loading;
+}
+
+function applyThemeAccountUploadState() {
+  const session = readThemeAccountSession();
+  if (!themeEmailInput) return;
+  if (session?.email) {
+    themeEmailInput.value = session.email;
+    themeEmailInput.readOnly = true;
+    themeEmailInput.setAttribute("aria-readonly", "true");
+  } else {
+    themeEmailInput.readOnly = false;
+    themeEmailInput.removeAttribute("aria-readonly");
+  }
+}
+
+function themeManageItemHtml(item) {
+  const tags = Array.isArray(item.tags) ? item.tags.join(", ") : "";
+  const packageSize = formatFileSize(item.packageSize);
+  const previewSize = formatFileSize(item.previewSize);
+  const fileMeta = [
+    item.packageFilename || "ZIP package",
+    packageSize,
+    item.hasPreview ? `Preview${previewSize ? ` ${previewSize}` : ""}` : "No preview",
+  ].filter(Boolean);
+
+  return `
+    <article class="theme-manage-item" data-theme-slug="${escapeHtml(item.slug || "")}">
+      <div class="theme-manage-head">
+        <div>
+          <h3>${escapeHtml(item.name || "Untitled Theme")}</h3>
+          <p>${fileMeta.map(escapeHtml).join(" • ")}</p>
+        </div>
+        <a class="btn btn-ghost" href="${escapeHtml(themeApiUrl(item.downloadUrl))}" data-theme-download>Download</a>
+      </div>
+      <div class="theme-manage-fields">
+        <label>
+          Theme Name
+          <input name="themeName" type="text" value="${escapeHtml(item.name || "")}" />
+        </label>
+        <label>
+          Creator Name
+          <input name="creator" type="text" value="${escapeHtml(item.creatorName || "")}" />
+        </label>
+        <label>
+          App Version
+          <input name="appVersion" type="text" value="${escapeHtml(item.appVersion || "")}" />
+        </label>
+        <label>
+          Tags
+          <input name="tags" type="text" value="${escapeHtml(tags)}" />
+        </label>
+        <label class="theme-manage-full">
+          Description
+          <textarea name="description" rows="4">${escapeHtml(item.description || "")}</textarea>
+        </label>
+      </div>
+      <div class="theme-manage-actions">
+        <button class="btn btn-primary" type="button" data-theme-manage-save>Save Details</button>
+        <div class="theme-file-action">
+          <span>Replace ZIP</span>
+          <input name="themeFile" type="file" accept=".zip,application/zip" />
+          <button class="btn btn-ghost" type="button" data-theme-manage-package>Upload ZIP</button>
+        </div>
+        <div class="theme-file-action">
+          <span>Replace Preview</span>
+          <input name="previewImage" type="file" accept=".png,.jpg,.jpeg,.webp" />
+          <button class="btn btn-ghost" type="button" data-theme-manage-preview>Upload Preview</button>
+        </div>
+      </div>
+      <p class="serial-status theme-manage-status" role="status" aria-live="polite"></p>
+    </article>
+  `;
+}
+
+function renderThemeAccountThemes(items) {
+  if (!themeAccountPanel || !themeAccountSummary || !themeAccountList) return;
+  const themes = Array.isArray(items) ? items : [];
+  themeAccountSummary.textContent =
+    themes.length === 1 ? "1 theme linked to this email." : `${themes.length} themes linked to this email.`;
+  themeAccountList.innerHTML = themes.length
+    ? themes.map(themeManageItemHtml).join("")
+    : `<p class="activation-empty">No themes are linked to this email yet.</p>`;
+  themeAccountPanel.hidden = false;
+  bindThemeDownloads();
+}
+
+function setThemeManageStatus(itemEl, message, isError) {
+  const status = itemEl?.querySelector(".theme-manage-status");
+  if (!status) return;
+  status.textContent = message;
+  status.style.color = isError ? "#ff9d87" : "#f7c34b";
+}
+
+async function loadThemeAccountThemes(options = {}) {
+  if (!themeAccountList) return;
+  const session = readThemeAccountSession();
+  if (!session) {
+    if (themeAccountPanel) themeAccountPanel.hidden = true;
+    applyThemeAccountUploadState();
+    if (!options.silent) setThemeAccountStatus("Sign in to manage your themes.", false);
+    return;
+  }
+
+  const supportBase = themeApiBaseUrl();
+  if (!supportBase) {
+    setThemeAccountStatus("Theme account service is not configured yet.", true);
+    return;
+  }
+
+  setThemeAccountLoading(true);
+  if (!options.silent) setThemeAccountStatus("Loading your themes...", false);
+  try {
+    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/theme-account/themes`, {
+      headers: themeAccountAuthHeaders(session),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (response.status === 401) {
+      clearThemeAccountSession();
+      applyThemeAccountUploadState();
+      if (themeAccountPanel) themeAccountPanel.hidden = true;
+      setThemeAccountStatus("Session expired. Please sign in again.", true);
+      return;
+    }
+    if (!response.ok || !body.ok) throw new Error(body.error || "Could not load themes");
+    renderThemeAccountThemes(body.items || []);
+    applyThemeAccountUploadState();
+    setThemeAccountStatus(`Signed in as ${session.email}.`, false);
+  } catch (error) {
+    setThemeAccountStatus("Could not load your themes right now.", true);
+  } finally {
+    setThemeAccountLoading(false);
+  }
+}
+
+async function loginThemeAccount(credentials) {
+  const supportBase = themeApiBaseUrl();
+  if (!supportBase) {
+    setThemeAccountStatus("Theme account service is not configured yet.", true);
+    return;
+  }
+
+  setThemeAccountLoading(true);
+  setThemeAccountStatus("Signing in...", false);
+  try {
+    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/theme-account/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || !body.ok || !body.token) throw new Error(body.error || "Sign in failed");
+    const expiresInSeconds = Number(body.expiresInSeconds || 0);
+    const session = {
+      email: String(body.email || credentials.email || "").trim().toLowerCase(),
+      serial: normalizeSerial(body.serial || credentials.serial),
+      token: body.token,
+      expiresAt: Date.now() + Math.max(60, expiresInSeconds) * 1000,
+    };
+    writeThemeAccountSession(session);
+    saveRedditMatch({ email: session.email });
+    await loadThemeAccountThemes({ silent: true });
+    setThemeAccountStatus("Signed in. Your matching uploaded themes are linked.", false);
+  } catch (error) {
+    setThemeAccountStatus("Sign in failed. Check your purchase email and serial.", true);
+  } finally {
+    setThemeAccountLoading(false);
+  }
+}
+
+async function saveManagedTheme(itemEl) {
+  const session = readThemeAccountSession();
+  const supportBase = themeApiBaseUrl();
+  const slug = itemEl?.dataset.themeSlug || "";
+  if (!session || !supportBase || !slug) return;
+
+  const payload = {
+    themeName: itemEl.querySelector('[name="themeName"]')?.value || "",
+    creator: itemEl.querySelector('[name="creator"]')?.value || "",
+    appVersion: itemEl.querySelector('[name="appVersion"]')?.value || "",
+    tags: itemEl.querySelector('[name="tags"]')?.value || "",
+    description: itemEl.querySelector('[name="description"]')?.value || "",
+  };
+  if (!payload.themeName.trim() || !payload.creator.trim()) {
+    setThemeManageStatus(itemEl, "Theme name and creator name are required.", true);
+    return;
+  }
+
+  setThemeManageStatus(itemEl, "Saving details...", false);
+  try {
+    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/themes/${encodeURIComponent(slug)}`, {
+      method: "PATCH",
+      headers: themeAccountAuthHeaders(session, { "Content-Type": "application/json" }),
+      body: JSON.stringify(payload),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || !body.ok) throw new Error(body.error || "Save failed");
+    setThemeManageStatus(itemEl, "Theme details saved.", false);
+    await loadThemeLibrary();
+    await loadThemeAccountThemes({ silent: true });
+  } catch (error) {
+    setThemeManageStatus(itemEl, "Could not save details right now.", true);
+  }
+}
+
+async function replaceManagedThemeFile(itemEl, kind) {
+  const session = readThemeAccountSession();
+  const supportBase = themeApiBaseUrl();
+  const slug = itemEl?.dataset.themeSlug || "";
+  if (!session || !supportBase || !slug) return;
+
+  const isPreview = kind === "preview";
+  const input = itemEl.querySelector(isPreview ? '[name="previewImage"]' : '[name="themeFile"]');
+  const file = input?.files?.[0] || null;
+  if (!file) {
+    setThemeManageStatus(itemEl, isPreview ? "Choose a preview image first." : "Choose a ZIP first.", true);
+    return;
+  }
+  if (!isPreview && !/\.zip$/i.test(file.name || "")) {
+    setThemeManageStatus(itemEl, "Upload the ZIP exported from the TAPE 16 Themes window.", true);
+    return;
+  }
+  if (isPreview && !/\.(png|jpe?g|webp)$/i.test(file.name || "")) {
+    setThemeManageStatus(itemEl, "Preview image must be PNG, JPG, or WebP.", true);
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append(isPreview ? "previewImage" : "themeFile", file);
+  setThemeManageStatus(itemEl, isPreview ? "Uploading preview..." : "Uploading ZIP...", false);
+  try {
+    const endpoint = `${supportBase.replace(/\/+$/, "")}/themes/${encodeURIComponent(slug)}/${isPreview ? "preview" : "package"}`;
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: themeAccountAuthHeaders(session),
+      body: formData,
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || !body.ok) throw new Error(body.error || "Upload failed");
+    input.value = "";
+    setThemeManageStatus(itemEl, isPreview ? "Preview replaced." : "ZIP replaced.", false);
+    await loadThemeLibrary();
+    await loadThemeAccountThemes({ silent: true });
+  } catch (error) {
+    setThemeManageStatus(itemEl, isPreview ? "Could not replace preview right now." : "Could not replace ZIP right now.", true);
+  }
+}
+
 function formatFileSize(bytes) {
   const size = Number(bytes || 0);
   if (!Number.isFinite(size) || size <= 0) return "";
@@ -1223,7 +1527,9 @@ if (themeUploadForm) {
       return;
     }
 
+    const session = readThemeAccountSession();
     const formData = new FormData(themeUploadForm);
+    if (session?.email) formData.set("email", session.email);
     const email = String(formData.get("email") || "").trim().toLowerCase();
     const creator = String(formData.get("creator") || "").trim();
     const themeName = String(formData.get("themeName") || "").trim();
@@ -1254,6 +1560,7 @@ if (themeUploadForm) {
       const endpoint = `${supportBase.replace(/\/+$/, "")}/submit-theme`;
       const response = await fetch(endpoint, {
         method: "POST",
+        headers: session ? themeAccountAuthHeaders(session) : undefined,
         body: formData,
       });
       const body = await response.json().catch(() => ({}));
@@ -1268,7 +1575,9 @@ if (themeUploadForm) {
       const themeIdText = body.themeId ? ` (${body.themeId})` : "";
       setThemeUploadStatus(`Theme uploaded${themeIdText}. Thank you.`, false);
       themeUploadForm.reset();
+      applyThemeAccountUploadState();
       await loadThemeLibrary();
+      if (session) await loadThemeAccountThemes({ silent: true });
     } catch (error) {
       setThemeUploadStatus(
         error instanceof Error && error.message
@@ -1282,6 +1591,65 @@ if (themeUploadForm) {
   });
 }
 
+if (themeAccountLoginForm) {
+  themeAccountLoginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data = new FormData(themeAccountLoginForm);
+    const serial = normalizeSerial(data.get("serial"));
+    const email = String(data.get("email") || "").trim().toLowerCase();
+    if (!serial || !email) {
+      setThemeAccountStatus("Enter your serial number and purchase email.", true);
+      return;
+    }
+    await loginThemeAccount({ serial, email });
+  });
+}
+
+if (themeAccountRefreshBtn) {
+  themeAccountRefreshBtn.addEventListener("click", async () => {
+    await loadThemeAccountThemes();
+  });
+}
+
+if (themeAccountLogoutBtn) {
+  themeAccountLogoutBtn.addEventListener("click", () => {
+    clearThemeAccountSession();
+    if (themeAccountPanel) themeAccountPanel.hidden = true;
+    applyThemeAccountUploadState();
+    setThemeAccountStatus("Signed out.", false);
+  });
+}
+
+if (themeAccountList) {
+  themeAccountList.addEventListener("click", async (event) => {
+    const target = event.target;
+    const element =
+      target instanceof Element
+        ? target
+        : target instanceof Node
+          ? target.parentElement
+          : null;
+    if (!element) return;
+
+    const itemEl = element.closest(".theme-manage-item");
+    if (!itemEl) return;
+
+    if (element.closest("[data-theme-manage-save]")) {
+      await saveManagedTheme(itemEl);
+      return;
+    }
+    if (element.closest("[data-theme-manage-package]")) {
+      await replaceManagedThemeFile(itemEl, "package");
+      return;
+    }
+    if (element.closest("[data-theme-manage-preview]")) {
+      await replaceManagedThemeFile(itemEl, "preview");
+    }
+  });
+}
+
+applyThemeAccountUploadState();
+loadThemeAccountThemes({ silent: true });
 bindThemeSearch();
 bindThemeSort();
 loadThemeLibrary();

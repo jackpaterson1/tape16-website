@@ -1149,6 +1149,89 @@ h1 {
   line-height: 1.65;
 }
 
+.theme-account {
+  max-width: 980px;
+  margin-inline: auto;
+}
+
+.theme-manage-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.theme-manage-item {
+  border: 1px solid var(--stroke);
+  border-radius: 0;
+  padding: 0.9rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.theme-manage-head {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.8rem;
+}
+
+.theme-manage-head h3 {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.1rem;
+}
+
+.theme-manage-head p {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.theme-manage-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.theme-manage-fields label,
+.theme-file-action {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.theme-manage-fields input,
+.theme-manage-fields textarea,
+.theme-file-action input {
+  width: 100%;
+  border: 1px solid var(--stroke);
+  border-radius: 0;
+  background: rgba(16, 17, 19, 0.72);
+  color: var(--text);
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+}
+
+.theme-manage-fields textarea {
+  resize: vertical;
+}
+
+.theme-manage-full {
+  grid-column: 1 / -1;
+}
+
+.theme-manage-actions {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: auto minmax(180px, 1fr) minmax(180px, 1fr);
+  gap: 0.7rem;
+  align-items: end;
+}
+
+.theme-file-action .btn {
+  width: fit-content;
+}
+
 pre {
   margin: 1rem 0 0;
   padding: 1rem;
@@ -1236,8 +1319,14 @@ footer {
 
   .community-mod-choices,
   .theme-grid,
-  .theme-toolbar {
+  .theme-toolbar,
+  .theme-manage-fields,
+  .theme-manage-actions {
     grid-template-columns: 1fr;
+  }
+
+  .theme-manage-head {
+    flex-direction: column;
   }
 
   #roadmap ul {
