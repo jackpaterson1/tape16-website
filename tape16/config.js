@@ -13,7 +13,7 @@ window.TAPE16_SITE_CONFIG = {
   stripeSuccessUrl: "https://emrmusicgroup.com/tape16/success.html?checkout=success",
   stripeCancelUrl: "https://emrmusicgroup.com/tape16/cancel.html",
   // PayPal checkout can be enabled after sandbox/live testing.
-  paypalCheckoutEnabled: true,
+  paypalCheckoutEnabled: false,
   paypalClientId: "AQhF2O4Fc58fqDba7GkHRqx24RsgkcpMkYHFdZAX4bdvj4OfmsqCvR5B4_6_kZdvDhs458ot9CKQrjex",
   paypalCurrency: "USD",
   paypalCreateOrderPath: "/paypal/create-order",
