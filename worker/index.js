@@ -600,8 +600,12 @@ async function handleListCommunityItems(type, origin, env, searchParams = new UR
 
   const sort = normalizeCommunitySort(searchParams.get("sort"));
   const windowStart = communitySortWindowStart(sort);
-  const query = windowStart
-    ? `SELECT i.id, i.type, i.slug, i.name, i.creator_name, i.app_version, i.description, i.tags,
+  let query;
+  let statement;
+  let rows;
+
+  if (windowStart) {
+    query = `SELECT i.id, i.type, i.slug, i.name, i.creator_name, i.app_version, i.description, i.tags,
         i.package_filename, i.package_size, i.preview_key, i.preview_filename, i.preview_size,
         i.download_count, COALESCE(d.period_download_count, 0) AS period_download_count,
         i.created_at, i.updated_at
@@ -614,20 +618,27 @@ async function handleListCommunityItems(type, origin, env, searchParams = new UR
        ) d ON d.item_id = i.id
        WHERE i.type = ?
        ORDER BY period_download_count DESC, i.download_count DESC, i.created_at DESC
-       LIMIT 100`
-    : `SELECT i.id, i.type, i.slug, i.name, i.creator_name, i.app_version, i.description, i.tags,
+       LIMIT 100`;
+    statement = env.COMMUNITY_DB.prepare(query);
+    rows = await statement.bind(windowStart, type).all();
+  } else {
+    const orderBy =
+      sort === "latest"
+        ? "i.created_at DESC"
+        : sort === "oldest"
+          ? "i.created_at ASC"
+          : "i.download_count DESC, i.created_at DESC";
+    query = `SELECT i.id, i.type, i.slug, i.name, i.creator_name, i.app_version, i.description, i.tags,
         i.package_filename, i.package_size, i.preview_key, i.preview_filename, i.preview_size,
         i.download_count, i.download_count AS period_download_count,
         i.created_at, i.updated_at
        FROM community_items i
        WHERE i.type = ?
-       ORDER BY i.download_count DESC, i.created_at DESC
+       ORDER BY ${orderBy}
        LIMIT 100`;
-
-  const statement = env.COMMUNITY_DB.prepare(query);
-  const rows = windowStart
-    ? await statement.bind(windowStart, type).all()
-    : await statement.bind(type).all();
+    statement = env.COMMUNITY_DB.prepare(query);
+    rows = await statement.bind(type).all();
+  }
 
   return json(
     {
@@ -1382,6 +1393,8 @@ function makeCommunityDownloadId() {
 
 function normalizeCommunitySort(value) {
   const sort = cleanString(value).toLowerCase().replace(/-/g, "_");
+  if (sort === "latest" || sort === "newest" || sort === "recent") return "latest";
+  if (sort === "oldest" || sort === "first") return "oldest";
   if (sort === "downloads" || sort === "all_time" || sort === "all") return "downloads";
   if (sort === "popular_3_months" || sort === "3_months" || sort === "three_months") {
     return "popular_3_months";

@@ -76,6 +76,7 @@ const themeLibraryGrid = document.getElementById("theme-library-grid");
 const themeEmptyState = document.getElementById("theme-empty-state");
 const themeSort = document.getElementById("theme-sort");
 const themeSearch = document.getElementById("theme-search");
+const themePagination = document.getElementById("theme-pagination");
 const themeAccountLoginForm = document.getElementById("theme-account-login-form");
 const themeAccountStatus = document.getElementById("theme-account-status");
 const themeAccountLoginBtn = document.getElementById("theme-account-login-btn");
@@ -118,6 +119,9 @@ const BUILD_VERSION_CACHE_KEY = "tape16_latest_build_cache_v1";
 const BUILD_VERSION_CACHE_TTL_MS = 10 * 60 * 1000;
 const REDDIT_MATCH_STORAGE_KEY = "tape16_reddit_match_v1";
 const PROMOTEKIT_REFERRAL_STORAGE_KEY = "tape16_promotekit_referral_v1";
+const THEME_PAGE_SIZE = 12;
+let themeLibraryItems = [];
+let themeCurrentPage = 1;
 
 function configUrl(value) {
   if (typeof value !== "string") return "";
@@ -1504,19 +1508,78 @@ function themeCardHtml(item) {
   `;
 }
 
-function renderThemeLibrary(items) {
+function filteredThemeLibraryItems() {
+  const query = String(themeSearch?.value || "").trim().toLowerCase();
+  if (!query) return themeLibraryItems;
+  return themeLibraryItems.filter((item) => {
+    const tags = Array.isArray(item.tags) ? item.tags.join(" ") : "";
+    return [
+      item.name,
+      item.creatorName,
+      item.description,
+      tags,
+    ]
+      .join(" ")
+      .toLowerCase()
+      .includes(query);
+  });
+}
+
+function renderThemePagination(totalItems) {
+  if (!themePagination) return;
+  const totalPages = Math.ceil(totalItems / THEME_PAGE_SIZE);
+  if (totalPages <= 1) {
+    themePagination.innerHTML = "";
+    themePagination.hidden = true;
+    return;
+  }
+
+  const pageButtons = Array.from({ length: totalPages }, (_, index) => {
+    const page = index + 1;
+    return `<button class="theme-page-btn${page === themeCurrentPage ? " is-active" : ""}" type="button" data-theme-page="${page}" aria-current="${page === themeCurrentPage ? "page" : "false"}">${page}</button>`;
+  }).join("");
+
+  themePagination.hidden = false;
+  themePagination.innerHTML = `
+    <button class="theme-page-btn" type="button" data-theme-page="prev" ${themeCurrentPage <= 1 ? "disabled" : ""}>Prev</button>
+    <span>${themeCurrentPage} / ${totalPages}</span>
+    ${pageButtons}
+    <button class="theme-page-btn" type="button" data-theme-page="next" ${themeCurrentPage >= totalPages ? "disabled" : ""}>Next</button>
+  `;
+}
+
+function renderThemeLibraryPage() {
   if (!themeLibraryGrid) return;
-  const themes = Array.isArray(items) ? items : [];
-  themeLibraryGrid.innerHTML = themes.map(themeCardHtml).join("");
+  const themes = filteredThemeLibraryItems();
+  const totalPages = Math.max(1, Math.ceil(themes.length / THEME_PAGE_SIZE));
+  themeCurrentPage = Math.min(Math.max(1, themeCurrentPage), totalPages);
+  const start = (themeCurrentPage - 1) * THEME_PAGE_SIZE;
+  const pageThemes = themes.slice(start, start + THEME_PAGE_SIZE);
+
+  themeLibraryGrid.innerHTML = pageThemes.map(themeCardHtml).join("");
   if (themeEmptyState) themeEmptyState.hidden = themes.length > 0;
   themeLibraryGrid.hidden = themes.length === 0;
+  renderThemePagination(themes.length);
   bindThemeDownloads();
   bindThemeDescriptionToggles();
-  if (themeSearch) themeSearch.dispatchEvent(new Event("input"));
+}
+
+function renderThemeLibrary(items) {
+  if (!themeLibraryGrid) return;
+  themeLibraryItems = Array.isArray(items) ? items : [];
+  themeCurrentPage = 1;
+  renderThemeLibraryPage();
 }
 
 async function loadThemeLibrary() {
   if (!themeLibraryGrid) return;
+  if (window.location.protocol === "file:") {
+    setThemeDownloadStatus(
+      "Theme downloads only load on the live website or a local web server preview.",
+      true
+    );
+    return;
+  }
   const supportBase = themeApiBaseUrl();
   if (!supportBase) {
     setThemeDownloadStatus("Theme library service is not configured yet.", true);
@@ -1539,15 +1602,8 @@ function bindThemeSearch() {
   if (!themeSearch) return;
 
   const applyThemeSearch = () => {
-    const query = String(themeSearch.value || "").trim().toLowerCase();
-    document.querySelectorAll(".theme-card[data-theme-id]").forEach((card) => {
-      const haystack = [
-        card.dataset.themeName,
-        card.dataset.themeCreator,
-        card.dataset.themeTags,
-      ].join(" ").toLowerCase();
-      card.hidden = query ? !haystack.includes(query) : false;
-    });
+    themeCurrentPage = 1;
+    renderThemeLibraryPage();
   };
 
   themeSearch.addEventListener("input", applyThemeSearch);
@@ -1557,11 +1613,31 @@ function bindThemeSearch() {
 function bindThemeSort() {
   if (!themeSort) return;
   themeSort.addEventListener("change", () => {
+    themeCurrentPage = 1;
     loadThemeLibrary();
     trackAnalyticsEvent("theme_sort_change", {
       sort: themeSort.value,
       page_location: window.location.href,
     });
+  });
+}
+
+function bindThemePagination() {
+  if (!themePagination) return;
+  themePagination.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-theme-page]");
+    if (!button || button.disabled) return;
+    const target = button.dataset.themePage || "";
+    const totalPages = Math.max(1, Math.ceil(filteredThemeLibraryItems().length / THEME_PAGE_SIZE));
+    if (target === "prev") {
+      themeCurrentPage = Math.max(1, themeCurrentPage - 1);
+    } else if (target === "next") {
+      themeCurrentPage = Math.min(totalPages, themeCurrentPage + 1);
+    } else {
+      themeCurrentPage = Math.min(totalPages, Math.max(1, Number(target) || 1));
+    }
+    renderThemeLibraryPage();
+    document.getElementById("theme-library")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 }
 
@@ -1759,6 +1835,7 @@ applyThemeAccountUploadState();
 loadThemeAccountThemes({ silent: true });
 bindThemeSearch();
 bindThemeSort();
+bindThemePagination();
 loadThemeLibrary();
 
 function accountApiBaseUrl() {
