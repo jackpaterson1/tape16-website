@@ -101,6 +101,28 @@
         <ul class="release-list">
           <li class="release-item">
             <div class="release-head">
+              <h3>0.9.291</h3>
+              <span>June 19, 2026</span>
+            </div>
+            <ul>
+              <li>Added ability to use PNGs with custom cutouts for reels.</li>
+              <li>Added greater latency compensation for heavy process plugins, such as RX de-click.</li>
+              <li>Added scrub to MIDI learn for pitch wheel control.</li>
+              <li>Added enable all to audio I/O.</li>
+              <li>Greatly improved MIDI latency on Windows, down from 30 ms to 4 ms.</li>
+              <li>Greatly improved scrub so it is smooth and avoids pops when crossing the middle.</li>
+              <li>Improved transport response time with heavier plugin loads.</li>
+              <li>Improved Waves plugin handling for older systems.</li>
+              <li>Improved tape delay by adding smoothing for delay time.</li>
+              <li>Fixed open in fullscreen button and window size memory on launch.</li>
+              <li>Fixed FF and RW 5x + 10x resetting after first use.</li>
+              <li>Stereo linked tracks can now bounce to other tracks in stereo.</li>
+              <li>Fixed 0 input, multi-out plugin types.</li>
+            </ul>
+            <a class="release-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.2.291" target="_blank" rel="noreferrer">View release on GitHub</a>
+          </li>
+          <li class="release-item">
+            <div class="release-head">
               <h3>0.9.272</h3>
               <span>June 6, 2026</span>
             </div>
@@ -429,7 +451,7 @@
       <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
     </footer>
 
-    <script src="config.js?v=0.9.272"></script>
+    <script src="config.js?v=0.9.291"></script>
     <script src="script.js?v=mobile-menu-1"></script>
   </body>
 </html>
