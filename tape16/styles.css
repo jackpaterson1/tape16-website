@@ -715,11 +715,12 @@ h1 {
 .checkout-actions {
   margin-top: auto;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 0.75rem;
-  flex-wrap: wrap;
-  width: min(760px, 100%);
+  flex-wrap: nowrap;
+  width: min(360px, 100%);
 }
 
 .checkout-actions .btn {

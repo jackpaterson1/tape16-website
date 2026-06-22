@@ -1,0 +1,29 @@
+.checkout-actions {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  width: min(360px, 100%);
+}
+
+.checkout-actions .stripe-checkout-button,
+.paypal-checkout--inline {
+  width: 360px;
+}
+
+.checkout-actions .stripe-checkout-button {
+  min-height: 0;
+  display: inline-grid;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+@media (max-width: 700px) {
+  .checkout-actions {
+    width: min(280px, 100%);
+  }
+
+  .checkout-actions .btn,
+  .checkout-actions .stripe-checkout-button,
+  .paypal-checkout--inline {
+    width: 100%;
+  }
+}
