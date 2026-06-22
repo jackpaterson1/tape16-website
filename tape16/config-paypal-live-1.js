@@ -12,7 +12,7 @@ window.TAPE16_SITE_CONFIG = {
   // Optional explicit return URLs. If empty, backend falls back to env/origin defaults.
   stripeSuccessUrl: "https://emrmusicgroup.com/tape16/success.html",
   stripeCancelUrl: "https://emrmusicgroup.com/tape16/cancel.html",
-  paypalCheckoutEnabled: true,
+  paypalCheckoutEnabled: false,
   paypalClientId: "AQhF2O4Fc58fqDba7GkHRqx24RsgkcpMkYHFdZAX4bdvj4OfmsqCvR5B4_6_kZdvDhs458ot9CKQrjex",
   paypalCurrency: "USD",
   paypalCreateOrderPath: "/paypal/create-order",
