@@ -30,7 +30,7 @@
       content="TAPE 16 is a tape DAW and tape machine DAW with a reel to reel style workflow for modern music production."
     />
     <meta name="twitter:image" content="hero-image.png" />
-    <link rel="stylesheet" href="styles.css?v=mobile-menu-2" />
+    <link rel="stylesheet" href="styles.css?v=stripe-button-2" />
       <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -403,7 +403,18 @@
             <p>One-time purchase with full recording workflow and export options.</p>
             <p class="price-note">Secure checkout. Your serial is delivered automatically after purchase.</p>
             <div class="checkout-actions">
-              <a class="btn btn-primary" id="buy-link" href="https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02" target="_blank" rel="noreferrer">Buy With Card</a>
+              <a class="btn stripe-checkout-button" id="buy-link" href="https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02" target="_blank" rel="noreferrer">
+                <span class="stripe-button-bar">
+                  <span class="stripe-button-title">Checkout with stripe</span>
+                  <span class="stripe-button-price">$29.00</span>
+                </span>
+                <span class="stripe-card-brands" aria-hidden="true">
+                  <span class="stripe-brand-visa">VISA</span>
+                  <span class="stripe-brand-mastercard"><span></span><span></span></span>
+                  <span class="stripe-brand-amex">AM<br />EX</span>
+                  <span class="stripe-brand-discover">DISCOVER</span>
+                </span>
+              </a>
               <div class="paypal-checkout paypal-checkout--inline" id="paypal-button-container" hidden></div>
             </div>
             <p id="buy-status" class="serial-status" role="status" aria-live="polite"></p>
