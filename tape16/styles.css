@@ -744,9 +744,16 @@ h1 {
   color: #fff;
   letter-spacing: 0;
   box-shadow: none;
+  text-decoration: none;
+}
+
+.price-card .stripe-checkout-button {
+  width: min(360px, 100%);
 }
 
 .stripe-checkout-button:hover {
+  color: #fff;
+  text-decoration: none;
   box-shadow: none;
 }
 
@@ -768,6 +775,7 @@ h1 {
   box-shadow:
     0 10px 22px rgba(0, 0, 0, 0.36),
     0 0 0 1px rgba(255, 255, 255, 0.11) inset;
+  color: #fff;
 }
 
 .stripe-button-title,
@@ -805,6 +813,7 @@ h1 {
   align-items: center;
   justify-content: center;
   gap: 0.34rem;
+  text-decoration: none;
 }
 
 .stripe-brand-visa,
