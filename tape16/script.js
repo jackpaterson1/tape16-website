@@ -217,17 +217,23 @@ function resolvePromoteKitReferral() {
 function attachPromoteKitReferral(linkEl) {
   if (!linkEl) return;
 
-  const referralId = resolvePromoteKitReferral();
-  if (!referralId) return;
-
   const oldBuyUrl = linkEl.getAttribute("href") || "";
-  if (!oldBuyUrl.startsWith("https://buy.stripe.com/") || oldBuyUrl.includes("client_reference_id=")) {
-    return;
-  }
+  const newBuyUrl = stripeCheckoutUrlWithPromoteKitReferral(oldBuyUrl);
+  if (!newBuyUrl) return;
+
+  linkEl.setAttribute("href", newBuyUrl);
+}
+
+function stripeCheckoutUrlWithPromoteKitReferral(buyUrl) {
+  const referralId = resolvePromoteKitReferral();
+  if (!referralId) return "";
+
+  const oldBuyUrl = String(buyUrl || "");
+  if (!oldBuyUrl.startsWith("https://buy.stripe.com/")) return "";
+  if (oldBuyUrl.includes("client_reference_id=")) return oldBuyUrl;
 
   const separator = oldBuyUrl.includes("?") ? "&" : "?";
-  const newBuyUrl = oldBuyUrl + separator + "client_reference_id=" + encodeURIComponent(referralId);
-  linkEl.setAttribute("href", newBuyUrl);
+  return oldBuyUrl + separator + "client_reference_id=" + encodeURIComponent(referralId);
 }
 
 function refreshPromoteKitRefs() {
@@ -619,6 +625,14 @@ if (buyLink) {
     buyLink.removeAttribute("target");
     buyLink.addEventListener("click", async (event) => {
       event.preventDefault();
+
+      const referralCheckoutUrl = stripeCheckoutUrlWithPromoteKitReferral(
+        buyLink.getAttribute("href") || checkoutUrl || fallbackBuyUrl
+      );
+      if (referralCheckoutUrl) {
+        window.location.assign(referralCheckoutUrl);
+        return;
+      }
 
       const apiBase = checkoutApiBaseUrl();
       if (!apiBase) {
