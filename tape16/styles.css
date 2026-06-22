@@ -636,6 +636,68 @@ h1 {
   max-width: 980px;
 }
 
+.pricing--home {
+  max-width: 940px;
+  padding: clamp(1.25rem, 2.4vw, 1.8rem);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+    linear-gradient(135deg, rgba(255, 91, 58, 0.035), transparent 34%);
+}
+
+.pricing--home .pricing-head {
+  margin-bottom: 1rem;
+}
+
+.pricing--home .pricing-head h2 {
+  margin: 0.2rem 0 0.45rem;
+}
+
+.pricing--home .pricing-grid--single {
+  max-width: 640px;
+  margin-top: 1.15rem;
+}
+
+.pricing--home .price-card {
+  gap: 0.62rem;
+  padding: clamp(1.3rem, 2.8vw, 1.75rem);
+  border-color: rgba(255, 255, 255, 0.13);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.008)),
+    rgba(12, 13, 15, 0.82);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.24);
+}
+
+.pricing--home .price-card h3 {
+  font-size: 1.38rem;
+}
+
+.pricing--home .price {
+  margin: 0.1rem 0 0.45rem;
+  font-size: clamp(2.15rem, 5vw, 2.7rem);
+}
+
+.pricing--home .price-card > p:not(.price):not(.serial-status):not(.checkout-trust) {
+  max-width: 56ch;
+  margin: 0;
+  color: #c4c6cd;
+  font-size: 1.02rem;
+  line-height: 1.45;
+}
+
+.pricing--home .checkout-actions {
+  margin-top: 0.35rem;
+}
+
+.checkout-trust {
+  margin: 0.15rem 0 0;
+  color: #9fa3ad;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
 .buy-page .pricing--buy {
   max-width: 980px;
   padding: 1.8rem 1.8rem 1.6rem;
