@@ -393,7 +393,6 @@ async function handleCreateCheckoutSession(request, env, origin) {
   const originBase = env.PUBLIC_SITE_ORIGIN || "https://emrmusicgroup.com";
   const successUrl = cleanString(payload.successUrl) || `${originBase}/tape16/?checkout=success`;
   const cancelUrl = cleanString(payload.cancelUrl) || `${originBase}/tape16/?checkout=cancel`;
-  const clientReferenceId = cleanString(payload.clientReferenceId);
 
   const form = new URLSearchParams();
   form.set("mode", "payment");
@@ -405,9 +404,6 @@ async function handleCreateCheckoutSession(request, env, origin) {
   form.set("billing_address_collection", "auto");
   form.set("customer_creation", "if_required");
   form.set("tax_id_collection[enabled]", "false");
-  if (clientReferenceId) {
-    form.set("client_reference_id", clientReferenceId);
-  }
 
   const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",

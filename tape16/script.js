@@ -636,10 +636,6 @@ if (buyLink) {
         successUrl: configUrl(config.stripeSuccessUrl),
         cancelUrl: configUrl(config.stripeCancelUrl),
       };
-      const promoteKitReferral = resolvePromoteKitReferral();
-      if (promoteKitReferral) {
-        payload.clientReferenceId = promoteKitReferral;
-      }
 
       buyLink.setAttribute("disabled", "disabled");
       setBuyStatus("Starting secure checkout...", false);
