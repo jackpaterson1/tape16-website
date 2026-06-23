@@ -1,66 +1,95 @@
-# Cloudflare + Stripe Setup (Replace Render)
+# Cloudflare Payment + Serial Setup
 
-This moves webhook + serial issuing to Cloudflare Worker and keeps your site static.
+Use the licensing Worker as the single production backend for Stripe, PayPal, serial issuing, activation, resend, support, refunds, and affiliate transfers.
 
-## 1) Deploy Worker from this repo
+Canonical Worker source:
 
-1. In Cloudflare dashboard, go to **Workers & Pages**.
-2. Create Worker from GitHub repo: `jackpaterson1/tape16-website`.
-3. Use these build settings:
-   - Root directory: `/`
-   - Entry point: `worker/index.js`
-4. Add a KV namespace:
-   - Name: `tape16-orders`
-   - Copy its namespace ID into `wrangler.toml` for `ORDERS_KV`.
+```text
+licensing/cloudflare-worker/src/index.ts
+```
 
-## 2) Worker environment variables
+Do not subscribe `tape16-website/worker/index.js` to Stripe webhooks. That older Worker can issue serials from a separate store and can create duplicate fulfillment paths.
 
-Set these in Worker settings:
+## 1) Deploy the Licensing Worker
 
-- `STRIPE_WEBHOOK_SECRET` = `whsec_...` (from Stripe webhook endpoint)
-- `STRIPE_SECRET_KEY` = `sk_live_...`
-- `STRIPE_PRICE_ID` = `price_...` (for optional `/stripe/create-checkout-session`)
-- `RESEND_API_KEY` = `re_...`
-- `RESEND_FROM` = `no-reply@emrmusicgroup.com`
-- `ALLOWED_ORIGIN` = `https://emrmusicgroup.com`
-- `PUBLIC_SITE_ORIGIN` = `https://emrmusicgroup.com`
+In Cloudflare Workers, deploy from:
 
-## 3) Stripe webhook destination
+```text
+licensing/cloudflare-worker
+```
 
-In Stripe -> Developers -> Webhooks:
+The Worker needs these KV bindings:
 
-- Endpoint URL: `https://<your-worker-domain>/stripe/webhook`
-- Events:
-  - `checkout.session.completed`
-  - `checkout.session.async_payment_succeeded`
-  - `charge.refunded`
-  - `refund.updated`
+```text
+LICENSES
+ACTIVATIONS
+```
 
-Use the endpoint signing secret for `STRIPE_WEBHOOK_SECRET`.
+## 2) Worker Secrets
 
-## 4) Update website config to Worker URL
+Set these in the licensing Worker:
 
-In `config.js`, change:
+```text
+TAPE16_LICENSE_SECRET
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+STRIPE_PRICE_ID
+RESEND_API_KEY
+RESEND_FROM_EMAIL
+PAYPAL_CLIENT_ID
+PAYPAL_CLIENT_SECRET
+PAYPAL_WEBHOOK_ID
+PAYPAL_ENV
+PAYPAL_CHECKOUT_ENABLED
+```
 
-- `serialApiBaseUrl`
-- `supportApiBaseUrl`
+`RESEND_FROM` is accepted as a fallback, but `RESEND_FROM_EMAIL` is the canonical variable.
 
-to your Worker base URL, for example:
+## 3) Stripe Webhook
 
-`https://tape16-api.<your-subdomain>.workers.dev`
+In Stripe, keep only one live fulfillment destination:
 
-## 5) Quick tests
+```text
+https://<licensing-worker-domain>/stripe/webhook
+```
 
-1. Health:
-   - `GET /healthz` returns `{"ok":true,...}`
-2. Stripe webhook:
-   - In Stripe, resend a recent `checkout.session.completed` event.
-3. Manual resend:
-   - `POST /resend-serial` with `{ "orderId": "...", "email": "..." }`
+Subscribe it to:
 
-## 6) Cutover complete
+```text
+checkout.session.completed
+checkout.session.async_payment_succeeded
+charge.refunded
+refund.updated
+```
 
-After tests pass:
+Use that endpoint's signing secret as `STRIPE_WEBHOOK_SECRET`.
 
-- Remove Render webhook URL from Stripe.
-- Keep only Worker webhook endpoint enabled.
+## 4) PayPal Webhook
+
+In PayPal, point the webhook at:
+
+```text
+https://<licensing-worker-domain>/paypal/webhook
+```
+
+Use the resulting webhook ID as `PAYPAL_WEBHOOK_ID`.
+
+## 5) Website Config
+
+Point the static website at the same licensing Worker:
+
+```js
+stripeCheckoutEnabled: true,
+stripeCheckoutPath: "/stripe/create-checkout-session",
+serialApiBaseUrl: "https://<licensing-worker-domain>",
+supportApiBaseUrl: "https://<licensing-worker-domain>",
+```
+
+## 6) Quick Tests
+
+1. `GET /healthz` returns `{ "ok": true }`.
+2. Stripe checkout creates one serial for one `cs_...` order.
+3. Replaying the same Stripe event returns `issued: false` and does not mint a second serial.
+4. `POST /resend-serial` with the order ID and customer email queues a serial email.
+5. PayPal create/capture/webhook still issues one serial and records email status.
+6. Resend shows the outgoing serial email, or the license record contains `serialEmailLastError`.

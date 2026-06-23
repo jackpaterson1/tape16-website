@@ -25,7 +25,7 @@ window.TAPE16_SITE_CONFIG = {
     "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.292/TAPE-16-v0.9.292-macOS.dmg",
   // Base URL where licensing/auto_issue_webhook.py is hosted.
   // Example: "https://licenses.tape16.com"
-  serialApiBaseUrl: "",
+  serialApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
   // Optional dedicated support API. If empty, serialApiBaseUrl is used.
   supportApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
   // Community themes/mods API. Uses the same Cloudflare Worker as support.
