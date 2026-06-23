@@ -299,6 +299,48 @@ h1 {
   flex-wrap: wrap;
 }
 
+.direct-downloads-note {
+  margin: 1rem 0 0;
+  display: flex;
+}
+
+.direct-downloads-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: fit-content;
+  min-height: 44px;
+  padding: 0.68rem 1rem;
+  border: 1px solid rgba(255, 209, 146, 0.34);
+  border-radius: 4px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.025)),
+    rgba(255, 126, 74, 0.045);
+  color: var(--text);
+  text-decoration: none;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.direct-downloads-button:hover {
+  border-color: rgba(255, 209, 146, 0.58);
+  box-shadow: 0 15px 34px rgba(0, 0, 0, 0.32);
+  transform: translateY(-1px);
+}
+
+.direct-downloads-button span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.direct-downloads-button strong {
+  color: #ffd0bf;
+  font-size: 0.92rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .btn {
   display: inline-block;
   border-radius: 4px;
@@ -720,6 +762,10 @@ h1 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   align-items: stretch;
+}
+
+.pricing-grid--downloads {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .pricing-grid--single {

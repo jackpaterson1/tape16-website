@@ -90,8 +90,11 @@ const fullDownloadLink = document.getElementById("full-download-link");
 const downloadPageWindowsLink =
   document.getElementById("download-page-windows-link") ||
   document.getElementById("download-page-demo-link");
+const downloadPageLinuxLink = document.getElementById("download-page-linux-link");
 const downloadCtaLink = document.getElementById("download-cta-link");
 const getTape16Link = document.getElementById("get-tape-16-link");
+const homeWindowsDownloadLink = document.getElementById("home-windows-download-link");
+const homeLinuxDownloadLink = document.getElementById("home-linux-download-link");
 const directDownloadMacLink = document.getElementById("direct-download-mac-link");
 const directDownloadWindowsLink = document.getElementById("direct-download-windows-link");
 const directDownloadReleaseLink = document.getElementById("direct-download-release-link");
@@ -871,6 +874,7 @@ const pinnedGithubReleaseUrl =
   "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.292";
 const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || pinnedReleaseDownloadUrl;
 const windowsDownloadUrl = configUrl(config.windowsDownloadUrl) || pinnedWindowsDownloadUrl;
+const linuxDownloadUrl = configUrl(config.linuxDownloadUrl);
 const githubReleaseUrl = configUrl(config.githubReleaseUrl) || pinnedGithubReleaseUrl;
 
 if (demoLink) {
@@ -887,6 +891,10 @@ if (downloadPageWindowsLink) {
   configureDirectDownloadLink(downloadPageWindowsLink, windowsDownloadUrl);
 }
 
+if (downloadPageLinuxLink) {
+  configureDirectDownloadLink(downloadPageLinuxLink, linuxDownloadUrl);
+}
+
 if (downloadCtaLink) {
   const fullUrl = releaseDownloadUrl;
   configureDirectDownloadLink(downloadCtaLink, fullUrl);
@@ -894,6 +902,14 @@ if (downloadCtaLink) {
 
 if (getTape16Link) {
   configureDirectDownloadLink(getTape16Link, releaseDownloadUrl);
+}
+
+if (homeWindowsDownloadLink) {
+  configureDirectDownloadLink(homeWindowsDownloadLink, windowsDownloadUrl);
+}
+
+if (homeLinuxDownloadLink) {
+  configureDirectDownloadLink(homeLinuxDownloadLink, linuxDownloadUrl);
 }
 
 if (directDownloadMacLink) {
@@ -912,7 +928,10 @@ bindDownloadClickTracking(getTape16Link, "Get TAPE 16");
 bindDownloadClickTracking(downloadCtaLink, "Download Full Installer");
 bindDownloadClickTracking(fullDownloadLink, "Download Full");
 bindDownloadClickTracking(downloadPageWindowsLink, "Download Windows");
+bindDownloadClickTracking(downloadPageLinuxLink, "Download Linux");
 bindDownloadClickTracking(demoLink, "Download Demo");
+bindDownloadClickTracking(homeWindowsDownloadLink, "Download Windows");
+bindDownloadClickTracking(homeLinuxDownloadLink, "Download Linux");
 
 startPromoteKitTracking();
 bindDownloadClickTracking(directDownloadMacLink, "Direct Download Mac");
