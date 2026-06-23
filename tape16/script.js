@@ -626,18 +626,16 @@ if (buyLink) {
     buyLink.addEventListener("click", async (event) => {
       event.preventDefault();
 
-      const referralCheckoutUrl = stripeCheckoutUrlWithPromoteKitReferral(
-        buyLink.getAttribute("href") || checkoutUrl || fallbackBuyUrl
-      );
-      if (referralCheckoutUrl) {
-        window.location.assign(referralCheckoutUrl);
-        return;
-      }
+      const referralId = resolvePromoteKitReferral();
 
       const apiBase = checkoutApiBaseUrl();
       if (!apiBase) {
-        if (checkoutUrl) {
-          window.open(checkoutUrl, "_blank", "noopener,noreferrer");
+        const fallbackReferralUrl = stripeCheckoutUrlWithPromoteKitReferral(
+          checkoutUrl || fallbackBuyUrl
+        );
+        const fallbackUrl = fallbackReferralUrl || checkoutUrl || fallbackBuyUrl;
+        if (fallbackUrl) {
+          window.open(fallbackUrl, "_blank", "noopener,noreferrer");
           return;
         }
         setBuyStatus("Checkout service is not configured yet.", true);
@@ -650,6 +648,7 @@ if (buyLink) {
         successUrl: configUrl(config.stripeSuccessUrl),
         cancelUrl: configUrl(config.stripeCancelUrl),
       };
+      if (referralId) payload.clientReferenceId = referralId;
 
       buyLink.setAttribute("disabled", "disabled");
       setBuyStatus("Starting secure checkout...", false);
@@ -666,8 +665,12 @@ if (buyLink) {
         window.location.assign(body.url);
       } catch (error) {
         setBuyStatus("Could not start Stripe checkout. Try again in a moment.", true);
-        if (checkoutUrl) {
-          window.open(checkoutUrl, "_blank", "noopener,noreferrer");
+        const fallbackReferralUrl = stripeCheckoutUrlWithPromoteKitReferral(
+          checkoutUrl || fallbackBuyUrl
+        );
+        const fallbackUrl = fallbackReferralUrl || checkoutUrl || fallbackBuyUrl;
+        if (fallbackUrl) {
+          window.open(fallbackUrl, "_blank", "noopener,noreferrer");
         }
       } finally {
         buyLink.removeAttribute("disabled");
