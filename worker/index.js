@@ -1,6 +1,7 @@
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
 const GENERIC_RESEND_MESSAGE = "If a matching purchase exists, the serial email has been sent.";
 const COMMUNITY_MAX_PACKAGE_BYTES = 50 * 1024 * 1024;
+const COMMUNITY_MAX_MIDI_PROFILE_BYTES = 5 * 1024 * 1024;
 const COMMUNITY_MAX_PREVIEW_BYTES = 5 * 1024 * 1024;
 
 const CHECKOUT_EVENT_TYPES = new Set([
@@ -39,11 +40,11 @@ export default {
         return await handleListCommunityItems("theme", origin, env, url.searchParams);
       }
 
-      if (method === "POST" && path === "/theme-account/login") {
+      if (method === "POST" && (path === "/theme-account/login" || path === "/mod-account/login")) {
         return await handleThemeAccountLogin(request, origin, env);
       }
 
-      if (method === "GET" && path === "/theme-account/themes") {
+      if (method === "GET" && (path === "/theme-account/themes" || path === "/mod-account/items")) {
         return await handleThemeAccountThemes(request, origin, env);
       }
 
@@ -90,6 +91,52 @@ export default {
         const match = path.match(/^\/themes\/([^/]+)\/preview$/);
         if (method === "GET" && match) {
           return await handlePreviewCommunityItem("theme", match[1], origin, env);
+        }
+      }
+
+      if (method === "GET" && path === "/midi-profiles") {
+        return await handleListCommunityItems("midi_profile", origin, env, url.searchParams);
+      }
+
+      if (method === "POST" && (path === "/midi-profiles" || path === "/submit-midi-profile")) {
+        return await handleSubmitCommunityItem(request, "midi_profile", origin, env);
+      }
+
+      {
+        const match = path.match(/^\/midi-profiles\/([^/]+)$/);
+        if (method === "PATCH" && match) {
+          return await handleUpdateCommunityItem(request, "midi_profile", match[1], origin, env);
+        }
+        if (method === "DELETE" && match) {
+          return await handleDeleteCommunityItem(request, "midi_profile", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/midi-profiles\/([^/]+)\/package$/);
+        if (method === "POST" && match) {
+          return await handleReplaceCommunityPackage(request, "midi_profile", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/midi-profiles\/([^/]+)\/preview$/);
+        if (method === "POST" && match) {
+          return await handleReplaceCommunityPreview(request, "midi_profile", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/midi-profiles\/([^/]+)\/download$/);
+        if (method === "GET" && match) {
+          return await handleDownloadCommunityItem("midi_profile", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/midi-profiles\/([^/]+)\/preview$/);
+        if (method === "GET" && match) {
+          return await handlePreviewCommunityItem("midi_profile", match[1], origin, env);
         }
       }
 
@@ -498,7 +545,7 @@ async function handleThemeAccountThemes(request, origin, env) {
   await env.COMMUNITY_DB.prepare(
     `UPDATE community_items
      SET owner_key = ?, owner_email = ?, owner_order_id = ?, updated_at = ?
-     WHERE type = 'theme'
+     WHERE type IN ('theme', 'midi_profile')
        AND (owner_key IS NULL OR owner_key = '')
        AND lower(uploader_email) = ?`,
   )
@@ -511,7 +558,7 @@ async function handleThemeAccountThemes(request, origin, env) {
       preview_key, preview_filename, preview_size,
       download_count, created_at, updated_at
      FROM community_items
-     WHERE type = 'theme' AND owner_key = ?
+     WHERE type IN ('theme', 'midi_profile') AND owner_key = ?
      ORDER BY updated_at DESC, created_at DESC
      LIMIT 100`,
   )
@@ -658,7 +705,7 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
 
   const accountResult = await optionalThemeAccount(request, env);
   if (!accountResult.ok) return json({ ok: false, error: accountResult.error }, accountResult.status, origin, env);
-  const account = type === "theme" ? accountResult.account : null;
+  const account = type === "theme" || type === "midi_profile" ? accountResult.account : null;
 
   let form;
   try {
@@ -677,42 +724,34 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
   const packageFile = readUploadFile(form, kind.fileField, "file", "package");
   const previewFile = readUploadFile(form, "previewImage", "preview", "image");
 
-  if (!email || !creatorName || !name || !packageFile) {
+  if (!email || !creatorName || !name || !packageFile || !previewFile) {
     return json(
-      { ok: false, error: "Email, creator name, item name, and ZIP file are required" },
+      { ok: false, error: "Email, creator name, item name, upload file, and preview image are required" },
       400,
       origin,
       env,
     );
   }
 
-  if (!/\.zip$/i.test(packageFile.name || "")) {
-    return json({ ok: false, error: "Upload the exported ZIP package" }, 400, origin, env);
-  }
-
   const packageBuffer = await packageFile.arrayBuffer();
-  if (!packageBuffer.byteLength || packageBuffer.byteLength > COMMUNITY_MAX_PACKAGE_BYTES) {
-    return json({ ok: false, error: "ZIP package must be 50MB or smaller" }, 400, origin, env);
-  }
-  if (!looksLikeZip(packageBuffer)) {
-    return json({ ok: false, error: "Theme package must be a valid ZIP file" }, 400, origin, env);
+  const packageError = validateCommunityPackage(type, packageFile, packageBuffer);
+  if (packageError) {
+    return json({ ok: false, error: packageError }, 400, origin, env);
   }
 
-  let previewBuffer = null;
-  if (previewFile) {
-    previewBuffer = await previewFile.arrayBuffer();
-    if (!previewBuffer.byteLength || previewBuffer.byteLength > COMMUNITY_MAX_PREVIEW_BYTES) {
-      return json({ ok: false, error: "Preview image must be 5MB or smaller" }, 400, origin, env);
-    }
-    if (!isAllowedPreviewFile(previewFile)) {
-      return json({ ok: false, error: "Preview image must be PNG, JPG, or WebP" }, 400, origin, env);
-    }
+  let previewBuffer = await previewFile.arrayBuffer();
+  if (!previewBuffer.byteLength || previewBuffer.byteLength > COMMUNITY_MAX_PREVIEW_BYTES) {
+    return json({ ok: false, error: "Preview image must be 5MB or smaller" }, 400, origin, env);
+  }
+  if (!isAllowedPreviewFile(previewFile)) {
+    return json({ ok: false, error: "Preview image must be PNG, JPG, or WebP" }, 400, origin, env);
   }
 
   const id = makeCommunityId(type);
   const slug = await uniqueCommunitySlug(env, slugify(name), id);
   const now = new Date().toISOString();
-  const packageFilename = sanitizeFilename(packageFile.name || `${slug}.zip`, `${slug}.zip`);
+  const fallbackPackageName = type === "midi_profile" ? `${slug}.tape16-midi-profile` : `${slug}.zip`;
+  const packageFilename = sanitizeFilename(packageFile.name || fallbackPackageName, fallbackPackageName);
   const packageKey = `community/${kind.plural}/${id}/${packageFilename}`;
   const packageSha256 = await sha256Hex(packageBuffer);
 
@@ -725,7 +764,7 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
 
   await env.COMMUNITY_BUCKET.put(packageKey, packageBuffer, {
     httpMetadata: {
-      contentType: "application/zip",
+      contentType: communityPackageContentType(type, packageFilename),
       contentDisposition: `attachment; filename="${packageFilename.replaceAll('"', "")}"`,
     },
     customMetadata: {
@@ -868,27 +907,22 @@ async function handleReplaceCommunityPackage(request, type, slugOrId, origin, en
 
   const kind = communityKind(type);
   const packageFile = readUploadFile(form, kind.fileField, "themeFile", "file", "package");
-  if (!packageFile) return json({ ok: false, error: "ZIP file is required" }, 400, origin, env);
-  if (!/\.zip$/i.test(packageFile.name || "")) {
-    return json({ ok: false, error: "Upload the exported ZIP package" }, 400, origin, env);
-  }
-
+  if (!packageFile) return json({ ok: false, error: "Upload file is required" }, 400, origin, env);
   const packageBuffer = await packageFile.arrayBuffer();
-  if (!packageBuffer.byteLength || packageBuffer.byteLength > COMMUNITY_MAX_PACKAGE_BYTES) {
-    return json({ ok: false, error: "ZIP package must be 50MB or smaller" }, 400, origin, env);
-  }
-  if (!looksLikeZip(packageBuffer)) {
-    return json({ ok: false, error: "Theme package must be a valid ZIP file" }, 400, origin, env);
+  const packageError = validateCommunityPackage(type, packageFile, packageBuffer);
+  if (packageError) {
+    return json({ ok: false, error: packageError }, 400, origin, env);
   }
 
-  const packageFilename = sanitizeFilename(packageFile.name || `${owned.item.slug}.zip`, `${owned.item.slug}.zip`);
+  const fallbackPackageName = type === "midi_profile" ? `${owned.item.slug}.tape16-midi-profile` : `${owned.item.slug}.zip`;
+  const packageFilename = sanitizeFilename(packageFile.name || fallbackPackageName, fallbackPackageName);
   const packageKey = `community/${kind.plural}/${owned.item.id}/${Date.now()}-${packageFilename}`;
   const packageSha256 = await sha256Hex(packageBuffer);
   const oldPackageKey = owned.item.package_key;
 
   await env.COMMUNITY_BUCKET.put(packageKey, packageBuffer, {
     httpMetadata: {
-      contentType: "application/zip",
+      contentType: communityPackageContentType(type, packageFilename),
       contentDisposition: `attachment; filename="${packageFilename.replaceAll('"', "")}"`,
     },
     customMetadata: {
@@ -1015,7 +1049,7 @@ async function handleDownloadCommunityItem(type, slugOrId, origin, env) {
     status: 200,
     headers: {
       ...corsHeaders(origin, env),
-      "Content-Type": "application/zip",
+      "Content-Type": object.httpMetadata?.contentType || communityPackageContentType(type, item.package_filename),
       "Content-Length": String(object.size || item.package_size || 0),
       "Content-Disposition": `attachment; filename="${item.package_filename.replaceAll('"', "")}"`,
       "Cache-Control": "private, max-age=0",
@@ -1299,7 +1333,7 @@ async function requireOwnedCommunityItem(request, env, type, slugOrId) {
   const item = await getCommunityItem(env, type, slugOrId);
   if (!item) return { ok: false, status: 404, error: "Item not found" };
   if (cleanString(item.owner_key) !== accountResult.account.ownerKey) {
-    return { ok: false, status: 403, error: "You do not own this theme" };
+    return { ok: false, status: 403, error: "You do not own this item" };
   }
   return { ok: true, account: accountResult.account, item };
 }
@@ -1362,9 +1396,11 @@ function missingCommunityBindings(env, options = {}) {
 }
 
 function communityKind(type) {
-  return type === "mod"
-    ? { plural: "mods", nameField: "modName", fileField: "modFile" }
-    : { plural: "themes", nameField: "themeName", fileField: "themeFile" };
+  if (type === "mod") return { plural: "mods", nameField: "modName", fileField: "modFile" };
+  if (type === "midi_profile") {
+    return { plural: "midi-profiles", nameField: "midiProfileName", fileField: "midiProfileFile" };
+  }
+  return { plural: "themes", nameField: "themeName", fileField: "themeFile" };
 }
 
 function readUploadFile(form, ...names) {
@@ -1458,6 +1494,40 @@ function normalizeCommunityTags(value) {
 function looksLikeZip(buffer) {
   const bytes = new Uint8Array(buffer);
   return bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4b;
+}
+
+function looksLikeMidiProfile(buffer) {
+  const text = new TextDecoder().decode(buffer.slice(0, Math.min(buffer.byteLength, 4096)));
+  return /<\s*(MidiLearnProfile|MidiLearnMappings)\b/i.test(text);
+}
+
+function validateCommunityPackage(type, file, buffer) {
+  if (!buffer.byteLength) return "File is required";
+  const name = cleanString(file?.name).toLowerCase();
+  if (type === "midi_profile") {
+    if (!/\.(tape16-midi-profile|xml)$/i.test(name)) {
+      return "Upload a TAPE 16 MIDI profile file (.tape16-midi-profile or .xml)";
+    }
+    if (buffer.byteLength > COMMUNITY_MAX_MIDI_PROFILE_BYTES) {
+      return "MIDI profile file must be 5MB or smaller";
+    }
+    if (!looksLikeMidiProfile(buffer)) {
+      return "MIDI profile file must be a readable TAPE 16 MIDI Learn profile";
+    }
+    return "";
+  }
+
+  if (!/\.zip$/i.test(name)) return "Upload the exported ZIP package";
+  if (buffer.byteLength > COMMUNITY_MAX_PACKAGE_BYTES) return "ZIP package must be 50MB or smaller";
+  if (!looksLikeZip(buffer)) return "Package must be a valid ZIP file";
+  return "";
+}
+
+function communityPackageContentType(type, filename) {
+  if (type === "midi_profile") return "application/xml";
+  return contentTypeForFilename(filename) === "application/octet-stream"
+    ? "application/zip"
+    : contentTypeForFilename(filename);
 }
 
 function isAllowedPreviewFile(file) {

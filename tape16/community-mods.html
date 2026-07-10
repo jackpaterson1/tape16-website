@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
     <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
-    <link rel="stylesheet" href="styles.css?v=launch-banner-6" />
+    <link rel="stylesheet" href="styles.css?v=community-browser-4" />
       <script async src="https://www.googletagmanager.com/gtag/js?id=GT-TQK5FZD8"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -103,27 +103,164 @@
 
       <section class="mods-hero" id="community-mods">
         <div>
-          <p class="eyebrow">Community Mods</p>
           <h1>Community Mods</h1>
-          <p class="hero-copy">
-            Download and share community-made extensions for TAPE 16, starting with exported theme ZIPs.
-          </p>
         </div>
       </section>
 
-      <section class="community-mod-choices" aria-label="Community mod categories">
-        <a class="community-mod-box community-mod-box--active" href="themes.html">
-          <p class="eyebrow">Available</p>
-          <h2>Themes</h2>
-          <p>Upload, browse, and download exported TAPE 16 theme ZIPs.</p>
-          <span class="btn btn-primary">Open Themes</span>
-        </a>
-        <article class="community-mod-box community-mod-box--disabled" aria-disabled="true">
-          <p class="eyebrow">Coming Soon</p>
-          <h2>Mods</h2>
-          <p>Tape modulation presets and deeper community mod packages will appear here later.</p>
-          <span class="btn btn-ghost">Mods Coming Soon</span>
+      <section class="mod-browser" id="mod-browser" aria-label="Community mod browser">
+        <aside class="mod-browser-sidebar" aria-label="Mod categories">
+          <div class="mod-browser-sidebar-head">
+            <p class="eyebrow">Filters</p>
+            <h2>Categories</h2>
+          </div>
+          <button class="mod-category-filter is-active" type="button" data-mod-category="themes" aria-pressed="true">
+            <span>Themes</span>
+            <strong data-mod-category-count="themes">0</strong>
+          </button>
+          <button class="mod-category-filter" type="button" data-mod-category="controller_profiles" aria-pressed="false" aria-disabled="true" disabled>
+            <span>Controller Profiles</span>
+            <strong data-mod-category-count="controller_profiles">0</strong>
+          </button>
+          <button class="mod-category-filter" type="button" data-mod-category="midi_profiles" aria-pressed="false">
+            <span>MIDI Profiles</span>
+            <strong data-mod-category-count="midi_profiles">0</strong>
+          </button>
+          <button class="mod-category-filter" type="button" data-mod-category="tape_mods" aria-pressed="false" aria-disabled="true" disabled>
+            <span>Tape Mods</span>
+            <strong data-mod-category-count="tape_mods">0</strong>
+          </button>
+
+          <div class="mod-browser-upload">
+            <h3>Share your setup</h3>
+            <p>Theme and MIDI profile uploads are live now. Controller profiles and tape mods can use this hub next.</p>
+            <a class="btn btn-primary" href="#theme-account">Mod Account</a>
+            <a class="btn btn-ghost" href="#upload-community-mod">Upload Mod</a>
+          </div>
+        </aside>
+
+        <div class="mod-browser-main">
+          <div class="mod-browser-head">
+            <div>
+              <p class="eyebrow" id="mod-browser-eyebrow">Themes</p>
+              <h2 id="mod-browser-title">Download themes</h2>
+              <p id="mod-browser-copy">Browse exported TAPE 16 theme ZIPs from the community.</p>
+            </div>
+            <a class="btn btn-ghost" id="mod-browser-upload-link" href="themes.html#upload-theme">Upload Theme</a>
+          </div>
+
+          <div class="mod-browser-toolbar">
+            <label>
+              Search
+              <input id="mod-browser-search" type="search" placeholder="Search title, creator, tags" />
+            </label>
+            <label>
+              Sort
+              <select id="mod-browser-sort">
+                <option value="popular_1_month" selected>Popular this month</option>
+                <option value="popular_1_week">Popular this week</option>
+                <option value="downloads">Most downloaded</option>
+                <option value="latest">Latest</option>
+                <option value="oldest">Oldest</option>
+              </select>
+            </label>
+          </div>
+
+          <p id="mod-browser-status" class="serial-status" role="status" aria-live="polite"></p>
+          <div id="mod-browser-grid" class="mod-browser-grid" aria-live="polite"></div>
+
+          <div id="mod-browser-empty" class="mod-browser-empty" hidden>
+            <h3>No uploads yet</h3>
+            <p>This category is ready for community uploads.</p>
+            <a class="btn btn-primary" id="mod-browser-empty-action" href="themes.html#upload-theme">Upload Theme</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="theme-account account" id="theme-account">
+        <h2>Mod Account</h2>
+        <p>Sign in with the purchase email and serial number from your TAPE 16 license to manage community uploads linked to that email.</p>
+        <form id="theme-account-login-form" class="serial-form">
+          <label>
+            Serial Number
+            <input id="theme-account-serial" name="serial" type="text" required placeholder="T16-XXXXXX-XXXXXX-XXXXXX" />
+          </label>
+          <label>
+            Purchase Email
+            <input id="theme-account-email" name="email" type="email" required placeholder="you@email.com" />
+          </label>
+          <div class="account-actions">
+            <button class="btn btn-primary" type="submit" id="theme-account-login-btn">Sign In</button>
+            <button class="btn btn-ghost" type="button" id="theme-account-refresh-btn">Refresh</button>
+            <button class="btn btn-ghost" type="button" id="theme-account-logout-btn">Sign Out</button>
+          </div>
+        </form>
+        <p id="theme-account-status" class="serial-status" role="status" aria-live="polite"></p>
+        <article id="theme-account-panel" class="account-panel" hidden>
+          <p class="account-summary" id="theme-account-summary"></p>
+          <div id="theme-account-list" class="theme-manage-list"></div>
         </article>
+      </section>
+
+      <section class="bug-report" id="upload-community-mod">
+        <h2>Upload A Mod</h2>
+        <p>
+          Choose a community mod type, upload the `.zip` package, and include a preview image for the browser card.
+        </p>
+        <form id="community-upload-form" class="bug-form" enctype="multipart/form-data">
+          <label>
+            Mod Type
+            <select id="community-upload-type" name="modType" required>
+              <option value="theme">Theme</option>
+              <option value="midi_profile">MIDI Profile</option>
+            </select>
+          </label>
+          <label>
+            Email
+            <input id="community-upload-email" name="email" type="email" required placeholder="you@email.com" />
+          </label>
+          <label>
+            Creator Name
+            <input id="community-upload-creator" name="creator" type="text" required placeholder="Artist or studio name" />
+          </label>
+          <label>
+            <span id="community-upload-name-label">Theme Name</span>
+            <input id="community-upload-name" name="name" type="text" required placeholder="Your mod name" />
+          </label>
+          <label>
+            App Version
+            <input id="community-upload-app-version" name="appVersion" type="text" placeholder="e.g. 0.9.301" />
+          </label>
+          <label class="bug-full">
+            Tags
+            <input id="community-upload-tags" name="tags" type="text" placeholder="dark, transport, live setup" />
+          </label>
+          <label class="bug-full">
+            Description
+            <textarea id="community-upload-description" name="description" rows="5" placeholder="Describe what this mod includes and any setup notes."></textarea>
+          </label>
+          <label>
+            <span id="community-upload-file-label">Theme ZIP (50MB max)</span>
+            <input
+              id="community-upload-file"
+              name="file"
+              type="file"
+              required
+              accept=".zip,application/zip"
+            />
+          </label>
+          <label>
+            <span id="community-upload-preview-label">Preview Image</span>
+            <input
+              id="community-upload-preview-image"
+              name="previewImage"
+              type="file"
+              required
+              accept=".png,.jpg,.jpeg,.webp"
+            />
+          </label>
+          <button class="btn btn-primary bug-submit" type="submit" id="community-upload-submit-btn">Submit Mod</button>
+        </form>
+        <p id="community-upload-form-status" class="serial-status" role="status" aria-live="polite"></p>
       </section>
     </main>
 
@@ -133,6 +270,6 @@
     </footer>
 
     <script src="config.js?v=0.9.272"></script>
-    <script src="script.js?v=mobile-menu-1"></script>
+    <script src="script.js?v=community-browser-6"></script>
   </body>
 </html>

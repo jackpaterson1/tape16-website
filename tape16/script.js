@@ -71,6 +71,13 @@ const featureSubmitBtn = document.getElementById("feature-submit-btn");
 const themeUploadForm = document.getElementById("theme-upload-form");
 const themeUploadStatus = document.getElementById("theme-form-status");
 const themeUploadSubmitBtn = document.getElementById("theme-submit-btn");
+const communityUploadForm = document.getElementById("community-upload-form");
+const communityUploadStatus = document.getElementById("community-upload-form-status");
+const communityUploadSubmitBtn = document.getElementById("community-upload-submit-btn");
+const communityUploadType = document.getElementById("community-upload-type");
+const communityUploadNameLabel = document.getElementById("community-upload-name-label");
+const communityUploadFileLabel = document.getElementById("community-upload-file-label");
+const communityUploadPreviewLabel = document.getElementById("community-upload-preview-label");
 const themeDownloadStatus = document.getElementById("theme-download-status");
 const themeLibraryGrid = document.getElementById("theme-library-grid");
 const themeEmptyState = document.getElementById("theme-empty-state");
@@ -86,6 +93,19 @@ const themeAccountPanel = document.getElementById("theme-account-panel");
 const themeAccountSummary = document.getElementById("theme-account-summary");
 const themeAccountList = document.getElementById("theme-account-list");
 const themeEmailInput = document.getElementById("theme-email");
+const communityUploadEmailInput = document.getElementById("community-upload-email");
+const modBrowser = document.getElementById("mod-browser");
+const modBrowserGrid = document.getElementById("mod-browser-grid");
+const modBrowserEmpty = document.getElementById("mod-browser-empty");
+const modBrowserStatus = document.getElementById("mod-browser-status");
+const modBrowserSearch = document.getElementById("mod-browser-search");
+const modBrowserSort = document.getElementById("mod-browser-sort");
+const modBrowserTitle = document.getElementById("mod-browser-title");
+const modBrowserEyebrow = document.getElementById("mod-browser-eyebrow");
+const modBrowserCopy = document.getElementById("mod-browser-copy");
+const modBrowserUploadLink = document.getElementById("mod-browser-upload-link");
+const modBrowserEmptyAction = document.getElementById("mod-browser-empty-action");
+const modCategoryFilters = document.querySelectorAll("[data-mod-category]");
 const fullDownloadLink = document.getElementById("full-download-link");
 const downloadPageWindowsLink =
   document.getElementById("download-page-windows-link") ||
@@ -125,6 +145,14 @@ const PROMOTEKIT_REFERRAL_STORAGE_KEY = "tape16_promotekit_referral_v1";
 const THEME_PAGE_SIZE = 12;
 let themeLibraryItems = [];
 let themeCurrentPage = 1;
+let activeModCategory = "themes";
+let modBrowserItems = [];
+let modBrowserCategoryCounts = {
+  themes: 0,
+  controller_profiles: 0,
+  midi_profiles: 0,
+  tape_mods: 0,
+};
 
 function configUrl(value) {
   if (typeof value !== "string") return "";
@@ -1122,6 +1150,12 @@ function setThemeUploadStatus(message, isError) {
   themeUploadStatus.style.color = isError ? "#ff9d87" : "#f7c34b";
 }
 
+function setCommunityUploadStatus(message, isError) {
+  if (!communityUploadStatus) return;
+  communityUploadStatus.textContent = message;
+  communityUploadStatus.style.color = isError ? "#ff9d87" : "#f7c34b";
+}
+
 function setThemeDownloadStatus(message, isError) {
   if (!themeDownloadStatus) return;
   themeDownloadStatus.textContent = message;
@@ -1197,18 +1231,46 @@ function setThemeAccountLoading(loading) {
 
 function applyThemeAccountUploadState() {
   const session = readThemeAccountSession();
-  if (!themeEmailInput) return;
-  if (session?.email) {
-    themeEmailInput.value = session.email;
-    themeEmailInput.readOnly = true;
-    themeEmailInput.setAttribute("aria-readonly", "true");
-  } else {
-    themeEmailInput.readOnly = false;
-    themeEmailInput.removeAttribute("aria-readonly");
+  [themeEmailInput, communityUploadEmailInput].forEach((input) => {
+    if (!input) return;
+    if (session?.email) {
+      input.value = session.email;
+      input.readOnly = true;
+      input.setAttribute("aria-readonly", "true");
+    } else {
+      input.readOnly = false;
+      input.removeAttribute("aria-readonly");
+    }
+  });
+}
+
+function communityManageConfig(type) {
+  if (type === "midi_profile") {
+    return {
+      label: "MIDI Profile",
+      pluralLabel: "MIDI profiles",
+      route: "midi-profiles",
+      nameField: "midiProfileName",
+      fileField: "midiProfileFile",
+      fileAccept: ".tape16-midi-profile,.xml,text/xml,application/xml",
+      fileLabel: "Profile File",
+      category: "midi_profiles",
+    };
   }
+  return {
+    label: "Theme",
+    pluralLabel: "themes",
+    route: "themes",
+    nameField: "themeName",
+    fileField: "themeFile",
+    fileAccept: ".zip,application/zip",
+    fileLabel: "ZIP",
+    category: "themes",
+  };
 }
 
 function themeManageItemHtml(item) {
+  const config = communityManageConfig(item.type);
   const tags = Array.isArray(item.tags) ? item.tags.join(", ") : "";
   const packageSize = formatFileSize(item.packageSize);
   const previewSize = formatFileSize(item.previewSize);
@@ -1219,18 +1281,19 @@ function themeManageItemHtml(item) {
   ].filter(Boolean);
 
   return `
-    <article class="theme-manage-item" data-theme-slug="${escapeHtml(item.slug || "")}">
+    <article class="theme-manage-item" data-theme-slug="${escapeHtml(item.slug || "")}" data-community-type="${escapeHtml(item.type || "theme")}">
       <div class="theme-manage-head">
         <div>
-          <h3>${escapeHtml(item.name || "Untitled Theme")}</h3>
+          <h3>${escapeHtml(item.name || `Untitled ${config.label}`)}</h3>
+          <p class="mod-card-kicker">${escapeHtml(config.label)}</p>
           <p>${fileMeta.map(escapeHtml).join(" • ")}</p>
         </div>
         <a class="btn btn-ghost" href="${escapeHtml(themeApiUrl(item.downloadUrl))}" data-theme-download>Download</a>
       </div>
       <div class="theme-manage-fields">
         <label>
-          Theme Name
-          <input name="themeName" type="text" value="${escapeHtml(item.name || "")}" />
+          ${escapeHtml(config.label)} Name
+          <input name="${escapeHtml(config.nameField)}" type="text" value="${escapeHtml(item.name || "")}" />
         </label>
         <label>
           Creator Name
@@ -1252,16 +1315,16 @@ function themeManageItemHtml(item) {
       <div class="theme-manage-actions">
         <button class="btn btn-primary" type="button" data-theme-manage-save>Save Details</button>
         <div class="theme-file-action">
-          <span>Replace ZIP</span>
-          <input name="themeFile" type="file" accept=".zip,application/zip" />
-          <button class="btn btn-ghost" type="button" data-theme-manage-package>Upload ZIP</button>
+          <span>Replace ${escapeHtml(config.fileLabel)}</span>
+          <input name="${escapeHtml(config.fileField)}" type="file" accept="${escapeHtml(config.fileAccept)}" />
+          <button class="btn btn-ghost" type="button" data-theme-manage-package>Upload ${escapeHtml(config.fileLabel)}</button>
         </div>
         <div class="theme-file-action">
           <span>Replace Preview</span>
           <input name="previewImage" type="file" accept=".png,.jpg,.jpeg,.webp" />
           <button class="btn btn-ghost" type="button" data-theme-manage-preview>Upload Preview</button>
         </div>
-        <button class="btn btn-ghost theme-delete-btn" type="button" data-theme-manage-delete>Delete Theme</button>
+        <button class="btn btn-ghost theme-delete-btn" type="button" data-theme-manage-delete>Delete ${escapeHtml(config.label)}</button>
       </div>
       <p class="serial-status theme-manage-status" role="status" aria-live="polite"></p>
     </article>
@@ -1270,14 +1333,21 @@ function themeManageItemHtml(item) {
 
 function renderThemeAccountThemes(items) {
   if (!themeAccountPanel || !themeAccountSummary || !themeAccountList) return;
-  const themes = Array.isArray(items) ? items : [];
+  const uploads = Array.isArray(items) ? items : [];
   themeAccountSummary.textContent =
-    themes.length === 1 ? "1 theme linked to this email." : `${themes.length} themes linked to this email.`;
-  themeAccountList.innerHTML = themes.length
-    ? themes.map(themeManageItemHtml).join("")
-    : `<p class="activation-empty">No themes are linked to this email yet.</p>`;
+    uploads.length === 1 ? "1 community upload linked to this email." : `${uploads.length} community uploads linked to this email.`;
+  themeAccountList.innerHTML = uploads.length
+    ? uploads.map(themeManageItemHtml).join("")
+    : `<p class="activation-empty">No community uploads are linked to this email yet.</p>`;
   themeAccountPanel.hidden = false;
   bindThemeDownloads();
+}
+
+async function refreshCommunityManagedViews(category) {
+  if (category === "themes") await loadThemeLibrary();
+  if (modBrowser && (!category || activeModCategory === category)) {
+    await loadModBrowserCategory(category || activeModCategory);
+  }
 }
 
 function setThemeManageStatus(itemEl, message, isError) {
@@ -1293,20 +1363,20 @@ async function loadThemeAccountThemes(options = {}) {
   if (!session) {
     if (themeAccountPanel) themeAccountPanel.hidden = true;
     applyThemeAccountUploadState();
-    if (!options.silent) setThemeAccountStatus("Sign in to manage your themes.", false);
+    if (!options.silent) setThemeAccountStatus("Sign in to manage your community uploads.", false);
     return;
   }
 
   const supportBase = themeApiBaseUrl();
   if (!supportBase) {
-    setThemeAccountStatus("Theme account service is not configured yet.", true);
+    setThemeAccountStatus("Mod account service is not configured yet.", true);
     return;
   }
 
   setThemeAccountLoading(true);
-  if (!options.silent) setThemeAccountStatus("Loading your themes...", false);
+  if (!options.silent) setThemeAccountStatus("Loading your community uploads...", false);
   try {
-    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/theme-account/themes`, {
+    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/mod-account/items`, {
       headers: themeAccountAuthHeaders(session),
     });
     const body = await response.json().catch(() => ({}));
@@ -1317,12 +1387,12 @@ async function loadThemeAccountThemes(options = {}) {
       setThemeAccountStatus("Session expired. Please sign in again.", true);
       return;
     }
-    if (!response.ok || !body.ok) throw new Error(body.error || "Could not load themes");
+    if (!response.ok || !body.ok) throw new Error(body.error || "Could not load uploads");
     renderThemeAccountThemes(body.items || []);
     applyThemeAccountUploadState();
     setThemeAccountStatus(`Signed in as ${session.email}.`, false);
   } catch (error) {
-    setThemeAccountStatus("Could not load your themes right now.", true);
+    setThemeAccountStatus("Could not load your community uploads right now.", true);
   } finally {
     setThemeAccountLoading(false);
   }
@@ -1331,14 +1401,14 @@ async function loadThemeAccountThemes(options = {}) {
 async function loginThemeAccount(credentials) {
   const supportBase = themeApiBaseUrl();
   if (!supportBase) {
-    setThemeAccountStatus("Theme account service is not configured yet.", true);
+    setThemeAccountStatus("Mod account service is not configured yet.", true);
     return;
   }
 
   setThemeAccountLoading(true);
   setThemeAccountStatus("Signing in...", false);
   try {
-    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/theme-account/login`, {
+    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/mod-account/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
@@ -1355,7 +1425,7 @@ async function loginThemeAccount(credentials) {
     writeThemeAccountSession(session);
     saveRedditMatch({ email: session.email });
     await loadThemeAccountThemes({ silent: true });
-    setThemeAccountStatus("Signed in. Your matching uploaded themes are linked.", false);
+    setThemeAccountStatus("Signed in. Your matching community uploads are linked.", false);
   } catch (error) {
     setThemeAccountStatus("Sign in failed. Check your purchase email and serial.", true);
   } finally {
@@ -1368,30 +1438,31 @@ async function saveManagedTheme(itemEl) {
   const supportBase = themeApiBaseUrl();
   const slug = itemEl?.dataset.themeSlug || "";
   if (!session || !supportBase || !slug) return;
+  const config = communityManageConfig(itemEl?.dataset.communityType || "theme");
 
   const payload = {
-    themeName: itemEl.querySelector('[name="themeName"]')?.value || "",
+    [config.nameField]: itemEl.querySelector(`[name="${config.nameField}"]`)?.value || "",
     creator: itemEl.querySelector('[name="creator"]')?.value || "",
     appVersion: itemEl.querySelector('[name="appVersion"]')?.value || "",
     tags: itemEl.querySelector('[name="tags"]')?.value || "",
     description: itemEl.querySelector('[name="description"]')?.value || "",
   };
-  if (!payload.themeName.trim() || !payload.creator.trim()) {
-    setThemeManageStatus(itemEl, "Theme name and creator name are required.", true);
+  if (!payload[config.nameField].trim() || !payload.creator.trim()) {
+    setThemeManageStatus(itemEl, `${config.label} name and creator name are required.`, true);
     return;
   }
 
   setThemeManageStatus(itemEl, "Saving details...", false);
   try {
-    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/themes/${encodeURIComponent(slug)}`, {
+    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/${config.route}/${encodeURIComponent(slug)}`, {
       method: "PATCH",
       headers: themeAccountAuthHeaders(session, { "Content-Type": "application/json" }),
       body: JSON.stringify(payload),
     });
     const body = await response.json().catch(() => ({}));
     if (!response.ok || !body.ok) throw new Error(body.error || "Save failed");
-    setThemeManageStatus(itemEl, "Theme details saved.", false);
-    await loadThemeLibrary();
+    setThemeManageStatus(itemEl, `${config.label} details saved.`, false);
+    await refreshCommunityManagedViews(config.category);
     await loadThemeAccountThemes({ silent: true });
   } catch (error) {
     setThemeManageStatus(itemEl, "Could not save details right now.", true);
@@ -1403,16 +1474,27 @@ async function replaceManagedThemeFile(itemEl, kind) {
   const supportBase = themeApiBaseUrl();
   const slug = itemEl?.dataset.themeSlug || "";
   if (!session || !supportBase || !slug) return;
+  const config = communityManageConfig(itemEl?.dataset.communityType || "theme");
 
   const isPreview = kind === "preview";
-  const input = itemEl.querySelector(isPreview ? '[name="previewImage"]' : '[name="themeFile"]');
+  const input = itemEl.querySelector(isPreview ? '[name="previewImage"]' : `[name="${config.fileField}"]`);
   const file = input?.files?.[0] || null;
   if (!file) {
-    setThemeManageStatus(itemEl, isPreview ? "Choose a preview image first." : "Choose a ZIP first.", true);
+    setThemeManageStatus(itemEl, isPreview ? "Choose a preview image first." : `Choose a ${config.fileLabel.toLowerCase()} first.`, true);
     return;
   }
-  if (!isPreview && !/\.zip$/i.test(file.name || "")) {
-    setThemeManageStatus(itemEl, "Upload the ZIP exported from the TAPE 16 Themes window.", true);
+  const validPackage =
+    config.category === "midi_profiles"
+      ? /\.(tape16-midi-profile|xml)$/i.test(file.name || "")
+      : /\.zip$/i.test(file.name || "");
+  if (!isPreview && !validPackage) {
+    setThemeManageStatus(
+      itemEl,
+      config.category === "midi_profiles"
+        ? "Upload a .tape16-midi-profile or .xml file."
+        : "Upload a ZIP package.",
+      true
+    );
     return;
   }
   if (isPreview && !/\.(png|jpe?g|webp)$/i.test(file.name || "")) {
@@ -1421,10 +1503,10 @@ async function replaceManagedThemeFile(itemEl, kind) {
   }
 
   const formData = new FormData();
-  formData.append(isPreview ? "previewImage" : "themeFile", file);
-  setThemeManageStatus(itemEl, isPreview ? "Uploading preview..." : "Uploading ZIP...", false);
+  formData.append(isPreview ? "previewImage" : config.fileField, file);
+  setThemeManageStatus(itemEl, isPreview ? "Uploading preview..." : `Uploading ${config.fileLabel.toLowerCase()}...`, false);
   try {
-    const endpoint = `${supportBase.replace(/\/+$/, "")}/themes/${encodeURIComponent(slug)}/${isPreview ? "preview" : "package"}`;
+    const endpoint = `${supportBase.replace(/\/+$/, "")}/${config.route}/${encodeURIComponent(slug)}/${isPreview ? "preview" : "package"}`;
     const response = await fetch(endpoint, {
       method: "POST",
       headers: themeAccountAuthHeaders(session),
@@ -1433,11 +1515,11 @@ async function replaceManagedThemeFile(itemEl, kind) {
     const body = await response.json().catch(() => ({}));
     if (!response.ok || !body.ok) throw new Error(body.error || "Upload failed");
     input.value = "";
-    setThemeManageStatus(itemEl, isPreview ? "Preview replaced." : "ZIP replaced.", false);
-    await loadThemeLibrary();
+    setThemeManageStatus(itemEl, isPreview ? "Preview replaced." : `${config.fileLabel} replaced.`, false);
+    await refreshCommunityManagedViews(config.category);
     await loadThemeAccountThemes({ silent: true });
   } catch (error) {
-    setThemeManageStatus(itemEl, isPreview ? "Could not replace preview right now." : "Could not replace ZIP right now.", true);
+    setThemeManageStatus(itemEl, isPreview ? "Could not replace preview right now." : `Could not replace ${config.fileLabel.toLowerCase()} right now.`, true);
   }
 }
 
@@ -1446,29 +1528,30 @@ async function deleteManagedTheme(itemEl) {
   const supportBase = themeApiBaseUrl();
   const slug = itemEl?.dataset.themeSlug || "";
   if (!session || !supportBase || !slug) return;
+  const config = communityManageConfig(itemEl?.dataset.communityType || "theme");
 
   const name =
-    itemEl.querySelector('[name="themeName"]')?.value?.trim() ||
+    itemEl.querySelector(`[name="${config.nameField}"]`)?.value?.trim() ||
     itemEl.querySelector("h3")?.textContent?.trim() ||
-    "this theme";
+    `this ${config.label.toLowerCase()}`;
   const confirmed = window.confirm(
-    `Delete "${name}"? This removes it from the public theme library and cannot be undone.`,
+    `Delete "${name}"? This removes it from the public community library and cannot be undone.`,
   );
   if (!confirmed) return;
 
-  setThemeManageStatus(itemEl, "Deleting theme...", false);
+  setThemeManageStatus(itemEl, `Deleting ${config.label.toLowerCase()}...`, false);
   try {
-    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/themes/${encodeURIComponent(slug)}`, {
+    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/${config.route}/${encodeURIComponent(slug)}`, {
       method: "DELETE",
       headers: themeAccountAuthHeaders(session),
     });
     const body = await response.json().catch(() => ({}));
     if (!response.ok || !body.ok) throw new Error(body.error || "Delete failed");
-    setThemeManageStatus(itemEl, "Theme deleted.", false);
-    await loadThemeLibrary();
+    setThemeManageStatus(itemEl, `${config.label} deleted.`, false);
+    await refreshCommunityManagedViews(config.category);
     await loadThemeAccountThemes({ silent: true });
   } catch (error) {
-    setThemeManageStatus(itemEl, "Could not delete theme right now.", true);
+    setThemeManageStatus(itemEl, `Could not delete ${config.label.toLowerCase()} right now.`, true);
   }
 }
 
@@ -1542,6 +1625,254 @@ function themeCardHtml(item) {
       <a class="btn btn-primary theme-download" href="${escapeHtml(downloadUrl)}" data-theme-download>Download ZIP</a>
     </article>
   `;
+}
+
+const MOD_BROWSER_CATEGORIES = {
+  themes: {
+    label: "Themes",
+    title: "Download themes",
+    copy: "Browse exported TAPE 16 theme ZIPs from the community.",
+    endpoint: "themes",
+    uploadHref: "#upload-community-mod",
+    uploadLabel: "Upload Mod",
+    downloadLabel: "Download ZIP",
+    emptyTitle: "No themes match",
+    emptyCopy: "Try another search, or upload the first theme that fits this filter.",
+  },
+  controller_profiles: {
+    label: "Controller Profiles",
+    title: "Browse controller profiles",
+    copy: "Shared mappings for hardware controllers and hands-on transport workflows will appear here.",
+    endpoint: "",
+    uploadHref: "feature-request.html",
+    uploadLabel: "Request Uploads",
+    downloadLabel: "Download Profile",
+    emptyTitle: "No controller profiles yet",
+    emptyCopy: "This category is ready for shared controller mappings once uploads are enabled.",
+  },
+  midi_profiles: {
+    label: "MIDI Profiles",
+    title: "Browse MIDI profiles",
+    copy: "Shared MIDI learn profiles and portable setup mappings from the community.",
+    endpoint: "midi-profiles",
+    uploadHref: "#upload-community-mod",
+    uploadLabel: "Upload Mod",
+    downloadLabel: "Download Profile",
+    emptyTitle: "No MIDI profiles yet",
+    emptyCopy: "Upload the first shared MIDI profile for the community.",
+  },
+  tape_mods: {
+    label: "Tape Mods",
+    title: "Browse tape mods",
+    copy: "Community tape modulation presets and sound-shaping packs will appear here.",
+    endpoint: "mods",
+    uploadHref: "feature-request.html",
+    uploadLabel: "Request Uploads",
+    downloadLabel: "Download Mod",
+    emptyTitle: "No tape mods yet",
+    emptyCopy: "This category is ready for tape mod uploads.",
+  },
+};
+
+function currentModCategoryConfig() {
+  return MOD_BROWSER_CATEGORIES[activeModCategory] || MOD_BROWSER_CATEGORIES.themes;
+}
+
+function setModBrowserStatus(message, isError = false) {
+  if (!modBrowserStatus) return;
+  modBrowserStatus.textContent = message || "";
+  modBrowserStatus.classList.toggle("is-error", Boolean(isError));
+}
+
+function updateModCategoryCounts() {
+  Object.entries(modBrowserCategoryCounts).forEach(([category, count]) => {
+    const el = document.querySelector(`[data-mod-category-count="${category}"]`);
+    if (el) el.textContent = String(count || 0);
+  });
+}
+
+function setActiveModCategory(category) {
+  activeModCategory = MOD_BROWSER_CATEGORIES[category] ? category : "themes";
+  modCategoryFilters.forEach((button) => {
+    const isActive = button.dataset.modCategory === activeModCategory;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+
+  const config = currentModCategoryConfig();
+  if (modBrowserEyebrow) modBrowserEyebrow.textContent = config.label;
+  if (modBrowserTitle) modBrowserTitle.textContent = config.title;
+  if (modBrowserCopy) modBrowserCopy.textContent = config.copy;
+  if (modBrowserUploadLink) {
+    modBrowserUploadLink.href = config.uploadHref;
+    modBrowserUploadLink.textContent = config.uploadLabel;
+  }
+  if (modBrowserEmptyAction) {
+    modBrowserEmptyAction.href = config.uploadHref;
+    modBrowserEmptyAction.textContent = config.uploadLabel;
+  }
+}
+
+function modBrowserApiUrl(path) {
+  return themeApiUrl(path);
+}
+
+function modBrowserMetaLabel(item) {
+  const downloads = Number(item.downloadCount || 0);
+  const size = formatFileSize(item.packageSize);
+  return [
+    item.appVersion ? `TAPE 16 ${item.appVersion}` : "",
+    size,
+    downloads === 1 ? "1 download" : `${downloads} downloads`,
+  ].filter(Boolean);
+}
+
+function modBrowserCardHtml(item) {
+  const config = currentModCategoryConfig();
+  const tags = Array.isArray(item.tags) ? item.tags.filter(Boolean) : [];
+  const downloadUrl = modBrowserApiUrl(item.downloadUrl);
+  const previewUrl = modBrowserApiUrl(item.previewUrl);
+  const preview = previewUrl
+    ? `<img src="${escapeHtml(previewUrl)}" alt="${escapeHtml(item.name)} preview" loading="lazy" />`
+    : `<span>${escapeHtml(String(item.packageFilename || config.label).replace(/^.*\./, "").toUpperCase())}</span>`;
+  const meta = modBrowserMetaLabel(item);
+
+  return `
+    <article class="mod-card" data-mod-id="${escapeHtml(item.id || item.slug || "")}">
+      <div class="mod-card-preview">${preview}</div>
+      <div class="mod-card-body">
+        <p class="mod-card-kicker">${escapeHtml(config.label)}</p>
+        <h3>${escapeHtml(item.name || "Untitled Upload")}</h3>
+        <p class="mod-card-creator">By ${escapeHtml(item.creatorName || "Unknown creator")}</p>
+        <p class="mod-card-description">${escapeHtml(item.description || "No description supplied.")}</p>
+        <div class="mod-card-meta">
+          ${meta.map((value) => `<span>${escapeHtml(value)}</span>`).join("")}
+        </div>
+        <div class="mod-card-tags">
+          ${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
+        </div>
+      </div>
+      <div class="mod-card-actions">
+        <a class="btn btn-primary" href="${escapeHtml(downloadUrl)}" data-mod-browser-download>${escapeHtml(config.downloadLabel)}</a>
+        ${activeModCategory === "themes" ? `<a class="btn btn-ghost" href="themes.html#theme-library">Open Themes</a>` : ""}
+      </div>
+    </article>
+  `;
+}
+
+function filteredModBrowserItems() {
+  const query = String(modBrowserSearch?.value || "").trim().toLowerCase();
+  if (!query) return modBrowserItems;
+  return modBrowserItems.filter((item) => {
+    const tags = Array.isArray(item.tags) ? item.tags.join(" ") : "";
+    return [
+      item.name,
+      item.creatorName,
+      item.description,
+      tags,
+    ]
+      .join(" ")
+      .toLowerCase()
+      .includes(query);
+  });
+}
+
+function renderModBrowser() {
+  if (!modBrowserGrid || !modBrowserEmpty) return;
+  const config = currentModCategoryConfig();
+  const items = filteredModBrowserItems();
+  modBrowserGrid.innerHTML = items.map(modBrowserCardHtml).join("");
+  modBrowserGrid.hidden = items.length === 0;
+  modBrowserEmpty.hidden = items.length > 0;
+  const emptyTitle = modBrowserEmpty.querySelector("h3");
+  const emptyCopy = modBrowserEmpty.querySelector("p");
+  if (emptyTitle) emptyTitle.textContent = config.emptyTitle;
+  if (emptyCopy) emptyCopy.textContent = config.emptyCopy;
+  bindModBrowserDownloads();
+}
+
+async function loadModBrowserCategory(category = activeModCategory) {
+  if (!modBrowserGrid) return;
+  setActiveModCategory(category);
+  const config = currentModCategoryConfig();
+  modBrowserItems = [];
+  renderModBrowser();
+
+  if (!config.endpoint) {
+    setModBrowserStatus("", false);
+    modBrowserCategoryCounts[activeModCategory] = 0;
+    updateModCategoryCounts();
+    return;
+  }
+
+  if (window.location.protocol === "file:") {
+    setModBrowserStatus("Community downloads only load on the live website or a local web server preview.", true);
+    return;
+  }
+
+  const supportBase = themeApiBaseUrl();
+  if (!supportBase) {
+    setModBrowserStatus("Community library service is not configured yet.", true);
+    return;
+  }
+
+  setModBrowserStatus(`Loading ${config.label.toLowerCase()}...`, false);
+  try {
+    const sort = modBrowserSort ? String(modBrowserSort.value || "popular_1_month") : "popular_1_month";
+    const response = await fetch(`${supportBase.replace(/\/+$/, "")}/${config.endpoint}?sort=${encodeURIComponent(sort)}`);
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || !body.ok) throw new Error(body.error || "Community library failed");
+    modBrowserItems = Array.isArray(body.items) ? body.items : [];
+    modBrowserCategoryCounts[activeModCategory] = modBrowserItems.length;
+    updateModCategoryCounts();
+    renderModBrowser();
+    setModBrowserStatus("", false);
+  } catch (error) {
+    setModBrowserStatus(`Could not load ${config.label.toLowerCase()} right now.`, true);
+  }
+}
+
+function bindModBrowser() {
+  if (!modBrowser) return;
+
+  modCategoryFilters.forEach((button) => {
+    button.addEventListener("click", () => {
+      const category = button.dataset.modCategory || "themes";
+      if (modBrowserSearch) modBrowserSearch.value = "";
+      loadModBrowserCategory(category);
+      trackAnalyticsEvent("community_mod_category_change", {
+        category,
+        page_location: window.location.href,
+      });
+    });
+  });
+
+  modBrowserSearch?.addEventListener("input", renderModBrowser);
+  modBrowserSearch?.addEventListener("change", renderModBrowser);
+  modBrowserSort?.addEventListener("change", () => {
+    loadModBrowserCategory(activeModCategory);
+    trackAnalyticsEvent("community_mod_sort_change", {
+      category: activeModCategory,
+      sort: modBrowserSort.value,
+      page_location: window.location.href,
+    });
+  });
+
+  loadModBrowserCategory(activeModCategory);
+}
+
+function bindModBrowserDownloads() {
+  document.querySelectorAll("[data-mod-browser-download]").forEach((link) => {
+    if (link.dataset.bound === "true") return;
+    link.dataset.bound = "true";
+    link.addEventListener("click", () => {
+      trackAnalyticsEvent("community_mod_download_click", {
+        category: activeModCategory,
+        destination: link.getAttribute("href") || "",
+        page_location: window.location.href,
+      });
+    });
+  });
 }
 
 function filteredThemeLibraryItems() {
@@ -1751,13 +2082,17 @@ if (themeUploadForm) {
     const themeFile = document.getElementById("theme-file")?.files?.[0] || null;
     const previewImage = document.getElementById("theme-preview-image")?.files?.[0] || null;
 
-    if (!email || !creator || !themeName || !themeFile) {
-      setThemeUploadStatus("Email, creator name, theme name, and theme file are required.", true);
+    if (!email || !creator || !themeName || !themeFile || !previewImage) {
+      setThemeUploadStatus("Email, creator name, theme name, theme file, and preview image are required.", true);
       return;
     }
     saveRedditMatch({ email });
     if (!/\.zip$/i.test(themeFile.name || "")) {
       setThemeUploadStatus("Upload the ZIP exported from the TAPE 16 Themes window.", true);
+      return;
+    }
+    if (!/\.(png|jpe?g|webp)$/i.test(previewImage.name || "")) {
+      setThemeUploadStatus("Preview image must be PNG, JPG, or WebP.", true);
       return;
     }
 
@@ -1802,6 +2137,152 @@ if (themeUploadForm) {
       );
     } finally {
       if (themeUploadSubmitBtn) themeUploadSubmitBtn.removeAttribute("disabled");
+    }
+  });
+}
+
+function communityUploadConfig(type) {
+  if (type === "midi_profile") {
+    return {
+      label: "MIDI profile",
+      endpoint: "submit-midi-profile",
+      idField: "midi_profileId",
+      category: "midi_profiles",
+      nameLabel: "MIDI Profile Name",
+      fileLabel: "MIDI Profile File (5MB max)",
+      fileAccept: ".tape16-midi-profile,.xml,text/xml,application/xml",
+      maxBytes: 5 * 1024 * 1024,
+      fileError: "Upload the MIDI profile exported from TAPE 16 (.tape16-midi-profile or .xml).",
+      previewLabel: "Preview Image Of Controller",
+      tagsPlaceholder: "novation, transport, live setup",
+      descriptionPlaceholder: "Describe the controller, mapping style, and any setup notes.",
+    };
+  }
+  return {
+    label: "theme",
+    endpoint: "submit-theme",
+    idField: "themeId",
+    category: "themes",
+    nameLabel: "Theme Name",
+    fileLabel: "Theme ZIP (50MB max)",
+    fileAccept: ".zip,application/zip",
+    maxBytes: 50 * 1024 * 1024,
+    fileError: "Upload the theme as a ZIP package.",
+    previewLabel: "Preview Image",
+    tagsPlaceholder: "dark, tracking, low glare",
+    descriptionPlaceholder: "Describe the feel of the theme and any ideal use cases.",
+  };
+}
+
+function updateCommunityUploadTypeFields() {
+  if (!communityUploadType) return;
+  const config = communityUploadConfig(communityUploadType.value);
+  if (communityUploadNameLabel) communityUploadNameLabel.textContent = config.nameLabel;
+  if (communityUploadFileLabel) communityUploadFileLabel.textContent = config.fileLabel;
+  if (communityUploadPreviewLabel) communityUploadPreviewLabel.textContent = config.previewLabel;
+  const nameInput = document.getElementById("community-upload-name");
+  const tagsInput = document.getElementById("community-upload-tags");
+  const descriptionInput = document.getElementById("community-upload-description");
+  const fileInput = document.getElementById("community-upload-file");
+  const submitButton = communityUploadSubmitBtn;
+  if (nameInput) nameInput.placeholder = config.nameLabel === "Theme Name" ? "Your theme name" : "Your profile name";
+  if (tagsInput) tagsInput.placeholder = config.tagsPlaceholder;
+  if (descriptionInput) descriptionInput.placeholder = config.descriptionPlaceholder;
+  if (fileInput) fileInput.accept = config.fileAccept;
+  if (submitButton) submitButton.textContent = `Submit ${config.label.replace(/^\w/, (char) => char.toUpperCase())}`;
+}
+
+if (communityUploadType) {
+  communityUploadType.addEventListener("change", updateCommunityUploadTypeFields);
+  updateCommunityUploadTypeFields();
+}
+
+if (communityUploadForm) {
+  communityUploadForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const supportBase = themeApiBaseUrl();
+    if (!supportBase) {
+      setCommunityUploadStatus("Community upload service is not configured yet. Please contact support.", true);
+      return;
+    }
+
+    const session = readThemeAccountSession();
+    const formData = new FormData(communityUploadForm);
+    if (session?.email) formData.set("email", session.email);
+    const config = communityUploadConfig(String(formData.get("modType") || "theme"));
+    const email = String(formData.get("email") || "").trim().toLowerCase();
+    const creator = String(formData.get("creator") || "").trim();
+    const itemName = String(formData.get("name") || "").trim();
+    const packageFile = document.getElementById("community-upload-file")?.files?.[0] || null;
+    const previewImage = document.getElementById("community-upload-preview-image")?.files?.[0] || null;
+
+    if (!email || !creator || !itemName || !packageFile || !previewImage) {
+      setCommunityUploadStatus("Email, creator name, mod name, upload file, and preview image are required.", true);
+      return;
+    }
+    saveRedditMatch({ email });
+    const packageName = packageFile.name || "";
+    const validPackage =
+      config.category === "midi_profiles"
+        ? /\.(tape16-midi-profile|xml)$/i.test(packageName)
+        : /\.zip$/i.test(packageName);
+    if (!validPackage) {
+      setCommunityUploadStatus(config.fileError, true);
+      return;
+    }
+    if (!/\.(png|jpe?g|webp)$/i.test(previewImage.name || "")) {
+      setCommunityUploadStatus("Preview image must be PNG, JPG, or WebP.", true);
+      return;
+    }
+
+    if ((packageFile.size || 0) > config.maxBytes) {
+      setCommunityUploadStatus(`${config.fileLabel.replace(/\s*\([^)]*\)/, "")} exceeds ${formatFileSize(config.maxBytes)}.`, true);
+      return;
+    }
+    if ((previewImage.size || 0) > 5 * 1024 * 1024) {
+      setCommunityUploadStatus("Preview image must be 5MB or smaller.", true);
+      return;
+    }
+
+    if (communityUploadSubmitBtn) communityUploadSubmitBtn.setAttribute("disabled", "disabled");
+    setCommunityUploadStatus(`Submitting ${config.label}...`, false);
+
+    try {
+      const endpoint = `${supportBase.replace(/\/+$/, "")}/${config.endpoint}`;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: session ? themeAccountAuthHeaders(session) : undefined,
+        body: formData,
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok || !body.ok) {
+        const message = String(body.error || "");
+        throw new Error(
+          message.includes("COMMUNITY_BUCKET") || message.includes("file storage")
+            ? "Community file storage is not enabled yet. Please try again later."
+            : message || "Submit failed"
+        );
+      }
+      const uploadIdText = body[config.idField] ? ` (${body[config.idField]})` : "";
+      setCommunityUploadStatus(`${config.label.replace(/^\w/, (char) => char.toUpperCase())} uploaded${uploadIdText}. Thank you.`, false);
+      communityUploadForm.reset();
+      updateCommunityUploadTypeFields();
+      applyThemeAccountUploadState();
+      if (modBrowser && activeModCategory === config.category) {
+        await loadModBrowserCategory(config.category);
+      }
+      if (config.category === "themes") await loadThemeLibrary();
+      if (session) await loadThemeAccountThemes({ silent: true });
+    } catch (error) {
+      setCommunityUploadStatus(
+        error instanceof Error && error.message
+          ? error.message
+          : "Could not submit community upload right now. Please try again shortly.",
+        true
+      );
+    } finally {
+      if (communityUploadSubmitBtn) communityUploadSubmitBtn.removeAttribute("disabled");
     }
   });
 }
@@ -2127,3 +2608,5 @@ if (accountActivations) {
     fetchAccountActivations(session, { silent: true });
   }
 }
+
+bindModBrowser();
