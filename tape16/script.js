@@ -105,6 +105,7 @@ const modBrowserEyebrow = document.getElementById("mod-browser-eyebrow");
 const modBrowserCopy = document.getElementById("mod-browser-copy");
 const modBrowserUploadLink = document.getElementById("mod-browser-upload-link");
 const modBrowserEmptyAction = document.getElementById("mod-browser-empty-action");
+const modBrowserPagination = document.querySelectorAll("[data-mod-browser-pagination]");
 const modCategoryFilters = document.querySelectorAll("[data-mod-category]");
 const fullDownloadLink = document.getElementById("full-download-link");
 const downloadPageWindowsLink =
@@ -143,10 +144,11 @@ const BUILD_VERSION_CACHE_TTL_MS = 10 * 60 * 1000;
 const REDDIT_MATCH_STORAGE_KEY = "tape16_reddit_match_v1";
 const PROMOTEKIT_REFERRAL_STORAGE_KEY = "tape16_promotekit_referral_v1";
 const THEME_PAGE_SIZE = 12;
-const MOD_BROWSER_VISIBLE_LIMIT = 12;
+const MOD_BROWSER_PAGE_SIZE = 12;
 let themeLibraryItems = [];
 let themeCurrentPage = 1;
 let activeModCategory = "themes";
+let modBrowserCurrentPage = 1;
 let modBrowserItems = [];
 let modBrowserCategoryCounts = {
   themes: 0,
@@ -1779,14 +1781,47 @@ function filteredModBrowserItems() {
   });
 }
 
+function renderModBrowserPagination(totalItems) {
+  if (!modBrowserPagination.length) return;
+  const totalPages = Math.ceil(totalItems / MOD_BROWSER_PAGE_SIZE);
+  if (totalPages <= 1) {
+    modBrowserPagination.forEach((pagination) => {
+      pagination.innerHTML = "";
+      pagination.hidden = true;
+    });
+    return;
+  }
+
+  const pageButtons = Array.from({ length: totalPages }, (_, index) => {
+    const page = index + 1;
+    return `<button class="theme-page-btn${page === modBrowserCurrentPage ? " is-active" : ""}" type="button" data-mod-browser-page="${page}" aria-current="${page === modBrowserCurrentPage ? "page" : "false"}">${page}</button>`;
+  }).join("");
+
+  const paginationHtml = `
+    <button class="theme-page-btn" type="button" data-mod-browser-page="prev" ${modBrowserCurrentPage <= 1 ? "disabled" : ""}>Prev</button>
+    <span>${modBrowserCurrentPage} / ${totalPages}</span>
+    ${pageButtons}
+    <button class="theme-page-btn" type="button" data-mod-browser-page="next" ${modBrowserCurrentPage >= totalPages ? "disabled" : ""}>Next</button>
+  `;
+
+  modBrowserPagination.forEach((pagination) => {
+    pagination.hidden = false;
+    pagination.innerHTML = paginationHtml;
+  });
+}
+
 function renderModBrowser() {
   if (!modBrowserGrid || !modBrowserEmpty) return;
   const config = currentModCategoryConfig();
   const items = filteredModBrowserItems();
-  const visibleItems = items.slice(0, MOD_BROWSER_VISIBLE_LIMIT);
+  const totalPages = Math.max(1, Math.ceil(items.length / MOD_BROWSER_PAGE_SIZE));
+  modBrowserCurrentPage = Math.min(Math.max(1, modBrowserCurrentPage), totalPages);
+  const start = (modBrowserCurrentPage - 1) * MOD_BROWSER_PAGE_SIZE;
+  const visibleItems = items.slice(start, start + MOD_BROWSER_PAGE_SIZE);
   modBrowserGrid.innerHTML = visibleItems.map(modBrowserCardHtml).join("");
   modBrowserGrid.hidden = items.length === 0;
   modBrowserEmpty.hidden = items.length > 0;
+  renderModBrowserPagination(items.length);
   const emptyTitle = modBrowserEmpty.querySelector("h3");
   const emptyCopy = modBrowserEmpty.querySelector("p");
   if (emptyTitle) emptyTitle.textContent = config.emptyTitle;
@@ -1800,6 +1835,7 @@ async function loadModBrowserCategory(category = activeModCategory) {
   setActiveModCategory(category);
   const config = currentModCategoryConfig();
   modBrowserItems = [];
+  modBrowserCurrentPage = 1;
   renderModBrowser();
 
   if (!config.endpoint) {
@@ -1851,9 +1887,31 @@ function bindModBrowser() {
     });
   });
 
-  modBrowserSearch?.addEventListener("input", renderModBrowser);
-  modBrowserSearch?.addEventListener("change", renderModBrowser);
+  const applyModBrowserSearch = () => {
+    modBrowserCurrentPage = 1;
+    renderModBrowser();
+  };
+
+  modBrowserSearch?.addEventListener("input", applyModBrowserSearch);
+  modBrowserSearch?.addEventListener("change", applyModBrowserSearch);
+  modBrowser.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-mod-browser-page]");
+    if (!button || button.disabled) return;
+    const target = button.dataset.modBrowserPage || "";
+    const totalPages = Math.max(1, Math.ceil(filteredModBrowserItems().length / MOD_BROWSER_PAGE_SIZE));
+    if (target === "prev") {
+      modBrowserCurrentPage = Math.max(1, modBrowserCurrentPage - 1);
+    } else if (target === "next") {
+      modBrowserCurrentPage = Math.min(totalPages, modBrowserCurrentPage + 1);
+    } else {
+      modBrowserCurrentPage = Math.min(totalPages, Math.max(1, Number(target) || 1));
+    }
+    renderModBrowser();
+    modBrowserGrid?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
   modBrowserSort?.addEventListener("change", () => {
+    modBrowserCurrentPage = 1;
     loadModBrowserCategory(activeModCategory);
     trackAnalyticsEvent("community_mod_sort_change", {
       category: activeModCategory,
