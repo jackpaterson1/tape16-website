@@ -1551,23 +1551,25 @@ h1 {
 .mod-browser-grid {
   margin-top: 1rem;
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
 .mod-card {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0;
-  padding: 0.9rem;
+  padding: 1rem;
   background: rgba(16, 17, 19, 0.72);
-  display: grid;
-  grid-template-columns: minmax(130px, 180px) minmax(0, 1fr) auto;
-  gap: 0.9rem;
-  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .mod-card-preview {
-  min-height: 112px;
+  aspect-ratio: 16 / 9;
+  width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: 0.9rem;
   background: rgba(7, 7, 8, 0.86);
   display: grid;
   place-items: center;
@@ -1588,6 +1590,9 @@ h1 {
 }
 
 .mod-card-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
   min-width: 0;
 }
 
@@ -1618,6 +1623,16 @@ h1 {
 
 .mod-card-description {
   margin: 0.55rem 0 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.mod-card.is-description-expanded .mod-card-description {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 
 .mod-card-meta,
@@ -1628,7 +1643,8 @@ h1 {
 }
 
 .mod-card-meta {
-  margin-top: 0.75rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
 }
 
 .mod-card-tags {
@@ -1644,12 +1660,11 @@ h1 {
 }
 
 .mod-card-actions {
-  min-width: 132px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  align-items: stretch;
+  align-items: center;
+  margin-top: 0.9rem;
 }
 
 .mod-card-actions .btn {
@@ -1719,7 +1734,7 @@ h1 {
 .theme-grid {
   margin-top: 1rem;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -2104,14 +2119,12 @@ footer {
     position: static;
   }
 
-  .mod-card {
-    grid-template-columns: minmax(120px, 170px) minmax(0, 1fr);
+  .mod-browser-grid {
+    grid-template-columns: 1fr;
   }
 
-  .mod-card-actions {
-    grid-column: 1 / -1;
-    flex-direction: row;
-    justify-content: flex-start;
+  .mod-card {
+    min-width: 0;
   }
 
   .theme-manage-head {
@@ -2261,16 +2274,9 @@ footer {
     text-align: center;
   }
 
-  .mod-card {
-    grid-template-columns: 1fr;
-  }
-
-  .mod-card-preview {
-    min-height: 150px;
-  }
-
   .mod-card-actions {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .buy-page .pricing--buy {

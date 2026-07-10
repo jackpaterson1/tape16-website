@@ -1744,7 +1744,8 @@ function modBrowserCardHtml(item) {
         <p class="mod-card-kicker">${escapeHtml(config.label)}</p>
         <h3>${escapeHtml(item.name || "Untitled Upload")}</h3>
         <p class="mod-card-creator">By ${escapeHtml(item.creatorName || "Unknown creator")}</p>
-        <p class="mod-card-description">${escapeHtml(item.description || "No description supplied.")}</p>
+        <p class="mod-card-description" data-theme-description>${escapeHtml(item.description || "No description supplied.")}</p>
+        <button class="theme-description-toggle" type="button" data-theme-description-toggle hidden>See more...</button>
         <div class="mod-card-meta">
           ${meta.map((value) => `<span>${escapeHtml(value)}</span>`).join("")}
         </div>
@@ -1789,6 +1790,7 @@ function renderModBrowser() {
   if (emptyTitle) emptyTitle.textContent = config.emptyTitle;
   if (emptyCopy) emptyCopy.textContent = config.emptyCopy;
   bindModBrowserDownloads();
+  bindThemeDescriptionToggles();
 }
 
 async function loadModBrowserCategory(category = activeModCategory) {
@@ -2038,7 +2040,7 @@ function bindThemeDescriptionToggles() {
   document.querySelectorAll("[data-theme-description-toggle]").forEach((button) => {
     if (button.dataset.bound === "true") return;
     button.dataset.bound = "true";
-    const card = button.closest(".theme-card");
+    const card = button.closest(".theme-card, .mod-card");
     const description = card?.querySelector("[data-theme-description]");
     if (!card || !description) return;
     button.setAttribute("aria-expanded", "false");
