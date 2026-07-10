@@ -1758,7 +1758,6 @@ function modBrowserCardHtml(item) {
       </div>
       <div class="mod-card-actions">
         <a class="btn btn-primary" href="${escapeHtml(downloadUrl)}" data-mod-browser-download>${escapeHtml(config.downloadLabel)}</a>
-        ${activeModCategory === "themes" ? `<a class="btn btn-ghost" href="themes.html#theme-library">Open Themes</a>` : ""}
       </div>
     </article>
   `;
