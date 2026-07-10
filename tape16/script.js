@@ -143,6 +143,7 @@ const BUILD_VERSION_CACHE_TTL_MS = 10 * 60 * 1000;
 const REDDIT_MATCH_STORAGE_KEY = "tape16_reddit_match_v1";
 const PROMOTEKIT_REFERRAL_STORAGE_KEY = "tape16_promotekit_referral_v1";
 const THEME_PAGE_SIZE = 12;
+const MOD_BROWSER_VISIBLE_LIMIT = 12;
 let themeLibraryItems = [];
 let themeCurrentPage = 1;
 let activeModCategory = "themes";
@@ -1782,7 +1783,8 @@ function renderModBrowser() {
   if (!modBrowserGrid || !modBrowserEmpty) return;
   const config = currentModCategoryConfig();
   const items = filteredModBrowserItems();
-  modBrowserGrid.innerHTML = items.map(modBrowserCardHtml).join("");
+  const visibleItems = items.slice(0, MOD_BROWSER_VISIBLE_LIMIT);
+  modBrowserGrid.innerHTML = visibleItems.map(modBrowserCardHtml).join("");
   modBrowserGrid.hidden = items.length === 0;
   modBrowserEmpty.hidden = items.length > 0;
   const emptyTitle = modBrowserEmpty.querySelector("h3");
