@@ -117,7 +117,7 @@
             <span>Themes</span>
             <strong data-mod-category-count="themes">0</strong>
           </button>
-          <button class="mod-category-filter" type="button" data-mod-category="controller_profiles" aria-pressed="false" aria-disabled="true" disabled>
+          <button class="mod-category-filter" type="button" data-mod-category="controller_profiles" aria-pressed="false">
             <span>Controller Profiles</span>
             <strong data-mod-category-count="controller_profiles">0</strong>
           </button>
@@ -132,7 +132,7 @@
 
           <div class="mod-browser-upload">
             <h3>Share your setup</h3>
-            <p>Theme and MIDI profile uploads are live now. Controller profiles and tape mods can use this hub next.</p>
+            <p>Theme, controller profile, and MIDI profile uploads are live now. Tape mods can use this hub next.</p>
             <a class="btn btn-primary" href="#theme-account">Mod Account</a>
             <a class="btn btn-ghost" href="#upload-community-mod">Upload Mod</a>
           </div>
@@ -206,13 +206,15 @@
       <section class="bug-report" id="upload-community-mod">
         <h2>Upload A Mod</h2>
         <p>
-          Choose a community mod type, upload the `.zip` package, and include a preview image for the browser card.
+          Choose a community mod type, upload the package exported by TAPE 16, and include a preview image for the browser card.
+          Controller profiles use `.tape16controller` files exported from MIDI Settings &gt; DAW Controllers &gt; Manage Custom Profiles.
         </p>
         <form id="community-upload-form" class="bug-form" enctype="multipart/form-data">
           <label>
             Mod Type
             <select id="community-upload-type" name="modType" required>
               <option value="theme">Theme</option>
+              <option value="controller_profile">Controller Profile</option>
               <option value="midi_profile">MIDI Profile</option>
             </select>
           </label>
@@ -272,6 +274,6 @@
     </footer>
 
     <script src="config.js?v=0.9.272"></script>
-    <script src="script.js?v=community-pagination-1"></script>
+    <script src="script.js?v=community-controller-profiles-1"></script>
   </body>
 </html>

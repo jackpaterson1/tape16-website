@@ -1248,6 +1248,21 @@ function applyThemeAccountUploadState() {
 }
 
 function communityManageConfig(type) {
+  if (type === "controller_profile") {
+    return {
+      label: "Controller Profile",
+      pluralLabel: "controller profiles",
+      route: "controller-profiles",
+      nameField: "controllerProfileName",
+      fileField: "controllerProfileFile",
+      fileAccept: ".tape16controller,application/zip",
+      fileLabel: "Profile Package",
+      filePattern: /\.tape16controller$/i,
+      fileError: "Upload a .tape16controller package.",
+      maxBytes: 20 * 1024 * 1024,
+      category: "controller_profiles",
+    };
+  }
   if (type === "midi_profile") {
     return {
       label: "MIDI Profile",
@@ -1257,6 +1272,9 @@ function communityManageConfig(type) {
       fileField: "midiProfileFile",
       fileAccept: ".tape16-midi-profile,.xml,text/xml,application/xml",
       fileLabel: "Profile File",
+      filePattern: /\.(tape16-midi-profile|xml)$/i,
+      fileError: "Upload a .tape16-midi-profile or .xml file.",
+      maxBytes: 5 * 1024 * 1024,
       category: "midi_profiles",
     };
   }
@@ -1268,6 +1286,9 @@ function communityManageConfig(type) {
     fileField: "themeFile",
     fileAccept: ".zip,application/zip",
     fileLabel: "ZIP",
+    filePattern: /\.zip$/i,
+    fileError: "Upload a ZIP package.",
+    maxBytes: 50 * 1024 * 1024,
     category: "themes",
   };
 }
@@ -1486,18 +1507,13 @@ async function replaceManagedThemeFile(itemEl, kind) {
     setThemeManageStatus(itemEl, isPreview ? "Choose a preview image first." : `Choose a ${config.fileLabel.toLowerCase()} first.`, true);
     return;
   }
-  const validPackage =
-    config.category === "midi_profiles"
-      ? /\.(tape16-midi-profile|xml)$/i.test(file.name || "")
-      : /\.zip$/i.test(file.name || "");
+  const validPackage = config.filePattern.test(file.name || "");
   if (!isPreview && !validPackage) {
-    setThemeManageStatus(
-      itemEl,
-      config.category === "midi_profiles"
-        ? "Upload a .tape16-midi-profile or .xml file."
-        : "Upload a ZIP package.",
-      true
-    );
+    setThemeManageStatus(itemEl, config.fileError, true);
+    return;
+  }
+  if (!isPreview && (file.size || 0) > config.maxBytes) {
+    setThemeManageStatus(itemEl, `${config.fileLabel} exceeds ${formatFileSize(config.maxBytes)}.`, true);
     return;
   }
   if (isPreview && !/\.(png|jpe?g|webp)$/i.test(file.name || "")) {
@@ -1645,13 +1661,13 @@ const MOD_BROWSER_CATEGORIES = {
   controller_profiles: {
     label: "Controller Profiles",
     title: "Browse controller profiles",
-    copy: "Shared mappings for hardware controllers and hands-on transport workflows will appear here.",
-    endpoint: "",
-    uploadHref: "feature-request.html",
-    uploadLabel: "Request Uploads",
+    copy: "Download custom hardware mappings exported from TAPE 16, including controls, feedback, and setup notes.",
+    endpoint: "controller-profiles",
+    uploadHref: "#upload-community-mod",
+    uploadLabel: "Upload Profile",
     downloadLabel: "Download Profile",
     emptyTitle: "No controller profiles yet",
-    emptyCopy: "This category is ready for shared controller mappings once uploads are enabled.",
+    emptyCopy: "Upload the first custom controller profile for the community.",
   },
   midi_profiles: {
     label: "MIDI Profiles",
@@ -2203,6 +2219,23 @@ if (themeUploadForm) {
 }
 
 function communityUploadConfig(type) {
+  if (type === "controller_profile") {
+    return {
+      label: "controller profile",
+      endpoint: "submit-controller-profile",
+      idField: "controller_profileId",
+      category: "controller_profiles",
+      nameLabel: "Controller Profile Name",
+      fileLabel: "Controller Profile Package (20MB max)",
+      fileAccept: ".tape16controller,application/zip",
+      filePattern: /\.tape16controller$/i,
+      maxBytes: 20 * 1024 * 1024,
+      fileError: "Upload the controller profile exported from TAPE 16 (.tape16controller).",
+      previewLabel: "Preview Image Of Controller",
+      tagsPlaceholder: "mackie, faders, transport, studio",
+      descriptionPlaceholder: "Name the controller hardware and describe the mapped controls, feedback, and setup notes.",
+    };
+  }
   if (type === "midi_profile") {
     return {
       label: "MIDI profile",
@@ -2212,6 +2245,7 @@ function communityUploadConfig(type) {
       nameLabel: "MIDI Profile Name",
       fileLabel: "MIDI Profile File (5MB max)",
       fileAccept: ".tape16-midi-profile,.xml,text/xml,application/xml",
+      filePattern: /\.(tape16-midi-profile|xml)$/i,
       maxBytes: 5 * 1024 * 1024,
       fileError: "Upload the MIDI profile exported from TAPE 16 (.tape16-midi-profile or .xml).",
       previewLabel: "Preview Image Of Controller",
@@ -2227,6 +2261,7 @@ function communityUploadConfig(type) {
     nameLabel: "Theme Name",
     fileLabel: "Theme ZIP (50MB max)",
     fileAccept: ".zip,application/zip",
+    filePattern: /\.zip$/i,
     maxBytes: 50 * 1024 * 1024,
     fileError: "Upload the theme as a ZIP package.",
     previewLabel: "Preview Image",
@@ -2284,10 +2319,7 @@ if (communityUploadForm) {
     }
     saveRedditMatch({ email });
     const packageName = packageFile.name || "";
-    const validPackage =
-      config.category === "midi_profiles"
-        ? /\.(tape16-midi-profile|xml)$/i.test(packageName)
-        : /\.zip$/i.test(packageName);
+    const validPackage = config.filePattern.test(packageName);
     if (!validPackage) {
       setCommunityUploadStatus(config.fileError, true);
       return;

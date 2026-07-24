@@ -2,6 +2,9 @@ const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" };
 const GENERIC_RESEND_MESSAGE = "If a matching purchase exists, the serial email has been sent.";
 const COMMUNITY_MAX_PACKAGE_BYTES = 50 * 1024 * 1024;
 const COMMUNITY_MAX_MIDI_PROFILE_BYTES = 5 * 1024 * 1024;
+const COMMUNITY_MAX_CONTROLLER_PROFILE_COMPRESSED_BYTES = 20 * 1024 * 1024;
+const COMMUNITY_MAX_CONTROLLER_PROFILE_EXPANDED_BYTES = 16 * 1024 * 1024;
+const COMMUNITY_MAX_CONTROLLER_PROFILE_ENTRIES = 64;
 const COMMUNITY_MAX_PREVIEW_BYTES = 5 * 1024 * 1024;
 
 const CHECKOUT_EVENT_TYPES = new Set([
@@ -137,6 +140,52 @@ export default {
         const match = path.match(/^\/midi-profiles\/([^/]+)\/preview$/);
         if (method === "GET" && match) {
           return await handlePreviewCommunityItem("midi_profile", match[1], origin, env);
+        }
+      }
+
+      if (method === "GET" && path === "/controller-profiles") {
+        return await handleListCommunityItems("controller_profile", origin, env, url.searchParams);
+      }
+
+      if (method === "POST" && (path === "/controller-profiles" || path === "/submit-controller-profile")) {
+        return await handleSubmitCommunityItem(request, "controller_profile", origin, env);
+      }
+
+      {
+        const match = path.match(/^\/controller-profiles\/([^/]+)$/);
+        if (method === "PATCH" && match) {
+          return await handleUpdateCommunityItem(request, "controller_profile", match[1], origin, env);
+        }
+        if (method === "DELETE" && match) {
+          return await handleDeleteCommunityItem(request, "controller_profile", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/controller-profiles\/([^/]+)\/package$/);
+        if (method === "POST" && match) {
+          return await handleReplaceCommunityPackage(request, "controller_profile", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/controller-profiles\/([^/]+)\/preview$/);
+        if (method === "POST" && match) {
+          return await handleReplaceCommunityPreview(request, "controller_profile", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/controller-profiles\/([^/]+)\/download$/);
+        if (method === "GET" && match) {
+          return await handleDownloadCommunityItem("controller_profile", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/controller-profiles\/([^/]+)\/preview$/);
+        if (method === "GET" && match) {
+          return await handlePreviewCommunityItem("controller_profile", match[1], origin, env);
         }
       }
 
@@ -545,7 +594,7 @@ async function handleThemeAccountThemes(request, origin, env) {
   await env.COMMUNITY_DB.prepare(
     `UPDATE community_items
      SET owner_key = ?, owner_email = ?, owner_order_id = ?, updated_at = ?
-     WHERE type IN ('theme', 'midi_profile')
+     WHERE type IN ('theme', 'midi_profile', 'controller_profile')
        AND (owner_key IS NULL OR owner_key = '')
        AND lower(uploader_email) = ?`,
   )
@@ -558,7 +607,7 @@ async function handleThemeAccountThemes(request, origin, env) {
       preview_key, preview_filename, preview_size,
       download_count, created_at, updated_at
      FROM community_items
-     WHERE type IN ('theme', 'midi_profile') AND owner_key = ?
+     WHERE type IN ('theme', 'midi_profile', 'controller_profile') AND owner_key = ?
      ORDER BY updated_at DESC, created_at DESC
      LIMIT 100`,
   )
@@ -705,7 +754,10 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
 
   const accountResult = await optionalThemeAccount(request, env);
   if (!accountResult.ok) return json({ ok: false, error: accountResult.error }, accountResult.status, origin, env);
-  const account = type === "theme" || type === "midi_profile" ? accountResult.account : null;
+  const account =
+    type === "theme" || type === "midi_profile" || type === "controller_profile"
+      ? accountResult.account
+      : null;
 
   let form;
   try {
@@ -750,7 +802,7 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
   const id = makeCommunityId(type);
   const slug = await uniqueCommunitySlug(env, slugify(name), id);
   const now = new Date().toISOString();
-  const fallbackPackageName = type === "midi_profile" ? `${slug}.tape16-midi-profile` : `${slug}.zip`;
+  const fallbackPackageName = communityFallbackPackageName(type, slug);
   const packageFilename = sanitizeFilename(packageFile.name || fallbackPackageName, fallbackPackageName);
   const packageKey = `community/${kind.plural}/${id}/${packageFilename}`;
   const packageSha256 = await sha256Hex(packageBuffer);
@@ -914,7 +966,7 @@ async function handleReplaceCommunityPackage(request, type, slugOrId, origin, en
     return json({ ok: false, error: packageError }, 400, origin, env);
   }
 
-  const fallbackPackageName = type === "midi_profile" ? `${owned.item.slug}.tape16-midi-profile` : `${owned.item.slug}.zip`;
+  const fallbackPackageName = communityFallbackPackageName(type, owned.item.slug);
   const packageFilename = sanitizeFilename(packageFile.name || fallbackPackageName, fallbackPackageName);
   const packageKey = `community/${kind.plural}/${owned.item.id}/${Date.now()}-${packageFilename}`;
   const packageSha256 = await sha256Hex(packageBuffer);
@@ -1400,7 +1452,20 @@ function communityKind(type) {
   if (type === "midi_profile") {
     return { plural: "midi-profiles", nameField: "midiProfileName", fileField: "midiProfileFile" };
   }
+  if (type === "controller_profile") {
+    return {
+      plural: "controller-profiles",
+      nameField: "controllerProfileName",
+      fileField: "controllerProfileFile",
+    };
+  }
   return { plural: "themes", nameField: "themeName", fileField: "themeFile" };
+}
+
+function communityFallbackPackageName(type, slug) {
+  if (type === "midi_profile") return `${slug}.tape16-midi-profile`;
+  if (type === "controller_profile") return `${slug}.tape16controller`;
+  return `${slug}.zip`;
 }
 
 function readUploadFile(form, ...names) {
@@ -1501,9 +1566,157 @@ function looksLikeMidiProfile(buffer) {
   return /<\s*(MidiLearnProfile|MidiLearnMappings)\b/i.test(text);
 }
 
+function controllerProfileEntryKind(path, directory) {
+  const lower = path.toLowerCase();
+  if (directory) {
+    return path === "docs" || path.startsWith("docs/") || path === "icons" || path.startsWith("icons/")
+      ? "directory"
+      : "";
+  }
+  if (path === "profile.json") return "profile";
+  if (path === "controller.js") return "script";
+  if (lower === "readme.md" || lower === "readme.txt" || path.startsWith("docs/")) {
+    return /\.(md|txt|pdf|png|jpe?g|webp)$/i.test(lower) ? "asset" : "";
+  }
+  const rootIcon =
+    !lower.includes("/") &&
+    (lower.startsWith("icon.") ||
+      lower.startsWith("icon-") ||
+      lower.startsWith("icon_") ||
+      lower.startsWith("icon@"));
+  if (rootIcon || path.startsWith("icons/")) {
+    return /\.(png|jpe?g|webp)$/i.test(lower) ? "asset" : "";
+  }
+  return "";
+}
+
+function validateControllerProfilePath(rawPath, directory) {
+  const path = rawPath.replaceAll("\\", "/").replace(directory ? /\/+$/ : /$^/, "");
+  if (
+    !path ||
+    path.length > 240 ||
+    path.startsWith("/") ||
+    path.includes("//") ||
+    path.includes(":")
+  ) {
+    return "";
+  }
+  const components = path.split("/");
+  if (
+    components.some(
+      (component) =>
+        !component ||
+        component.length > 80 ||
+        component.startsWith(".") ||
+        !/^[A-Za-z0-9 _().-]+$/.test(component),
+    )
+  ) {
+    return "";
+  }
+  return path;
+}
+
+function validateControllerProfileZip(buffer) {
+  const bytes = new Uint8Array(buffer);
+  const view = new DataView(buffer);
+  const minimumEocdOffset = Math.max(0, bytes.length - 65557);
+  let eocdOffset = -1;
+  for (let offset = bytes.length - 22; offset >= minimumEocdOffset; offset -= 1) {
+    if (view.getUint32(offset, true) === 0x06054b50) {
+      eocdOffset = offset;
+      break;
+    }
+  }
+  if (eocdOffset < 0) return "Controller profile package has an invalid ZIP directory";
+
+  const diskNumber = view.getUint16(eocdOffset + 4, true);
+  const centralDisk = view.getUint16(eocdOffset + 6, true);
+  const entriesOnDisk = view.getUint16(eocdOffset + 8, true);
+  const entryCount = view.getUint16(eocdOffset + 10, true);
+  const centralSize = view.getUint32(eocdOffset + 12, true);
+  const centralOffset = view.getUint32(eocdOffset + 16, true);
+  if (
+    diskNumber !== 0 ||
+    centralDisk !== 0 ||
+    entriesOnDisk !== entryCount ||
+    entryCount < 1 ||
+    entryCount > COMMUNITY_MAX_CONTROLLER_PROFILE_ENTRIES ||
+    centralOffset + centralSize > eocdOffset
+  ) {
+    return "Controller profile package exceeds TAPE 16 package limits";
+  }
+
+  const decoder = new TextDecoder("utf-8", { fatal: true });
+  const seenPaths = new Set();
+  let offset = centralOffset;
+  let expandedBytes = 0;
+  let profileCount = 0;
+  for (let index = 0; index < entryCount; index += 1) {
+    if (offset + 46 > eocdOffset || view.getUint32(offset, true) !== 0x02014b50) {
+      return "Controller profile package has an invalid ZIP directory";
+    }
+    const flags = view.getUint16(offset + 8, true);
+    const compression = view.getUint16(offset + 10, true);
+    const expandedSize = view.getUint32(offset + 24, true);
+    const nameLength = view.getUint16(offset + 28, true);
+    const extraLength = view.getUint16(offset + 30, true);
+    const commentLength = view.getUint16(offset + 32, true);
+    const entryEnd = offset + 46 + nameLength + extraLength + commentLength;
+    if (entryEnd > eocdOffset || nameLength < 1 || (flags & 0x1) !== 0 || ![0, 8].includes(compression)) {
+      return "Controller profile package contains an unsupported ZIP entry";
+    }
+
+    let rawPath;
+    try {
+      rawPath = decoder.decode(bytes.slice(offset + 46, offset + 46 + nameLength));
+    } catch {
+      return "Controller profile package contains a non-portable filename";
+    }
+    const directory = rawPath.endsWith("/");
+    const path = validateControllerProfilePath(rawPath, directory);
+    const kind = path ? controllerProfileEntryKind(path, directory) : "";
+    const pathKey = path.toLowerCase();
+    if (!path || !kind || seenPaths.has(pathKey)) {
+      return "Controller profile package contains an unsupported or duplicate file";
+    }
+    seenPaths.add(pathKey);
+
+    if (!directory) {
+      const perFileLimit =
+        kind === "profile" ? 2 * 1024 * 1024 : kind === "script" ? 256 * 1024 : 4 * 1024 * 1024;
+      if (expandedSize > perFileLimit) {
+        return "Controller profile package contains a file that exceeds TAPE 16 limits";
+      }
+      expandedBytes += expandedSize;
+      if (expandedBytes > COMMUNITY_MAX_CONTROLLER_PROFILE_EXPANDED_BYTES) {
+        return "Controller profile package expands beyond the 16MB TAPE 16 limit";
+      }
+      if (kind === "profile") {
+        if (expandedSize < 1) return "Controller profile package contains an empty profile.json";
+        profileCount += 1;
+      }
+    }
+    offset = entryEnd;
+  }
+  if (offset !== centralOffset + centralSize || profileCount !== 1) {
+    return "Controller profile package must contain one root-level profile.json";
+  }
+  return "";
+}
+
 function validateCommunityPackage(type, file, buffer) {
   if (!buffer.byteLength) return "File is required";
   const name = cleanString(file?.name).toLowerCase();
+  if (type === "controller_profile") {
+    if (!/\.tape16controller$/i.test(name)) {
+      return "Upload the controller profile exported from TAPE 16 (.tape16controller)";
+    }
+    if (buffer.byteLength > COMMUNITY_MAX_CONTROLLER_PROFILE_COMPRESSED_BYTES) {
+      return "Controller profile package must be 20MB or smaller";
+    }
+    if (!looksLikeZip(buffer)) return "Controller profile package must be a valid ZIP file";
+    return validateControllerProfileZip(buffer);
+  }
   if (type === "midi_profile") {
     if (!/\.(tape16-midi-profile|xml)$/i.test(name)) {
       return "Upload a TAPE 16 MIDI profile file (.tape16-midi-profile or .xml)";
@@ -1525,6 +1738,7 @@ function validateCommunityPackage(type, file, buffer) {
 
 function communityPackageContentType(type, filename) {
   if (type === "midi_profile") return "application/xml";
+  if (type === "controller_profile") return "application/zip";
   return contentTypeForFilename(filename) === "application/octet-stream"
     ? "application/zip"
     : contentTypeForFilename(filename);
