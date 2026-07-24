@@ -898,11 +898,11 @@ async function configurePayPalCheckout() {
 configurePayPalCheckout();
 
 const pinnedReleaseDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.320/TAPE-16-v0.9.320-macOS.dmg";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.330/TAPE-16-v0.9.330-macOS.dmg";
 const pinnedWindowsDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.320/TAPE-16-v0.9.320-Windows-Setup.zip";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.330/TAPE-16-v0.9.330-Windows-Setup.zip";
 const pinnedGithubReleaseUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.320";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.330";
 const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || pinnedReleaseDownloadUrl;
 const windowsDownloadUrl = configUrl(config.windowsDownloadUrl) || pinnedWindowsDownloadUrl;
 const linuxDownloadUrl = configUrl(config.linuxDownloadUrl);
