@@ -1596,7 +1596,7 @@ function themeManageItemHtml(item) {
   ].filter(Boolean);
 
   return `
-    <article class="theme-manage-item" data-theme-slug="${escapeHtml(item.slug || "")}" data-community-type="${escapeHtml(item.type || "theme")}">
+    <article class="theme-manage-item${previewUrl ? " has-current-preview" : ""}" data-theme-slug="${escapeHtml(item.slug || "")}" data-community-type="${escapeHtml(item.type || "theme")}">
       <div class="theme-manage-head">
         <div>
           <h3>${escapeHtml(item.name || `Untitled ${config.label}`)}</h3>
@@ -1611,6 +1611,13 @@ function themeManageItemHtml(item) {
             <div class="theme-manage-current-preview">
               <span>Current Preview</span>
               <img src="${escapeHtml(previewUrl)}" alt="${escapeHtml(item.name || config.label)} current preview" loading="lazy" />
+              <button
+                class="btn btn-ghost"
+                type="button"
+                data-preview-crop-current
+                data-preview-url="${escapeHtml(previewUrl)}"
+                data-preview-filename="${escapeHtml(item.previewFilename || "current-preview.png")}"
+              >Crop Current Photo</button>
             </div>
           `
           : ""
@@ -1634,7 +1641,7 @@ function themeManageItemHtml(item) {
         </label>
         <label class="theme-manage-full">
           Description
-          <textarea name="description" rows="4">${escapeHtml(item.description || "")}</textarea>
+          <textarea name="description" rows="3">${escapeHtml(item.description || "")}</textarea>
         </label>
       </div>
       <div class="theme-manage-actions">
@@ -1648,19 +1655,10 @@ function themeManageItemHtml(item) {
           <span>Replace Preview</span>
           <input name="previewImage" type="file" accept=".png,.jpg,.jpeg,.webp" />
           <small data-preview-crop-state>Choose a photo to crop it to the card’s 16:9 shape.</small>
-          ${
-            previewUrl
-              ? `<button
-                  class="btn btn-ghost"
-                  type="button"
-                  data-preview-crop-current
-                  data-preview-url="${escapeHtml(previewUrl)}"
-                  data-preview-filename="${escapeHtml(item.previewFilename || "current-preview.png")}"
-                >Crop Current Photo</button>`
-              : ""
-          }
-          <button class="btn btn-ghost" type="button" data-preview-crop-open>Crop New Photo</button>
-          <button class="btn btn-ghost" type="button" data-theme-manage-preview>Upload Preview</button>
+          <div class="theme-file-buttons">
+            <button class="btn btn-ghost" type="button" data-preview-crop-open>Crop New Photo</button>
+            <button class="btn btn-ghost" type="button" data-theme-manage-preview>Upload Preview</button>
+          </div>
         </div>
         <button class="btn btn-ghost theme-delete-btn" type="button" data-theme-manage-delete>Delete ${escapeHtml(config.label)}</button>
       </div>
