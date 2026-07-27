@@ -1170,7 +1170,7 @@ function selectedPreviewFile(input) {
 
 function previewCropStateElement(input) {
   return input
-    ?.closest(".preview-upload-control, .theme-file-action, label")
+    ?.closest(".preview-upload-control, .theme-file-action, .theme-manage-replace, label")
     ?.querySelector("[data-preview-crop-state]") || null;
 }
 
@@ -1213,7 +1213,7 @@ async function openPreviewCropper(file) {
           <p class="eyebrow">Preview photo</p>
           <h2 id="preview-crop-title">Crop for the community card</h2>
         </div>
-        <button class="preview-crop-close" type="button" data-preview-crop-original aria-label="Use original photo and close">×</button>
+        <button class="preview-crop-close" type="button" data-preview-crop-cancel aria-label="Close photo cropper">×</button>
       </div>
       <div class="preview-crop-stage">
         <canvas
@@ -1339,26 +1339,30 @@ async function openPreviewCropper(file) {
 
     dialog.addEventListener("cancel", (event) => {
       event.preventDefault();
-      finish(null);
+      finish({ action: "cancel", file: null });
+    });
+    dialog.querySelectorAll("[data-preview-crop-cancel]").forEach((button) => {
+      button.addEventListener("click", () => finish({ action: "cancel", file: null }));
     });
     dialog.querySelectorAll("[data-preview-crop-original]").forEach((button) => {
-      button.addEventListener("click", () => finish(null));
+      button.addEventListener("click", () => finish({ action: "original", file }));
     });
     dialog.querySelector("[data-preview-crop-apply]").addEventListener("click", () => {
       canvas.toBlob(
         (blob) => {
           if (!blob) {
-            finish(null);
+            finish({ action: "cancel", file: null });
             return;
           }
           const baseName = String(file.name || "preview").replace(/\.[^.]+$/, "") || "preview";
           const extension = blob.type === "image/webp" ? "webp" : "jpg";
-          finish(
-            new File([blob], `${baseName}-cropped.${extension}`, {
+          finish({
+            action: "cropped",
+            file: new File([blob], `${baseName}-cropped.${extension}`, {
               type: blob.type || "image/jpeg",
               lastModified: Date.now(),
             }),
-          );
+          });
         },
         "image/webp",
         0.9,
@@ -1371,20 +1375,27 @@ async function cropPreviewInput(input) {
   const originalFile = previewCropOriginalFiles.get(input) || input?.files?.[0] || null;
   if (!input || !originalFile) {
     setPreviewCropState(input, "Choose a photo first.", false);
-    return;
+    return "cancel";
   }
   try {
-    const croppedFile = await openPreviewCropper(originalFile);
-    if (croppedFile) {
-      previewCropFiles.set(input, croppedFile);
-      setPreviewCropState(input, `Cropped to 16:9 • ${formatFileSize(croppedFile.size)}`, true);
-    } else {
-      previewCropFiles.delete(input);
-      setPreviewCropState(input, "Using the original photo. Select Crop Photo to adjust it.", false);
+    const result = await openPreviewCropper(originalFile);
+    if (result?.action === "cropped" && result.file) {
+      previewCropFiles.set(input, result.file);
+      setPreviewCropState(input, `Cropped to 16:9 • ${formatFileSize(result.file.size)}`, true);
+      return "cropped";
     }
+    if (result?.action === "original" && result.file) {
+      previewCropFiles.set(input, result.file);
+      setPreviewCropState(input, "Using the original photo.", true);
+      return "original";
+    }
+    previewCropFiles.delete(input);
+    setPreviewCropState(input, "Photo change cancelled.", false);
+    return "cancel";
   } catch (error) {
     previewCropFiles.delete(input);
     setPreviewCropState(input, "Could not open this photo for cropping. The original will be used.", false);
+    return "cancel";
   }
 }
 
@@ -1419,9 +1430,9 @@ async function cropCurrentManagedPreview(button, itemEl) {
     });
     previewCropFiles.delete(input);
     previewCropOriginalFiles.set(input, currentPreview);
-    await cropPreviewInput(input);
+    const cropAction = await cropPreviewInput(input);
 
-    if (previewCropFiles.has(input)) {
+    if (cropAction === "cropped" && previewCropFiles.has(input)) {
       setThemeManageStatus(itemEl, "Saving cropped preview...", false);
       await replaceManagedThemeFile(itemEl, "preview");
     } else {
@@ -1594,6 +1605,7 @@ function themeManageItemHtml(item) {
     packageSize,
     item.hasPreview ? `Preview${previewSize ? ` ${previewSize}` : ""}` : "No preview",
   ].filter(Boolean);
+  const fileMetaHtml = fileMeta.map((value) => `<span>${escapeHtml(value)}</span>`).join("");
 
   return `
     <article class="theme-manage-item${previewUrl ? " has-current-preview" : ""}" data-theme-slug="${escapeHtml(item.slug || "")}" data-community-type="${escapeHtml(item.type || "theme")}">
@@ -1601,7 +1613,7 @@ function themeManageItemHtml(item) {
         <div>
           <h3>${escapeHtml(item.name || `Untitled ${config.label}`)}</h3>
           <p class="mod-card-kicker">${escapeHtml(config.label)}</p>
-          <p>${fileMeta.map(escapeHtml).join(" • ")}</p>
+          <div class="theme-manage-meta">${fileMetaHtml}</div>
         </div>
         <a class="btn btn-ghost" href="${escapeHtml(themeApiUrl(item.downloadUrl))}" data-theme-download>Download</a>
       </div>
@@ -1617,7 +1629,7 @@ function themeManageItemHtml(item) {
                 data-preview-crop-current
                 data-preview-url="${escapeHtml(previewUrl)}"
                 data-preview-filename="${escapeHtml(item.previewFilename || "current-preview.png")}"
-              >Crop Current Photo</button>
+              >Adjust Current Photo</button>
             </div>
           `
           : ""
@@ -1641,28 +1653,32 @@ function themeManageItemHtml(item) {
         </label>
         <label class="theme-manage-full">
           Description
-          <textarea name="description" rows="3">${escapeHtml(item.description || "")}</textarea>
+          <textarea name="description" rows="2">${escapeHtml(item.description || "")}</textarea>
         </label>
+        <div class="theme-manage-field-actions">
+          <button class="btn btn-primary" type="button" data-theme-manage-save disabled>Saved</button>
+          <p class="serial-status theme-manage-status" role="status" aria-live="polite"></p>
+        </div>
       </div>
       <div class="theme-manage-actions">
-        <button class="btn btn-primary" type="button" data-theme-manage-save>Save Details</button>
-        <div class="theme-file-action">
-          <span>Replace ${escapeHtml(config.fileLabel)}</span>
-          <input name="${escapeHtml(config.fileField)}" type="file" accept="${escapeHtml(config.fileAccept)}" />
-          <button class="btn btn-ghost" type="button" data-theme-manage-package>Upload ${escapeHtml(config.fileLabel)}</button>
+        <div class="theme-manage-replace">
+          <span>${escapeHtml(config.fileLabel)}</span>
+          <button class="btn btn-ghost" type="button" data-managed-file-picker="package">Replace ${escapeHtml(config.fileLabel)}</button>
+          <input hidden data-managed-file-input="package" name="${escapeHtml(config.fileField)}" type="file" accept="${escapeHtml(config.fileAccept)}" />
         </div>
-        <div class="theme-file-action">
-          <span>Replace Preview</span>
-          <input name="previewImage" type="file" accept=".png,.jpg,.jpeg,.webp" />
-          <small data-preview-crop-state>Choose a photo to crop it to the card’s 16:9 shape.</small>
-          <div class="theme-file-buttons">
-            <button class="btn btn-ghost" type="button" data-preview-crop-open>Crop New Photo</button>
-            <button class="btn btn-ghost" type="button" data-theme-manage-preview>Upload Preview</button>
+        <div class="theme-manage-replace">
+          <span>Preview Photo</span>
+          <button class="btn btn-ghost" type="button" data-managed-file-picker="preview">Replace Photo</button>
+          <input hidden data-managed-file-input="preview" name="previewImage" type="file" accept=".png,.jpg,.jpeg,.webp" />
+          <small data-preview-crop-state>Choose, crop, and save a new photo.</small>
+        </div>
+        <details class="theme-manage-more">
+          <summary class="btn btn-ghost">More</summary>
+          <div class="theme-manage-more-menu">
+            <button class="btn btn-ghost theme-delete-btn" type="button" data-theme-manage-delete>Delete ${escapeHtml(config.label)}</button>
           </div>
-        </div>
-        <button class="btn btn-ghost theme-delete-btn" type="button" data-theme-manage-delete>Delete ${escapeHtml(config.label)}</button>
+        </details>
       </div>
-      <p class="serial-status theme-manage-status" role="status" aria-live="polite"></p>
     </article>
   `;
 }
@@ -1775,6 +1791,7 @@ async function saveManagedTheme(itemEl) {
   const slug = itemEl?.dataset.themeSlug || "";
   if (!session || !supportBase || !slug) return;
   const config = communityManageConfig(itemEl?.dataset.communityType || "theme");
+  const saveButton = itemEl.querySelector("[data-theme-manage-save]");
 
   const payload = {
     [config.nameField]: itemEl.querySelector(`[name="${config.nameField}"]`)?.value || "",
@@ -1788,6 +1805,10 @@ async function saveManagedTheme(itemEl) {
     return;
   }
 
+  if (saveButton) {
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving...";
+  }
   setThemeManageStatus(itemEl, "Saving details...", false);
   try {
     const response = await fetch(`${supportBase.replace(/\/+$/, "")}/${config.route}/${encodeURIComponent(slug)}`, {
@@ -1801,6 +1822,10 @@ async function saveManagedTheme(itemEl) {
     await refreshCommunityManagedViews(config.category);
     await loadThemeAccountThemes({ silent: true });
   } catch (error) {
+    if (saveButton) {
+      saveButton.disabled = false;
+      saveButton.textContent = "Save Details";
+    }
     setThemeManageStatus(itemEl, "Could not save details right now.", true);
   }
 }
@@ -2763,6 +2788,16 @@ if (themeAccountLogoutBtn) {
 }
 
 if (themeAccountList) {
+  themeAccountList.addEventListener("input", (event) => {
+    const field = event.target instanceof Element ? event.target.closest(".theme-manage-fields input, .theme-manage-fields textarea") : null;
+    const itemEl = field?.closest(".theme-manage-item");
+    const saveButton = itemEl?.querySelector("[data-theme-manage-save]");
+    if (!saveButton) return;
+    saveButton.disabled = false;
+    saveButton.textContent = "Save Details";
+    setThemeManageStatus(itemEl, "Unsaved changes", false);
+  });
+
   themeAccountList.addEventListener("click", async (event) => {
     const target = event.target;
     const element =
@@ -2776,16 +2811,19 @@ if (themeAccountList) {
     const itemEl = element.closest(".theme-manage-item");
     if (!itemEl) return;
 
+    const filePicker = element.closest("[data-managed-file-picker]");
+    if (filePicker) {
+      const kind = filePicker.dataset.managedFilePicker;
+      const input = itemEl.querySelector(`[data-managed-file-input="${kind}"]`);
+      if (input) {
+        input.value = "";
+        if (kind === "preview") clearPreviewCropSelection(input);
+        input.click();
+      }
+      return;
+    }
     if (element.closest("[data-theme-manage-save]")) {
       await saveManagedTheme(itemEl);
-      return;
-    }
-    if (element.closest("[data-theme-manage-package]")) {
-      await replaceManagedThemeFile(itemEl, "package");
-      return;
-    }
-    if (element.closest("[data-theme-manage-preview]")) {
-      await replaceManagedThemeFile(itemEl, "preview");
       return;
     }
     if (element.closest("[data-theme-manage-delete]")) {
@@ -2796,7 +2834,14 @@ if (themeAccountList) {
 
 document.addEventListener("change", async (event) => {
   const input = event.target instanceof HTMLInputElement ? event.target : null;
-  if (!input?.matches('input[name="previewImage"]')) return;
+  if (!input) return;
+
+  if (input.matches('[data-managed-file-input="package"]')) {
+    const itemEl = input.closest(".theme-manage-item");
+    if (input.files?.[0] && itemEl) await replaceManagedThemeFile(itemEl, "package");
+    return;
+  }
+  if (!input.matches('input[name="previewImage"]')) return;
   previewCropFiles.delete(input);
   const file = input.files?.[0] || null;
   if (!file) {
@@ -2804,7 +2849,11 @@ document.addEventListener("change", async (event) => {
     return;
   }
   previewCropOriginalFiles.set(input, file);
-  await cropPreviewInput(input);
+  const cropAction = await cropPreviewInput(input);
+  const itemEl = input.closest(".theme-manage-item");
+  if (itemEl && (cropAction === "cropped" || cropAction === "original")) {
+    await replaceManagedThemeFile(itemEl, "preview");
+  }
 });
 
 document.addEventListener("click", async (event) => {
@@ -2817,7 +2866,7 @@ document.addEventListener("click", async (event) => {
   }
   const cropButton = target?.closest("[data-preview-crop-open]");
   if (!cropButton) return;
-  const control = cropButton.closest(".preview-upload-control, .theme-file-action, label");
+  const control = cropButton.closest(".preview-upload-control, .theme-file-action, .theme-manage-replace, label");
   const input = control?.querySelector('input[name="previewImage"]') || null;
   await cropPreviewInput(input);
 });

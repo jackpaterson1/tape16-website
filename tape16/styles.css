@@ -1942,8 +1942,7 @@ h1 {
   grid-template-areas:
     "head"
     "fields"
-    "actions"
-    "status";
+    "actions";
   gap: 0.65rem;
   border: 1px solid var(--stroke);
   border-radius: 0;
@@ -1956,8 +1955,7 @@ h1 {
   grid-template-areas:
     "head head"
     "preview fields"
-    "actions actions"
-    "status status";
+    "actions actions";
   align-items: start;
 }
 
@@ -1976,10 +1974,25 @@ h1 {
   font-size: 1.1rem;
 }
 
-.theme-manage-head p {
+.theme-manage-head > div > p {
   margin: 0.25rem 0 0;
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.theme-manage-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+}
+
+.theme-manage-meta span {
+  border: 1px solid var(--stroke);
+  padding: 0.18rem 0.42rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.2;
 }
 
 .theme-manage-current-preview {
@@ -2013,7 +2026,8 @@ h1 {
 }
 
 .theme-manage-fields label,
-.theme-file-action {
+.theme-file-action,
+.theme-manage-replace {
   display: grid;
   gap: 0.3rem;
   color: var(--muted);
@@ -2034,24 +2048,65 @@ h1 {
 
 .theme-manage-fields textarea {
   resize: vertical;
-  min-height: 70px;
+  min-height: 58px;
 }
 
 .theme-manage-full {
   grid-column: 1 / -1;
 }
 
+.theme-manage-field-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.theme-manage-field-actions .btn {
+  min-width: 116px;
+}
+
+.theme-manage-field-actions .btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+  box-shadow: none;
+}
+
 .theme-manage-actions {
   grid-area: actions;
   margin: 0;
   display: grid;
-  grid-template-columns: auto minmax(190px, 1fr) minmax(260px, 1.2fr) auto;
+  grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.2fr) auto;
   gap: 0.55rem;
   align-items: end;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--stroke);
 }
 
 .theme-file-action .btn {
   width: fit-content;
+}
+
+.theme-manage-replace {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.35rem 0.55rem;
+}
+
+.theme-manage-replace > span {
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.theme-manage-replace .btn {
+  width: 100%;
+  min-height: 42px;
+  padding-block: 0.55rem;
+}
+
+.theme-manage-replace small {
+  grid-column: 1 / -1;
 }
 
 .theme-file-buttons {
@@ -2061,8 +2116,39 @@ h1 {
 }
 
 .theme-manage-status {
-  grid-area: status;
-  margin-top: 0;
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 0.8rem;
+}
+
+.theme-manage-more {
+  position: relative;
+}
+
+.theme-manage-more summary {
+  min-height: 42px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.theme-manage-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.theme-manage-more-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.4rem);
+  z-index: 3;
+  min-width: 220px;
+  padding: 0.45rem;
+  border: 1px solid var(--stroke);
+  background: #101113;
+  box-shadow: var(--shadow);
+}
+
+.theme-manage-more-menu .btn {
+  width: 100%;
 }
 
 .preview-upload-control {
@@ -2331,8 +2417,12 @@ footer {
       "head"
       "preview"
       "fields"
-      "actions"
-      "status";
+      "actions";
+  }
+
+  .theme-manage-more-menu {
+    right: auto;
+    left: 0;
   }
 
   #roadmap ul {
