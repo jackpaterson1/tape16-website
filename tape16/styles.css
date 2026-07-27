@@ -1964,6 +1964,24 @@ h1 {
   font-size: 0.9rem;
 }
 
+.theme-manage-current-preview {
+  width: min(520px, 100%);
+  margin: 0 0 0.9rem;
+  display: grid;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.theme-manage-current-preview img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(7, 7, 8, 0.86);
+  object-fit: contain;
+}
+
 .theme-manage-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

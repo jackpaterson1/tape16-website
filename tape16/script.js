@@ -1388,6 +1388,51 @@ async function cropPreviewInput(input) {
   }
 }
 
+async function cropCurrentManagedPreview(button, itemEl) {
+  const input = itemEl?.querySelector('input[name="previewImage"]') || null;
+  const previewUrl = String(button?.dataset.previewUrl || "");
+  if (!input || !previewUrl) return;
+
+  button.disabled = true;
+  setThemeManageStatus(itemEl, "Loading current preview...", false);
+  try {
+    const response = await fetch(previewUrl, { cache: "no-store" });
+    if (!response.ok) throw new Error("Could not load current preview");
+    const blob = await response.blob();
+    if (!blob.size || !String(blob.type || "").startsWith("image/")) {
+      throw new Error("Current preview is not a readable image");
+    }
+
+    const type = blob.type || "image/png";
+    const extension =
+      type === "image/webp"
+        ? "webp"
+        : type === "image/jpeg"
+          ? "jpg"
+          : "png";
+    const baseName =
+      String(button.dataset.previewFilename || "current-preview").replace(/\.[^.]+$/, "") ||
+      "current-preview";
+    const currentPreview = new File([blob], `${baseName}.${extension}`, {
+      type,
+      lastModified: Date.now(),
+    });
+    previewCropFiles.delete(input);
+    previewCropOriginalFiles.set(input, currentPreview);
+    await cropPreviewInput(input);
+
+    if (previewCropFiles.has(input)) {
+      setThemeManageStatus(itemEl, "Crop ready. Select Upload Preview to save it.", false);
+    } else {
+      setThemeManageStatus(itemEl, "Current preview was not changed.", false);
+    }
+  } catch (error) {
+    setThemeManageStatus(itemEl, "Could not load the current preview for cropping.", true);
+  } finally {
+    button.disabled = false;
+  }
+}
+
 function setThemeDownloadStatus(message, isError) {
   if (!themeDownloadStatus) return;
   themeDownloadStatus.textContent = message;
@@ -1542,6 +1587,7 @@ function themeManageItemHtml(item) {
   const tags = Array.isArray(item.tags) ? item.tags.join(", ") : "";
   const packageSize = formatFileSize(item.packageSize);
   const previewSize = formatFileSize(item.previewSize);
+  const previewUrl = item.hasPreview ? themeApiUrl(item.previewUrl) : "";
   const fileMeta = [
     item.packageFilename || "ZIP package",
     packageSize,
@@ -1558,6 +1604,16 @@ function themeManageItemHtml(item) {
         </div>
         <a class="btn btn-ghost" href="${escapeHtml(themeApiUrl(item.downloadUrl))}" data-theme-download>Download</a>
       </div>
+      ${
+        previewUrl
+          ? `
+            <div class="theme-manage-current-preview">
+              <span>Current Preview</span>
+              <img src="${escapeHtml(previewUrl)}" alt="${escapeHtml(item.name || config.label)} current preview" loading="lazy" />
+            </div>
+          `
+          : ""
+      }
       <div class="theme-manage-fields">
         <label>
           ${escapeHtml(config.label)} Name
@@ -1591,7 +1647,18 @@ function themeManageItemHtml(item) {
           <span>Replace Preview</span>
           <input name="previewImage" type="file" accept=".png,.jpg,.jpeg,.webp" />
           <small data-preview-crop-state>Choose a photo to crop it to the card’s 16:9 shape.</small>
-          <button class="btn btn-ghost" type="button" data-preview-crop-open>Crop Photo</button>
+          ${
+            previewUrl
+              ? `<button
+                  class="btn btn-ghost"
+                  type="button"
+                  data-preview-crop-current
+                  data-preview-url="${escapeHtml(previewUrl)}"
+                  data-preview-filename="${escapeHtml(item.previewFilename || "current-preview.png")}"
+                >Crop Current Photo</button>`
+              : ""
+          }
+          <button class="btn btn-ghost" type="button" data-preview-crop-open>Crop New Photo</button>
           <button class="btn btn-ghost" type="button" data-theme-manage-preview>Upload Preview</button>
         </div>
         <button class="btn btn-ghost theme-delete-btn" type="button" data-theme-manage-delete>Delete ${escapeHtml(config.label)}</button>
@@ -2743,6 +2810,12 @@ document.addEventListener("change", async (event) => {
 
 document.addEventListener("click", async (event) => {
   const target = event.target instanceof Element ? event.target : null;
+  const currentCropButton = target?.closest("[data-preview-crop-current]");
+  if (currentCropButton) {
+    const itemEl = currentCropButton.closest(".theme-manage-item");
+    await cropCurrentManagedPreview(currentCropButton, itemEl);
+    return;
+  }
   const cropButton = target?.closest("[data-preview-crop-open]");
   if (!cropButton) return;
   const control = cropButton.closest(".preview-upload-control, .theme-file-action, label");
