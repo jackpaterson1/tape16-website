@@ -760,10 +760,33 @@ async function handleListCommunityItems(type, origin, env, searchParams = new UR
     rows = await statement.bind(type).all();
   }
 
+  const countRows = await env.COMMUNITY_DB.prepare(
+    `SELECT type, COUNT(*) AS item_count
+     FROM community_items
+     GROUP BY type`,
+  ).all();
+  const counts = {
+    themes: 0,
+    controller_profiles: 0,
+    midi_profiles: 0,
+    tape_mods: 0,
+  };
+  const countCategoryByType = {
+    theme: "themes",
+    controller_profile: "controller_profiles",
+    midi_profile: "midi_profiles",
+    mod: "tape_mods",
+  };
+  for (const row of countRows?.results || []) {
+    const category = countCategoryByType[row.type];
+    if (category) counts[category] = Number(row.item_count || 0);
+  }
+
   return json(
     {
       ok: true,
       sort,
+      counts,
       items: (rows?.results || []).map((row) => publicCommunityItem(row)),
     },
     200,

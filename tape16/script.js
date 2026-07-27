@@ -2129,7 +2129,16 @@ async function loadModBrowserCategory(category = activeModCategory) {
     const body = await response.json().catch(() => ({}));
     if (!response.ok || !body.ok) throw new Error(body.error || "Community library failed");
     modBrowserItems = Array.isArray(body.items) ? body.items : [];
-    modBrowserCategoryCounts[activeModCategory] = modBrowserItems.length;
+    const counts = body.counts && typeof body.counts === "object" ? body.counts : {};
+    Object.keys(modBrowserCategoryCounts).forEach((category) => {
+      const count = Number(counts[category]);
+      if (Number.isFinite(count) && count >= 0) {
+        modBrowserCategoryCounts[category] = count;
+      }
+    });
+    if (!Object.prototype.hasOwnProperty.call(counts, activeModCategory)) {
+      modBrowserCategoryCounts[activeModCategory] = modBrowserItems.length;
+    }
     updateModCategoryCounts();
     renderModBrowser();
     setModBrowserStatus("", false);
