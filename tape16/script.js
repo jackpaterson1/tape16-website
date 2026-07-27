@@ -1422,7 +1422,8 @@ async function cropCurrentManagedPreview(button, itemEl) {
     await cropPreviewInput(input);
 
     if (previewCropFiles.has(input)) {
-      setThemeManageStatus(itemEl, "Crop ready. Select Upload Preview to save it.", false);
+      setThemeManageStatus(itemEl, "Saving cropped preview...", false);
+      await replaceManagedThemeFile(itemEl, "preview");
     } else {
       setThemeManageStatus(itemEl, "Current preview was not changed.", false);
     }

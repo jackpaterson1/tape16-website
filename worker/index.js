@@ -1137,8 +1137,8 @@ async function handleDownloadCommunityItem(type, slugOrId, origin, env) {
   const now = new Date().toISOString();
   await env.COMMUNITY_DB.batch([
     env.COMMUNITY_DB.prepare(
-      "UPDATE community_items SET download_count = download_count + 1, updated_at = ? WHERE id = ?",
-    ).bind(now, item.id),
+      "UPDATE community_items SET download_count = download_count + 1 WHERE id = ?",
+    ).bind(item.id),
     env.COMMUNITY_DB.prepare(
       "INSERT INTO community_downloads (id, item_id, downloaded_at) VALUES (?, ?, ?)",
     ).bind(makeCommunityDownloadId(), item.id, now),
@@ -1829,6 +1829,7 @@ function publicCommunityItem(row) {
   const tags = parseCommunityTags(row.tags);
   const kind = communityKind(row.type);
   const basePath = `/${kind.plural}/${encodeURIComponent(row.slug)}`;
+  const previewVersion = encodeURIComponent(cleanString(row.updated_at));
   const downloadCount = Number(row.download_count || 0);
 
   return {
@@ -1843,7 +1844,7 @@ function publicCommunityItem(row) {
     packageFilename: row.package_filename,
     packageSize: Number(row.package_size || 0),
     packageSha256: row.package_sha256 || "",
-    previewUrl: row.preview_key ? `${basePath}/preview` : "",
+    previewUrl: row.preview_key ? `${basePath}/preview?v=${previewVersion}` : "",
     downloadUrl: `${basePath}/download`,
     downloadCount,
     periodDownloadCount: Number(row.period_download_count ?? downloadCount),
