@@ -1159,6 +1159,235 @@ function setCommunityUploadStatus(message, isError) {
   communityUploadStatus.style.color = isError ? "#ff9d87" : "#f7c34b";
 }
 
+const previewCropFiles = new WeakMap();
+const previewCropOriginalFiles = new WeakMap();
+const PREVIEW_CROP_WIDTH = 1600;
+const PREVIEW_CROP_HEIGHT = 900;
+
+function selectedPreviewFile(input) {
+  return previewCropFiles.get(input) || input?.files?.[0] || null;
+}
+
+function previewCropStateElement(input) {
+  return input
+    ?.closest(".preview-upload-control, .theme-file-action, label")
+    ?.querySelector("[data-preview-crop-state]") || null;
+}
+
+function setPreviewCropState(input, message, isReady = false) {
+  const state = previewCropStateElement(input);
+  if (!state) return;
+  state.textContent = message;
+  state.classList.toggle("is-ready", Boolean(isReady));
+}
+
+function clearPreviewCropSelection(input) {
+  if (!input) return;
+  previewCropFiles.delete(input);
+  previewCropOriginalFiles.delete(input);
+  setPreviewCropState(input, "Choose a photo to crop it to the card’s 16:9 shape.", false);
+}
+
+function loadPreviewCropImage(file) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    image.onload = () => resolve({ image, objectUrl });
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Could not read image"));
+    };
+    image.src = objectUrl;
+  });
+}
+
+async function openPreviewCropper(file) {
+  const loaded = await loadPreviewCropImage(file);
+  const dialog = document.createElement("dialog");
+  dialog.className = "preview-crop-dialog";
+  dialog.setAttribute("aria-labelledby", "preview-crop-title");
+  dialog.innerHTML = `
+    <div class="preview-crop-shell">
+      <div class="preview-crop-head">
+        <div>
+          <p class="eyebrow">Preview photo</p>
+          <h2 id="preview-crop-title">Crop for the community card</h2>
+        </div>
+        <button class="preview-crop-close" type="button" data-preview-crop-original aria-label="Use original photo and close">×</button>
+      </div>
+      <div class="preview-crop-stage">
+        <canvas
+          width="${PREVIEW_CROP_WIDTH}"
+          height="${PREVIEW_CROP_HEIGHT}"
+          tabindex="0"
+          aria-label="Photo crop. Drag to reposition, or use the arrow keys."
+        ></canvas>
+      </div>
+      <p class="preview-crop-help">Drag the photo to position it. The frame matches the 16:9 preview shown on every mod card.</p>
+      <label class="preview-crop-zoom">
+        <span>Zoom <output>100%</output></span>
+        <input type="range" min="1" max="3" value="1" step="0.01" aria-label="Photo zoom" />
+      </label>
+      <div class="preview-crop-actions">
+        <button class="btn btn-ghost" type="button" data-preview-crop-original>Use Original</button>
+        <button class="btn btn-primary" type="button" data-preview-crop-apply>Apply Crop</button>
+      </div>
+    </div>
+  `;
+  document.body.append(dialog);
+
+  const canvas = dialog.querySelector("canvas");
+  const context = canvas.getContext("2d");
+  const zoomInput = dialog.querySelector('input[type="range"]');
+  const zoomOutput = dialog.querySelector("output");
+  const image = loaded.image;
+  const baseScale = Math.max(
+    PREVIEW_CROP_WIDTH / image.naturalWidth,
+    PREVIEW_CROP_HEIGHT / image.naturalHeight,
+  );
+  let zoom = 1;
+  let offsetX = 0;
+  let offsetY = 0;
+  let dragging = false;
+  let activePointerId = null;
+  let lastPointerX = 0;
+  let lastPointerY = 0;
+
+  function clampCropPosition() {
+    const drawnWidth = image.naturalWidth * baseScale * zoom;
+    const drawnHeight = image.naturalHeight * baseScale * zoom;
+    const maxX = Math.max(0, (drawnWidth - PREVIEW_CROP_WIDTH) / 2);
+    const maxY = Math.max(0, (drawnHeight - PREVIEW_CROP_HEIGHT) / 2);
+    offsetX = Math.max(-maxX, Math.min(maxX, offsetX));
+    offsetY = Math.max(-maxY, Math.min(maxY, offsetY));
+  }
+
+  function renderPreviewCrop() {
+    clampCropPosition();
+    const drawnWidth = image.naturalWidth * baseScale * zoom;
+    const drawnHeight = image.naturalHeight * baseScale * zoom;
+    const x = (PREVIEW_CROP_WIDTH - drawnWidth) / 2 + offsetX;
+    const y = (PREVIEW_CROP_HEIGHT - drawnHeight) / 2 + offsetY;
+    context.clearRect(0, 0, PREVIEW_CROP_WIDTH, PREVIEW_CROP_HEIGHT);
+    context.drawImage(image, x, y, drawnWidth, drawnHeight);
+    zoomOutput.value = `${Math.round(zoom * 100)}%`;
+  }
+
+  function moveCropBy(clientDeltaX, clientDeltaY) {
+    const bounds = canvas.getBoundingClientRect();
+    offsetX += clientDeltaX * (PREVIEW_CROP_WIDTH / bounds.width);
+    offsetY += clientDeltaY * (PREVIEW_CROP_HEIGHT / bounds.height);
+    renderPreviewCrop();
+  }
+
+  zoomInput.addEventListener("input", () => {
+    zoom = Number(zoomInput.value || 1);
+    renderPreviewCrop();
+  });
+
+  canvas.addEventListener("pointerdown", (event) => {
+    dragging = true;
+    activePointerId = event.pointerId;
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
+    canvas.setPointerCapture(event.pointerId);
+    canvas.classList.add("is-dragging");
+  });
+
+  canvas.addEventListener("pointermove", (event) => {
+    if (!dragging || event.pointerId !== activePointerId) return;
+    moveCropBy(event.clientX - lastPointerX, event.clientY - lastPointerY);
+    lastPointerX = event.clientX;
+    lastPointerY = event.clientY;
+  });
+
+  const endDrag = (event) => {
+    if (event.pointerId !== activePointerId) return;
+    dragging = false;
+    activePointerId = null;
+    canvas.classList.remove("is-dragging");
+  };
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", endDrag);
+
+  canvas.addEventListener("keydown", (event) => {
+    const movement = event.shiftKey ? 4 : 16;
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+    event.preventDefault();
+    if (event.key === "ArrowLeft") offsetX -= movement;
+    if (event.key === "ArrowRight") offsetX += movement;
+    if (event.key === "ArrowUp") offsetY -= movement;
+    if (event.key === "ArrowDown") offsetY += movement;
+    renderPreviewCrop();
+  });
+
+  renderPreviewCrop();
+  dialog.showModal();
+  zoomInput.focus();
+
+  return await new Promise((resolve) => {
+    let finished = false;
+
+    const finish = (result) => {
+      if (finished) return;
+      finished = true;
+      URL.revokeObjectURL(loaded.objectUrl);
+      if (dialog.open) dialog.close();
+      dialog.remove();
+      resolve(result);
+    };
+
+    dialog.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      finish(null);
+    });
+    dialog.querySelectorAll("[data-preview-crop-original]").forEach((button) => {
+      button.addEventListener("click", () => finish(null));
+    });
+    dialog.querySelector("[data-preview-crop-apply]").addEventListener("click", () => {
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            finish(null);
+            return;
+          }
+          const baseName = String(file.name || "preview").replace(/\.[^.]+$/, "") || "preview";
+          const extension = blob.type === "image/webp" ? "webp" : "jpg";
+          finish(
+            new File([blob], `${baseName}-cropped.${extension}`, {
+              type: blob.type || "image/jpeg",
+              lastModified: Date.now(),
+            }),
+          );
+        },
+        "image/webp",
+        0.9,
+      );
+    });
+  });
+}
+
+async function cropPreviewInput(input) {
+  const originalFile = previewCropOriginalFiles.get(input) || input?.files?.[0] || null;
+  if (!input || !originalFile) {
+    setPreviewCropState(input, "Choose a photo first.", false);
+    return;
+  }
+  try {
+    const croppedFile = await openPreviewCropper(originalFile);
+    if (croppedFile) {
+      previewCropFiles.set(input, croppedFile);
+      setPreviewCropState(input, `Cropped to 16:9 • ${formatFileSize(croppedFile.size)}`, true);
+    } else {
+      previewCropFiles.delete(input);
+      setPreviewCropState(input, "Using the original photo. Select Crop Photo to adjust it.", false);
+    }
+  } catch (error) {
+    previewCropFiles.delete(input);
+    setPreviewCropState(input, "Could not open this photo for cropping. The original will be used.", false);
+  }
+}
+
 function setThemeDownloadStatus(message, isError) {
   if (!themeDownloadStatus) return;
   themeDownloadStatus.textContent = message;
@@ -1248,6 +1477,21 @@ function applyThemeAccountUploadState() {
 }
 
 function communityManageConfig(type) {
+  if (type === "mod") {
+    return {
+      label: "Tape Mod",
+      pluralLabel: "tape mods",
+      route: "mods",
+      nameField: "modName",
+      fileField: "modFile",
+      fileAccept: ".zip,application/zip",
+      fileLabel: "Mod ZIP",
+      filePattern: /\.zip$/i,
+      fileError: "Upload a ZIP package.",
+      maxBytes: 50 * 1024 * 1024,
+      category: "tape_mods",
+    };
+  }
   if (type === "controller_profile") {
     return {
       label: "Controller Profile",
@@ -1346,6 +1590,8 @@ function themeManageItemHtml(item) {
         <div class="theme-file-action">
           <span>Replace Preview</span>
           <input name="previewImage" type="file" accept=".png,.jpg,.jpeg,.webp" />
+          <small data-preview-crop-state>Choose a photo to crop it to the card’s 16:9 shape.</small>
+          <button class="btn btn-ghost" type="button" data-preview-crop-open>Crop Photo</button>
           <button class="btn btn-ghost" type="button" data-theme-manage-preview>Upload Preview</button>
         </div>
         <button class="btn btn-ghost theme-delete-btn" type="button" data-theme-manage-delete>Delete ${escapeHtml(config.label)}</button>
@@ -1502,7 +1748,7 @@ async function replaceManagedThemeFile(itemEl, kind) {
 
   const isPreview = kind === "preview";
   const input = itemEl.querySelector(isPreview ? '[name="previewImage"]' : `[name="${config.fileField}"]`);
-  const file = input?.files?.[0] || null;
+  const file = isPreview ? selectedPreviewFile(input) : input?.files?.[0] || null;
   if (!file) {
     setThemeManageStatus(itemEl, isPreview ? "Choose a preview image first." : `Choose a ${config.fileLabel.toLowerCase()} first.`, true);
     return;
@@ -1520,6 +1766,10 @@ async function replaceManagedThemeFile(itemEl, kind) {
     setThemeManageStatus(itemEl, "Preview image must be PNG, JPG, or WebP.", true);
     return;
   }
+  if (isPreview && (file.size || 0) > 5 * 1024 * 1024) {
+    setThemeManageStatus(itemEl, "Preview image must be 5MB or smaller. Crop it to reduce the file size.", true);
+    return;
+  }
 
   const formData = new FormData();
   formData.append(isPreview ? "previewImage" : config.fileField, file);
@@ -1534,6 +1784,7 @@ async function replaceManagedThemeFile(itemEl, kind) {
     const body = await response.json().catch(() => ({}));
     if (!response.ok || !body.ok) throw new Error(body.error || "Upload failed");
     input.value = "";
+    if (isPreview) clearPreviewCropSelection(input);
     setThemeManageStatus(itemEl, isPreview ? "Preview replaced." : `${config.fileLabel} replaced.`, false);
     await refreshCommunityManagedViews(config.category);
     await loadThemeAccountThemes({ silent: true });
@@ -2157,7 +2408,9 @@ if (themeUploadForm) {
     const creator = String(formData.get("creator") || "").trim();
     const themeName = String(formData.get("themeName") || "").trim();
     const themeFile = document.getElementById("theme-file")?.files?.[0] || null;
-    const previewImage = document.getElementById("theme-preview-image")?.files?.[0] || null;
+    const previewInput = document.getElementById("theme-preview-image");
+    const previewImage = selectedPreviewFile(previewInput);
+    if (previewImage) formData.set("previewImage", previewImage);
 
     if (!email || !creator || !themeName || !themeFile || !previewImage) {
       setThemeUploadStatus("Email, creator name, theme name, theme file, and preview image are required.", true);
@@ -2170,6 +2423,10 @@ if (themeUploadForm) {
     }
     if (!/\.(png|jpe?g|webp)$/i.test(previewImage.name || "")) {
       setThemeUploadStatus("Preview image must be PNG, JPG, or WebP.", true);
+      return;
+    }
+    if ((previewImage.size || 0) > 5 * 1024 * 1024) {
+      setThemeUploadStatus("Preview image must be 5MB or smaller. Crop it to reduce the file size.", true);
       return;
     }
 
@@ -2202,6 +2459,7 @@ if (themeUploadForm) {
       const themeIdText = body.themeId ? ` (${body.themeId})` : "";
       setThemeUploadStatus(`Theme uploaded${themeIdText}. Thank you.`, false);
       themeUploadForm.reset();
+      clearPreviewCropSelection(previewInput);
       applyThemeAccountUploadState();
       await loadThemeLibrary();
       if (session) await loadThemeAccountThemes({ silent: true });
@@ -2219,6 +2477,23 @@ if (themeUploadForm) {
 }
 
 function communityUploadConfig(type) {
+  if (type === "mod") {
+    return {
+      label: "tape mod",
+      endpoint: "submit-mod",
+      idField: "modId",
+      category: "tape_mods",
+      nameLabel: "Tape Mod Name",
+      fileLabel: "Tape Mod ZIP (50MB max)",
+      fileAccept: ".zip,application/zip",
+      filePattern: /\.zip$/i,
+      maxBytes: 50 * 1024 * 1024,
+      fileError: "Upload the tape mod as a ZIP package.",
+      previewLabel: "Preview Image",
+      tagsPlaceholder: "saturation, wobble, lo-fi, mastering",
+      descriptionPlaceholder: "Describe the tape mod, its sound, and any setup notes.",
+    };
+  }
   if (type === "controller_profile") {
     return {
       label: "controller profile",
@@ -2311,7 +2586,9 @@ if (communityUploadForm) {
     const creator = String(formData.get("creator") || "").trim();
     const itemName = String(formData.get("name") || "").trim();
     const packageFile = document.getElementById("community-upload-file")?.files?.[0] || null;
-    const previewImage = document.getElementById("community-upload-preview-image")?.files?.[0] || null;
+    const previewInput = document.getElementById("community-upload-preview-image");
+    const previewImage = selectedPreviewFile(previewInput);
+    if (previewImage) formData.set("previewImage", previewImage);
 
     if (!email || !creator || !itemName || !packageFile || !previewImage) {
       setCommunityUploadStatus("Email, creator name, mod name, upload file, and preview image are required.", true);
@@ -2360,6 +2637,7 @@ if (communityUploadForm) {
       const uploadIdText = body[config.idField] ? ` (${body[config.idField]})` : "";
       setCommunityUploadStatus(`${config.label.replace(/^\w/, (char) => char.toUpperCase())} uploaded${uploadIdText}. Thank you.`, false);
       communityUploadForm.reset();
+      clearPreviewCropSelection(previewInput);
       updateCommunityUploadTypeFields();
       applyThemeAccountUploadState();
       if (modBrowser && activeModCategory === config.category) {
@@ -2440,6 +2718,28 @@ if (themeAccountList) {
     }
   });
 }
+
+document.addEventListener("change", async (event) => {
+  const input = event.target instanceof HTMLInputElement ? event.target : null;
+  if (!input?.matches('input[name="previewImage"]')) return;
+  previewCropFiles.delete(input);
+  const file = input.files?.[0] || null;
+  if (!file) {
+    clearPreviewCropSelection(input);
+    return;
+  }
+  previewCropOriginalFiles.set(input, file);
+  await cropPreviewInput(input);
+});
+
+document.addEventListener("click", async (event) => {
+  const target = event.target instanceof Element ? event.target : null;
+  const cropButton = target?.closest("[data-preview-crop-open]");
+  if (!cropButton) return;
+  const control = cropButton.closest(".preview-upload-control, .theme-file-action, label");
+  const input = control?.querySelector('input[name="previewImage"]') || null;
+  await cropPreviewInput(input);
+});
 
 applyThemeAccountUploadState();
 loadThemeAccountThemes({ silent: true });

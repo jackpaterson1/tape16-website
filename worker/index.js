@@ -198,6 +198,30 @@ export default {
       }
 
       {
+        const match = path.match(/^\/mods\/([^/]+)$/);
+        if (method === "PATCH" && match) {
+          return await handleUpdateCommunityItem(request, "mod", match[1], origin, env);
+        }
+        if (method === "DELETE" && match) {
+          return await handleDeleteCommunityItem(request, "mod", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/mods\/([^/]+)\/package$/);
+        if (method === "POST" && match) {
+          return await handleReplaceCommunityPackage(request, "mod", match[1], origin, env);
+        }
+      }
+
+      {
+        const match = path.match(/^\/mods\/([^/]+)\/preview$/);
+        if (method === "POST" && match) {
+          return await handleReplaceCommunityPreview(request, "mod", match[1], origin, env);
+        }
+      }
+
+      {
         const match = path.match(/^\/mods\/([^/]+)\/download$/);
         if (method === "GET" && match) {
           return await handleDownloadCommunityItem("mod", match[1], origin, env);
@@ -594,7 +618,7 @@ async function handleThemeAccountThemes(request, origin, env) {
   await env.COMMUNITY_DB.prepare(
     `UPDATE community_items
      SET owner_key = ?, owner_email = ?, owner_order_id = ?, updated_at = ?
-     WHERE type IN ('theme', 'midi_profile', 'controller_profile')
+     WHERE type IN ('theme', 'mod', 'midi_profile', 'controller_profile')
        AND (owner_key IS NULL OR owner_key = '')
        AND lower(uploader_email) = ?`,
   )
@@ -607,7 +631,7 @@ async function handleThemeAccountThemes(request, origin, env) {
       preview_key, preview_filename, preview_size,
       download_count, created_at, updated_at
      FROM community_items
-     WHERE type IN ('theme', 'midi_profile', 'controller_profile') AND owner_key = ?
+     WHERE type IN ('theme', 'mod', 'midi_profile', 'controller_profile') AND owner_key = ?
      ORDER BY updated_at DESC, created_at DESC
      LIMIT 100`,
   )
@@ -755,7 +779,7 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
   const accountResult = await optionalThemeAccount(request, env);
   if (!accountResult.ok) return json({ ok: false, error: accountResult.error }, accountResult.status, origin, env);
   const account =
-    type === "theme" || type === "midi_profile" || type === "controller_profile"
+    type === "theme" || type === "mod" || type === "midi_profile" || type === "controller_profile"
       ? accountResult.account
       : null;
 

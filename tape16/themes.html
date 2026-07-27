@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
     <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
-    <link rel="stylesheet" href="styles.css?v=theme-grid-1" />
+    <link rel="stylesheet" href="styles.css?v=preview-crop-1" />
       <script async src="https://www.googletagmanager.com/gtag/js?id=GT-TQK5FZD8"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -156,7 +156,10 @@
 
       <section class="theme-account account" id="theme-account">
         <h2>Mod Account</h2>
-        <p>Sign in with the purchase email and serial number from your TAPE 16 license to manage community uploads linked to that email.</p>
+        <p>
+          Sign in with the purchase email and serial number from your TAPE 16 license to edit details, replace files or previews,
+          and delete any community upload linked to that email.
+        </p>
         <form id="theme-account-login-form" class="serial-form">
           <label>
             Serial Number
@@ -219,16 +222,20 @@
               accept=".zip,application/zip"
             />
           </label>
-          <label>
-            Preview Image
-            <input
-              id="theme-preview-image"
-              name="previewImage"
-              type="file"
-              required
-              accept=".png,.jpg,.jpeg,.webp"
-            />
-          </label>
+          <div class="preview-upload-control">
+            <label>
+              Preview Image
+              <input
+                id="theme-preview-image"
+                name="previewImage"
+                type="file"
+                required
+                accept=".png,.jpg,.jpeg,.webp"
+              />
+            </label>
+            <small data-preview-crop-state>Choose a photo to crop it to the card’s 16:9 shape.</small>
+            <button class="btn btn-ghost" type="button" data-preview-crop-open>Crop Photo</button>
+          </div>
           <button class="btn btn-primary bug-submit" type="submit" id="theme-submit-btn">Submit Theme</button>
         </form>
         <p id="theme-form-status" class="serial-status" role="status" aria-live="polite"></p>
@@ -241,6 +248,6 @@
     </footer>
 
     <script src="config.js?v=themes-3"></script>
-    <script src="script.js?v=theme-grid-1"></script>
+    <script src="script.js?v=preview-crop-1"></script>
   </body>
 </html>
