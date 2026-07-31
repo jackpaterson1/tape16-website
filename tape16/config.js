@@ -1,8 +1,8 @@
 window.TAPE16_SITE_CONFIG = {
-  releaseDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.330/TAPE-16-v0.9.330-macOS.dmg",
-  windowsDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.330/TAPE-16-v0.9.330-Windows-Setup.zip",
+  releaseDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.341/TAPE-16-v0.9.341-macOS.dmg",
+  windowsDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.341/TAPE-16-v0.9.341-Windows-Setup.zip",
   linuxDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.330/TAPE-16-v0.9.330-Linux-Release.zip",
-  githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.330",
+  githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.341",
   // Replace this with your live checkout URL (Stripe / Gumroad / Paddle / etc).
   buyNowUrl: "https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02",
   // Stripe direct checkout-session flow (recommended only when you host that endpoint).
@@ -20,10 +20,10 @@ window.TAPE16_SITE_CONFIG = {
   paypalCreateOrderPath: "/paypal/create-order",
   paypalCaptureOrderPath: "/paypal/capture-order",
   // Point this to your demo build asset.
-  demoDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.330/TAPE-16-v0.9.330-macOS.dmg",
+  demoDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.341/TAPE-16-v0.9.341-macOS.dmg",
   // Point this to your full-license build asset.
   fullDownloadUrl:
-    "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.330/TAPE-16-v0.9.330-macOS.dmg",
+    "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.341/TAPE-16-v0.9.341-macOS.dmg",
   // Base URL where licensing/auto_issue_webhook.py is hosted.
   // Example: "https://licenses.tape16.com"
   serialApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
