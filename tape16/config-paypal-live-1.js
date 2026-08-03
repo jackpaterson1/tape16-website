@@ -24,14 +24,14 @@ window.TAPE16_SITE_CONFIG = {
     "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.272/TAPE-16-v0.9.272-macOS.dmg",
   // Base URL where licensing/auto_issue_webhook.py is hosted.
   // Example: "https://licenses.tape16.com"
-  serialApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
+  serialApiBaseUrl: "https://licenses.emrmusicgroup.com",
   // Optional dedicated support API. If empty, serialApiBaseUrl is used.
-  supportApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
+  supportApiBaseUrl: "https://licenses.emrmusicgroup.com",
   // Community themes/mods API. Uses the same Cloudflare Worker as support.
   themeApiBaseUrl: "https://tape16-api.emrmusicgroup.workers.dev",
   // Account/licensing API base (Cloudflare Worker recommended).
   // Example: "https://tape16-licensing.youraccount.workers.dev"
-  accountApiBaseUrl: "https://tape16-licensing.emrmusicgroup.workers.dev",
+  accountApiBaseUrl: "https://licenses.emrmusicgroup.com",
   // Latest release endpoint for displaying the current build automatically.
   latestReleaseApiUrl: "https://api.github.com/repos/jackpaterson1/TAPE-16-Public-Releases/releases/latest",
 };

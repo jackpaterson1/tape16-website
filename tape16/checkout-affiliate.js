@@ -118,6 +118,19 @@ const THEME_ACCOUNT_SESSION_KEY = "tape16_theme_account_session_v1";
 const BUILD_VERSION_CACHE_KEY = "tape16_latest_build_cache_v1";
 const BUILD_VERSION_CACHE_TTL_MS = 10 * 60 * 1000;
 const REDDIT_MATCH_STORAGE_KEY = "tape16_reddit_match_v1";
+const PRIMARY_LICENSE_API_BASE = "https://licenses.emrmusicgroup.com";
+const FALLBACK_LICENSE_API_BASE = "https://tape16-licensing.emrmusicgroup.workers.dev";
+
+async function fetchWithLicensingFallback(resource, options) {
+  const url = typeof resource === "string" ? resource : String(resource?.url || resource || "");
+  try {
+    return await window.fetch(resource, options);
+  } catch (error) {
+    if (url !== PRIMARY_LICENSE_API_BASE && !url.startsWith(`${PRIMARY_LICENSE_API_BASE}/`)) throw error;
+    const fallbackUrl = `${FALLBACK_LICENSE_API_BASE}${url.slice(PRIMARY_LICENSE_API_BASE.length)}`;
+    return await window.fetch(fallbackUrl, options);
+  }
+}
 const PROMOTEKIT_REFERRAL_STORAGE_KEY = "tape16_promotekit_referral_v1";
 const THEME_PAGE_SIZE = 12;
 let themeLibraryItems = [];
@@ -653,7 +666,7 @@ if (buyLink) {
       buyLink.setAttribute("disabled", "disabled");
       setBuyStatus("Starting secure checkout...", false);
       try {
-        const response = await fetch(endpoint, {
+        const response = await fetchWithLicensingFallback(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -756,7 +769,7 @@ async function configurePayPalCheckout() {
           `site-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
         setBuyStatus("Starting PayPal checkout...", false);
         try {
-          const response = await fetch(createOrderEndpoint, {
+          const response = await fetchWithLicensingFallback(createOrderEndpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ clientReferenceId: activePayPalClientReferenceId }),
@@ -782,7 +795,7 @@ async function configurePayPalCheckout() {
         paypalCaptureStarted = true;
         paypalCapturePromise = (async () => {
           setBuyStatus("Finalising PayPal payment...", false);
-          const response = await fetch(captureOrderEndpoint, {
+          const response = await fetchWithLicensingFallback(captureOrderEndpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ orderId: data.orderID }),
@@ -950,7 +963,7 @@ if (serialForm) {
     setSerialStatus("Sending request...", false);
 
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetchWithLicensingFallback(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId, email }),
@@ -1015,7 +1028,7 @@ if (bugForm) {
 
     try {
       const endpoint = `${supportBase.replace(/\/+$/, "")}/submit-bug`;
-      const response = await fetch(endpoint, {
+      const response = await fetchWithLicensingFallback(endpoint, {
         method: "POST",
         body: formData,
       });
@@ -1078,7 +1091,7 @@ if (featureForm) {
 
     try {
       const endpoint = `${supportBase.replace(/\/+$/, "")}/submit-feature`;
-      const response = await fetch(endpoint, {
+      const response = await fetchWithLicensingFallback(endpoint, {
         method: "POST",
         body: formData,
       });
@@ -1953,7 +1966,7 @@ async function fetchAccountActivations(session, options = {}) {
     setAccountStatus("Loading licenses...", false);
   }
   try {
-    const response = await fetch(`${baseUrl.replace(/\/+$/, "")}/customer/activations`, {
+    const response = await fetchWithLicensingFallback(`${baseUrl.replace(/\/+$/, "")}/customer/activations`, {
       headers: {
         Authorization: `Bearer ${session.token}`,
       },
@@ -1986,7 +1999,7 @@ async function loginAccount(credentials) {
   setAccountLoading(true);
   setAccountStatus("Signing in...", false);
   try {
-    const response = await fetch(`${baseUrl.replace(/\/+$/, "")}/customer/login`, {
+    const response = await fetchWithLicensingFallback(`${baseUrl.replace(/\/+$/, "")}/customer/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -2030,7 +2043,7 @@ async function deactivateMachine(machineId) {
   }
   setAccountStatus(`Deactivating ${machineId}...`, false);
   try {
-    const response = await fetch(`${baseUrl.replace(/\/+$/, "")}/customer/activations/deactivate`, {
+    const response = await fetchWithLicensingFallback(`${baseUrl.replace(/\/+$/, "")}/customer/activations/deactivate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
