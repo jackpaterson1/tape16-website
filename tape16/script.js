@@ -385,6 +385,27 @@ function trackAnalyticsEvent(eventName, params) {
   }
 }
 
+const META_TAPE16_PRODUCT = {
+  content_ids: ["tape16_full_license"],
+  content_name: "TAPE 16 Full License",
+  content_type: "product",
+  value: 29.0,
+  currency: "USD",
+  num_items: 1,
+};
+
+function trackMetaCheckoutEvent(eventName, paymentMethod) {
+  if (typeof window.fbq !== "function") return;
+  try {
+    window.fbq("track", eventName, {
+      ...META_TAPE16_PRODUCT,
+      payment_method: paymentMethod,
+    });
+  } catch (error) {
+    // Never let analytics prevent checkout from continuing.
+  }
+}
+
 function bindDownloadClickTracking(linkEl, buttonName) {
   if (!linkEl || linkEl.dataset.boundAnalyticsClick === "1") return;
   linkEl.addEventListener("click", () => {
@@ -673,6 +694,8 @@ if (buyLink) {
     buyLink.addEventListener("click", async (event) => {
       event.preventDefault();
 
+      trackMetaCheckoutEvent("AddToCart", "stripe");
+
       const referralId = resolvePromoteKitReferral();
 
       const apiBase = checkoutApiBaseUrl();
@@ -709,6 +732,7 @@ if (buyLink) {
         if (!response.ok || !body.ok || !body.url) {
           throw new Error(body.error || "Checkout start failed");
         }
+        trackMetaCheckoutEvent("InitiateCheckout", "stripe");
         window.location.assign(body.url);
       } catch (error) {
         setBuyStatus("Could not start Stripe checkout. Try again in a moment.", true);
@@ -796,6 +820,7 @@ async function configurePayPalCheckout() {
           throw new Error("PayPal order creation is already in progress");
         }
 
+        trackMetaCheckoutEvent("AddToCart", "paypal");
         paypalCheckoutStarted = true;
         paypalOrderInFlight = true;
         activePayPalClientReferenceId =
@@ -813,6 +838,7 @@ async function configurePayPalCheckout() {
             throw new Error(body.error || "PayPal order creation failed");
           }
           activePayPalOrderId = body.orderId;
+          trackMetaCheckoutEvent("InitiateCheckout", "paypal");
           return activePayPalOrderId;
         } catch (error) {
           activePayPalClientReferenceId = "";
