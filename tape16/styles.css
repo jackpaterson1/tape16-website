@@ -1327,6 +1327,108 @@ h1 {
   justify-self: start;
 }
 
+.contact-support {
+  max-width: 900px;
+  margin-inline: auto;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+}
+
+.contact-support h1 {
+  margin: 0.15rem 0 0.75rem;
+}
+
+.contact-support-intro {
+  max-width: 650px;
+  margin-bottom: 1.5rem;
+}
+
+.contact-support-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.contact-support-card {
+  min-width: 0;
+  padding: clamp(1.1rem, 3vw, 1.6rem);
+  border: 1px solid var(--stroke);
+  background: rgba(8, 8, 9, 0.56);
+}
+
+.contact-support-label {
+  margin: 0 0 0.55rem;
+  color: var(--accent-alt) !important;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.contact-support-email {
+  display: block;
+  margin: 0 0 1.2rem;
+  color: var(--text);
+  font-size: clamp(1rem, 2.3vw, 1.3rem);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.contact-support-hours {
+  margin: 0;
+  color: var(--text) !important;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: clamp(1.45rem, 4vw, 2.1rem);
+  font-weight: 600;
+}
+
+.brisbane-clock {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  display: grid;
+  gap: 0.25rem;
+  border-top: 1px solid var(--stroke);
+  color: var(--muted);
+}
+
+.brisbane-clock strong {
+  color: var(--text);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: clamp(1.6rem, 5vw, 2.65rem);
+  line-height: 1.15;
+}
+
+.contact-support-status {
+  margin: 1rem 0 0 !important;
+  padding-left: 1rem;
+  position: relative;
+  color: var(--muted) !important;
+  font-weight: 600;
+}
+
+.contact-support-status::before {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  border-radius: 50%;
+  background: #c7a75a;
+  box-shadow: 0 0 12px rgba(199, 167, 90, 0.45);
+}
+
+.contact-support-status[data-active="true"]::before {
+  background: #69d391;
+  box-shadow: 0 0 12px rgba(105, 211, 145, 0.45);
+}
+
+@media (max-width: 700px) {
+  .contact-support-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .theme-hero,
 .theme-library,
 .mods-hero,

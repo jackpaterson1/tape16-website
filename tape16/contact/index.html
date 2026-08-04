@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TAPE 16 | Support</title>
+    <meta
+      name="description"
+      content="Contact TAPE 16 support by email during Brisbane support hours."
+    />
+    <link rel="canonical" href="https://emrmusicgroup.com/tape16/contact/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=IBM+Plex+Mono:wght@500;600&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" sizes="48x48" href="../favicon.png" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="../assets/favicon-emr.svg" />
+    <link rel="shortcut icon" href="../favicon.ico" />
+    <link rel="stylesheet" href="../styles.css?v=contact-1" />
+  </head>
+  <body>
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <div class="launch-banner" role="note" aria-label="Special launch pricing">
+      <a class="launch-banner__inner" href="../buy.html">
+        <span class="launch-banner__badge">50% Off</span>
+        <span class="launch-banner__copy">Launch Sale Ending Soon : Full License only <strong class="launch-banner__price-now">$29</strong> <span class="launch-banner__price-was">$59</span></span>
+        <span class="launch-banner__cta">Buy Now</span>
+      </a>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="../index.html" aria-label="TAPE 16 home">
+        <img src="../assets/tape16-logo.png" alt="TAPE 16 logo" />
+        <span>TAPE 16</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav>
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#workflow">Workflow</a>
+        <a href="../index.html#pricing">Pricing</a>
+        <a href="../affiliate.html">Affiliates</a>
+        <a href="../community-mods.html">Community Mods</a>
+        <a href="../feature-request.html">Request Feature</a>
+        <a href="./" aria-current="page">Support</a>
+        <a href="../bugs.html">Bugs</a>
+        <a href="../changenotes.html">Change Notes</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="brand-banner" aria-label="TAPE 16 branding">
+        <img src="../assets/tape16-wordmark-2048.png" alt="TAPE 16 wordmark" />
+      </section>
+
+      <section class="bug-report contact-support" aria-labelledby="support-title">
+        <p class="eyebrow">Support</p>
+        <h1 id="support-title">Contact TAPE 16</h1>
+        <p class="contact-support-intro">For licensing, activation, download, and product help, email our support inbox.</p>
+
+        <div class="contact-support-grid">
+          <article class="contact-support-card">
+            <p class="contact-support-label">Email</p>
+            <a class="contact-support-email" href="mailto:support@emrmusicgroup.com?subject=TAPE%2016%20Support">
+              support@emrmusicgroup.com
+            </a>
+            <a class="btn btn-primary" href="mailto:support@emrmusicgroup.com?subject=TAPE%2016%20Support">Email Support</a>
+          </article>
+
+          <article class="contact-support-card contact-clock-card">
+            <p class="contact-support-label">Support hours</p>
+            <p class="contact-support-hours">9:00 am–5:00 pm</p>
+            <p>Brisbane time (AEST)</p>
+            <div class="brisbane-clock" aria-live="off">
+              <span>Current time in Brisbane</span>
+              <strong id="brisbane-time">--:--:--</strong>
+              <span id="brisbane-date">Loading Brisbane time…</span>
+            </div>
+            <p class="contact-support-status" id="support-hours-status" role="status" aria-live="polite">
+              Checking support hours…
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>JB Paterson | EMR Music Group</p>
+      <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
+    </footer>
+
+    <script src="../script.js?v=licensing-route-1"></script>
+    <script>
+      (() => {
+        const timeElement = document.getElementById("brisbane-time");
+        const dateElement = document.getElementById("brisbane-date");
+        const statusElement = document.getElementById("support-hours-status");
+        if (!timeElement || !dateElement || !statusElement) return;
+
+        const timeFormatter = new Intl.DateTimeFormat("en-AU", {
+          timeZone: "Australia/Brisbane",
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        });
+        const dateFormatter = new Intl.DateTimeFormat("en-AU", {
+          timeZone: "Australia/Brisbane",
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+        const hoursFormatter = new Intl.DateTimeFormat("en-AU", {
+          timeZone: "Australia/Brisbane",
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23",
+        });
+
+        const updateBrisbaneClock = () => {
+          const now = new Date();
+          timeElement.textContent = timeFormatter.format(now);
+          dateElement.textContent = dateFormatter.format(now);
+
+          const parts = Object.fromEntries(
+            hoursFormatter.formatToParts(now).map((part) => [part.type, part.value]),
+          );
+          const minutes = Number(parts.hour) * 60 + Number(parts.minute);
+          const supportIsActive = minutes >= 9 * 60 && minutes < 17 * 60;
+          statusElement.textContent = supportIsActive
+            ? "Support hours are active now."
+            : "Currently outside support hours.";
+          statusElement.dataset.active = supportIsActive ? "true" : "false";
+        };
+
+        updateBrisbaneClock();
+        window.setInterval(updateBrisbaneClock, 1000);
+      })();
+    </script>
+  </body>
+</html>
