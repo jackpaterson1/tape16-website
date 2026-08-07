@@ -16,6 +16,7 @@ for (const link of links) {
 const siteHeader = document.querySelector(".site-header");
 const navToggle = siteHeader?.querySelector(".nav-toggle") || null;
 const siteNav = siteHeader?.querySelector("nav") || null;
+const navMenuGroups = siteNav?.querySelectorAll("details.nav-menu-group") || [];
 
 if (siteHeader && navToggle && siteNav) {
   if (!siteNav.id) siteNav.id = "site-navigation";
@@ -25,6 +26,10 @@ if (siteHeader && navToggle && siteNav) {
     siteHeader.classList.toggle("is-nav-open", open);
     navToggle.setAttribute("aria-expanded", open ? "true" : "false");
     navToggle.setAttribute("aria-label", open ? "Close navigation menu" : "Open navigation menu");
+  };
+
+  const closeNavGroups = () => {
+    navMenuGroups.forEach((group) => group.removeAttribute("open"));
   };
 
   navToggle.addEventListener("click", () => {
@@ -39,17 +44,28 @@ if (siteHeader && navToggle && siteNav) {
         : target instanceof Node
           ? target.parentElement
           : null;
-    if (element?.closest("a") && window.matchMedia("(max-width: 700px)").matches) {
-      setMenuOpen(false);
+    if (element?.closest("a")) {
+      closeNavGroups();
+      if (window.matchMedia("(max-width: 700px)").matches) setMenuOpen(false);
     }
   });
 
+  document.addEventListener("click", (event) => {
+    if (!siteNav.contains(event.target)) closeNavGroups();
+  });
+
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") setMenuOpen(false);
+    if (event.key === "Escape") {
+      setMenuOpen(false);
+      closeNavGroups();
+    }
   });
 
   window.addEventListener("resize", () => {
-    if (!window.matchMedia("(max-width: 700px)").matches) setMenuOpen(false);
+    if (!window.matchMedia("(max-width: 700px)").matches) {
+      setMenuOpen(false);
+      closeNavGroups();
+    }
   });
 }
 
@@ -937,11 +953,11 @@ async function configurePayPalCheckout() {
 configurePayPalCheckout();
 
 const pinnedReleaseDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.330/TAPE-16-v0.9.330-macOS.dmg";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.351/TAPE-16-v0.9.351-macOS.dmg";
 const pinnedWindowsDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.330/TAPE-16-v0.9.330-Windows-Setup.zip";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.351/TAPE-16-v0.9.351-Windows-Setup.zip";
 const pinnedGithubReleaseUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.330";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.351";
 const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || pinnedReleaseDownloadUrl;
 const windowsDownloadUrl = configUrl(config.windowsDownloadUrl) || pinnedWindowsDownloadUrl;
 const linuxDownloadUrl = configUrl(config.linuxDownloadUrl);

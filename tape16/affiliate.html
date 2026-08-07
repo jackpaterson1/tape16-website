@@ -14,7 +14,7 @@
     <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
     <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
-    <link rel="stylesheet" href="styles.css?v=launch-banner-6" />
+    <link rel="stylesheet" href="styles.css?v=affiliate-redesign-2" />
     <script async src="https://www.googletagmanager.com/gtag/js?id=GT-TQK5FZD8"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -42,7 +42,7 @@
   <!-- End Meta Pixel Code -->
 
   </head>
-  <body>
+  <body class="affiliate-page">
     <div class="page-bg" aria-hidden="true"></div>
 
     <div class="launch-banner" role="note" aria-label="Special launch pricing">
@@ -63,12 +63,20 @@
         <span></span>
         <span></span>
       </button>
-      <nav>
-        <a href="index.html">Home</a>
-        <a href="buy.html">Buy</a>
-        <a href="affiliate.html">Affiliates</a>
+      <nav aria-label="Primary navigation">
+        <a href="index.html#account">Account</a>
         <a href="community-mods.html">Community Mods</a>
-        <a href="contact/">Support</a>
+        <a href="affiliate.html" aria-current="page">Affiliates</a>
+        <details class="nav-menu-group">
+          <summary>Help</summary>
+          <div class="nav-submenu">
+            <a href="index.html#faq">FAQ</a>
+            <a href="contact/">Support</a>
+            <a href="bugs.html">Report a Bug</a>
+            <a href="feature-request.html">Request a Feature</a>
+            <a href="changenotes.html">Change Notes</a>
+          </div>
+        </details>
       </nav>
     </header>
 
@@ -77,34 +85,53 @@
         <img src="assets/tape16-wordmark-2048.png" alt="TAPE 16 wordmark" />
       </section>
 
-      <section class="pricing">
-        <div class="pricing-head">
-          <p class="eyebrow">Affiliate Portal</p>
-          <h1>Open the affiliate portal.</h1>
-          <p>Welcome! Thanks for helping share TAPE 16.</p>
-          <p>
-            PromoteKit stores referrals for 60 days. For example, if someone starts a 7-day trial from your link and
-            later clicks Buy inside the app, you still get credited as long as they’re using the same default browser
-            or profile.
+      <section class="pricing pricing--affiliate">
+        <div class="affiliate-hero">
+          <p class="eyebrow">Affiliate Program</p>
+          <h1>Earn 15% sharing TAPE 16.</h1>
+          <p class="affiliate-intro">Thanks for helping more musicians discover a faster, tape-inspired workflow.</p>
+
+          <div class="affiliate-highlights" aria-label="Affiliate program highlights">
+            <div class="affiliate-highlight">
+              <strong>15%</strong>
+              <span>Commission</span>
+            </div>
+            <div class="affiliate-highlight">
+              <strong>60 days</strong>
+              <span>Referral window</span>
+            </div>
+            <div class="affiliate-highlight">
+              <strong>Monthly</strong>
+              <span>PayPal payouts</span>
+            </div>
+          </div>
+
+          <p class="affiliate-attribution-note">
+            PromoteKit keeps the referral connected when someone tries TAPE 16 and buys later, provided they use the
+            same default browser or profile.
           </p>
-          <p>Affiliate payouts are sent at the start of every month via PayPal.</p>
+
+          <a class="btn btn-primary affiliate-portal-button" href="https://emrmusicgroup.promotekit.com/" target="_blank" rel="noopener noreferrer">
+            Open Affiliate Portal
+          </a>
+          <p class="affiliate-support">Need help? Email <strong>support@emrmusicgroup.com</strong></p>
         </div>
 
-        <div class="pricing-grid">
-          <article class="price-card">
-            <h3>Affiliate Portal</h3>
-            <p>Open the portal to manage your referral link and track your activity.</p>
-            <p class="price-note">Affiliate commission is fixed at 15%.</p>
-            <a class="btn btn-primary" href="https://emrmusicgroup.promotekit.com/" target="_blank" rel="noopener noreferrer">
-              Open Affiliate Portal
-            </a>
-          </article>
-          <article class="price-card">
-            <h3>Need help?</h3>
-            <p>If you have a setup question, email us and we’ll point you in the right direction.</p>
-            <a class="btn btn-ghost" href="mailto:emrmusicgroup@gmail.com?subject=TAPE%2016%20Affiliate%20Help&body=Hi%20EMR%20Music%20Group,%0A%0AName:%0AEmail:%0A%0AThanks!">Email Support</a>
-          </article>
-        </div>
+        <article class="creator-offer">
+          <div class="creator-offer__head">
+            <p class="eyebrow">For YouTube Creators</p>
+            <h2>Create a TAPE 16 video and get a free copy.</h2>
+            <p>
+              Publish a video about TAPE 16 that meets the requirements below, and we’ll send you a free copy.
+            </p>
+          </div>
+          <ul class="creator-offer-requirements">
+            <li>The video is publicly available on YouTube.</li>
+            <li>The video is at least 2 minutes long.</li>
+            <li>TAPE 16 is the main focus of the video.</li>
+            <li>Email the live link to <strong>support@emrmusicgroup.com</strong> after publishing.</li>
+          </ul>
+        </article>
       </section>
     </main>
 
@@ -112,6 +139,6 @@
       <p>JB Paterson | EMR Music Group</p>
       <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
     </footer>
-    <script src="script.js?v=mobile-menu-1"></script>
+    <script src="script.js?v=nav-help-1"></script>
   </body>
 </html>

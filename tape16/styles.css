@@ -177,18 +177,79 @@ html {
 
 .site-header nav {
   display: flex;
+  align-items: center;
   gap: 1rem;
 }
 
-.site-header nav a {
+.site-header nav a,
+.nav-menu-group summary {
   color: var(--muted);
   text-decoration: none;
   font-weight: 500;
   transition: color 180ms ease;
 }
 
-.site-header nav a:hover {
+.site-header nav a:hover,
+.nav-menu-group summary:hover,
+.nav-menu-group[open] summary {
   color: var(--accent-alt);
+}
+
+.site-header nav a[aria-current="page"] {
+  color: var(--text);
+}
+
+.nav-menu-group {
+  position: relative;
+}
+
+.nav-menu-group summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.nav-menu-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-menu-group summary::after {
+  content: "";
+  width: 0.42rem;
+  height: 0.42rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-0.14rem) rotate(45deg);
+  transition: transform 180ms ease;
+}
+
+.nav-menu-group[open] summary::after {
+  transform: translateY(0.08rem) rotate(225deg);
+}
+
+.nav-submenu {
+  position: absolute;
+  top: calc(100% + 0.85rem);
+  right: 0;
+  min-width: 220px;
+  display: grid;
+  gap: 0;
+  padding: 0.4rem;
+  border: 1px solid var(--stroke);
+  background: rgba(9, 9, 10, 0.98);
+  box-shadow: var(--shadow);
+}
+
+.site-header .nav-submenu a {
+  padding: 0.72rem 0.8rem;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.site-header .nav-submenu a:last-child {
+  border-bottom: 0;
 }
 
 .nav-toggle {
@@ -895,6 +956,159 @@ h1 {
 .price-card .btn {
   margin-top: auto;
   width: fit-content;
+}
+
+.affiliate-page main {
+  width: min(1040px, 92vw);
+  padding-top: 2rem;
+}
+
+.affiliate-page .brand-banner {
+  margin-bottom: 0.35rem;
+}
+
+.affiliate-page .brand-banner img {
+  width: min(760px, 100%);
+  height: 116px;
+}
+
+.pricing--affiliate {
+  max-width: 920px;
+  padding: clamp(1.6rem, 4vw, 2.8rem);
+  border-color: rgba(255, 255, 255, 0.13);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    rgba(10, 11, 12, 0.74);
+}
+
+.affiliate-hero {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.affiliate-hero .eyebrow {
+  margin-bottom: 0.65rem;
+}
+
+.affiliate-hero h1 {
+  max-width: 16ch;
+  margin: 0 auto;
+}
+
+.affiliate-intro {
+  max-width: 55ch;
+  margin: 0.8rem auto 0;
+  color: var(--muted);
+  font-size: 1.08rem;
+  line-height: 1.55;
+}
+
+.affiliate-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.affiliate-highlight {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+  padding: 1rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.affiliate-highlight strong {
+  color: #ff8b73;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+.affiliate-highlight span {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.affiliate-attribution-note {
+  max-width: 66ch;
+  margin: 1.15rem auto 0;
+  color: #a9abb2;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.affiliate-portal-button {
+  margin-top: 1.35rem;
+  min-width: 230px;
+  text-align: center;
+}
+
+.affiliate-support {
+  margin: 0.85rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.affiliate-support strong {
+  color: var(--text);
+}
+
+.creator-offer {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(1.4rem, 4vw, 2.6rem);
+  align-items: start;
+  margin-top: 2.3rem;
+  padding-top: 2.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.creator-offer__head .eyebrow {
+  margin-bottom: 0.55rem;
+  color: #ff9a84;
+}
+
+.creator-offer__head h2 {
+  font-size: clamp(1.65rem, 3.4vw, 2.35rem);
+}
+
+.creator-offer__head > p:last-child {
+  margin: 0.8rem 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.creator-offer-requirements {
+  display: grid;
+  gap: 0.58rem;
+  margin: 0;
+  padding: 0;
+  color: var(--muted);
+  list-style: none;
+}
+
+.creator-offer-requirements li {
+  position: relative;
+  padding: 0.72rem 0.8rem 0.72rem 2.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.022);
+  line-height: 1.4;
+}
+
+.creator-offer-requirements li::before {
+  content: "✓";
+  position: absolute;
+  top: 0.72rem;
+  left: 0.82rem;
+  color: #ff9a84;
+  font-weight: 800;
+}
+
+.creator-offer-requirements strong {
+  color: var(--text);
 }
 
 .checkout-actions {
@@ -2583,6 +2797,7 @@ footer {
     left: 4vw;
     right: 4vw;
     flex-direction: column;
+    align-items: stretch;
     gap: 0;
     padding: 0.45rem;
     border: 1px solid var(--stroke);
@@ -2603,6 +2818,32 @@ footer {
   }
 
   .site-header nav a:last-child {
+    border-bottom: 0;
+  }
+
+  .nav-menu-group {
+    position: static;
+  }
+
+  .nav-menu-group summary {
+    justify-content: space-between;
+    padding: 0.85rem 0.75rem;
+    color: var(--text);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .nav-submenu {
+    position: static;
+    min-width: 0;
+    padding: 0.15rem 0 0.35rem 0.75rem;
+    border: 0;
+    background: rgba(255, 255, 255, 0.025);
+    box-shadow: none;
+  }
+
+  .site-header .nav-submenu a {
+    padding: 0.72rem 0.75rem;
+    color: var(--muted);
     border-bottom: 0;
   }
 
@@ -2659,6 +2900,74 @@ footer {
 
   .brand-banner img {
     height: 104px;
+  }
+
+  .affiliate-page main {
+    width: 94vw;
+    padding-top: 1.1rem;
+  }
+
+  .affiliate-page .brand-banner {
+    margin-bottom: 0;
+  }
+
+  .affiliate-page .brand-banner img {
+    height: 78px;
+  }
+
+  .pricing--affiliate {
+    margin-top: 0.45rem;
+    padding: 0.5rem 0 0;
+    border: 0;
+    background: none;
+  }
+
+  .affiliate-hero {
+    padding-inline: 0.3rem;
+  }
+
+  .affiliate-hero h1 {
+    font-size: clamp(2.35rem, 12vw, 3.2rem);
+  }
+
+  .affiliate-intro {
+    font-size: 1rem;
+  }
+
+  .affiliate-highlights {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    margin-top: 1.2rem;
+  }
+
+  .affiliate-highlight {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.82rem 0.9rem;
+  }
+
+  .affiliate-highlight strong {
+    font-size: 1.15rem;
+  }
+
+  .affiliate-portal-button {
+    width: 100%;
+  }
+
+  .creator-offer {
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+    margin-top: 1.8rem;
+    padding: 1.7rem 0.3rem 0;
+  }
+
+  .creator-offer__head {
+    text-align: center;
+  }
+
+  .creator-offer__head h2 {
+    font-size: 1.75rem;
   }
 
   .mod-browser-head {
