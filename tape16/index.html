@@ -30,7 +30,7 @@
       content="TAPE 16 is a tape DAW and tape machine DAW with a reel to reel style workflow for modern music production."
     />
     <meta name="twitter:image" content="hero-image.png" />
-    <link rel="stylesheet" href="styles.css?v=nav-help-1" />
+    <link rel="stylesheet" href="styles.css?v=home-buy-redesign-1" />
     <link rel="stylesheet" href="checkout-buttons-stacked.css?v=stripe-button-5" />
       <script type="application/ld+json">
       {
@@ -420,22 +420,35 @@
           </article>
         </div>
       </section>
-      <section class="pricing pricing--home" id="pricing">
-        <div class="pricing-head">
-          <p class="eyebrow">Pricing</p>
-          <h2>Simple pricing.</h2>
-          <p>Launch special pricing for the full license.</p>
+      <section class="buy-checkout home-buy" id="pricing">
+        <div class="buy-checkout__intro">
+          <p class="eyebrow">Simple Pricing</p>
+          <h2>Own TAPE 16.</h2>
+          <p class="buy-checkout__lead">One payment. Lifetime license.</p>
+          <p class="buy-checkout__copy">
+            Get the complete 16-track tape workflow, export options, and room to use TAPE 16 across your studio.
+          </p>
+
+          <ul class="buy-license-benefits">
+            <li>Lifetime license</li>
+            <li>3 machine activations</li>
+            <li>Free updates</li>
+            <li>Instant serial delivery</li>
+          </ul>
         </div>
-        <div class="pricing-grid pricing-grid--single">
-          <article class="price-card price-card--license">
-            <h3>Full License</h3>
-            <p class="price"><span class="price-was">$59</span> $29 <span>USD</span></p>
-            <p>One-time purchase with full recording workflow and export options.</p>
-            <p class="price-note">Launch sale ending soon. Secure checkout. Your serial is delivered automatically after purchase.</p>
-            <div class="checkout-actions">
+
+        <article class="buy-payment-panel home-buy__payment">
+          <div class="buy-payment-head">
+            <span class="buy-sale-badge">50% Off</span>
+            <p class="buy-price"><span class="price-was">$59</span> <strong>$29</strong> <span>USD</span></p>
+            <p>One-time payment. No subscription.</p>
+          </div>
+
+          <div class="buy-payment-actions">
+            <p class="buy-payment-label">Choose a payment method</p>
               <a class="btn stripe-checkout-button" id="buy-link" href="https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02" target="_blank" rel="noreferrer">
                 <span class="stripe-button-bar">
-                  <span class="stripe-button-title">Checkout with stripe</span>
+                  <span class="stripe-button-title">Pay with Stripe</span>
                   <span class="stripe-button-price">$29.00</span>
                 </span>
                 <span class="stripe-card-brands" aria-hidden="true">
@@ -447,11 +460,11 @@
               </a>
               <div class="checkout-divider" id="checkout-divider" hidden><span>or</span></div>
               <div class="paypal-checkout paypal-checkout--inline" id="paypal-button-container" hidden></div>
-            </div>
-            <p class="checkout-trust">Instant serial delivery • 3 activations • Lifetime license</p>
             <p id="buy-status" class="serial-status" role="status" aria-live="polite"></p>
-          </article>
-        </div>
+          </div>
+
+          <p class="buy-payment-trust">Secure payment · Automatic license delivery</p>
+        </article>
       </section>
       <section class="faq" id="faq">
         <div class="faq-head">
