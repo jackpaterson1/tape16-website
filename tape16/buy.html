@@ -17,7 +17,7 @@
     <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
     <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
-    <link rel="stylesheet" href="styles.css?v=launch-banner-6" />
+    <link rel="stylesheet" href="styles.css?v=buy-redesign-2" />
     <link rel="stylesheet" href="checkout-buttons-stacked.css?v=stripe-button-5" />
     <script async src="https://www.googletagmanager.com/gtag/js?id=GT-TQK5FZD8"></script>
     <script>
@@ -72,14 +72,20 @@
         <span></span>
         <span></span>
       </button>
-      <nav>
-        <a href="index.html">Home</a>
-        <a href="affiliate.html">Affiliates</a>
+      <nav aria-label="Primary navigation">
+        <a href="index.html#account">Account</a>
         <a href="community-mods.html">Community Mods</a>
-        <a href="feature-request.html">Request Feature</a>
-        <a href="contact/">Support</a>
-        <a href="bugs.html">Bugs</a>
-        <a href="changenotes.html">Change Notes</a>
+        <a href="affiliate.html">Affiliates</a>
+        <details class="nav-menu-group">
+          <summary>Help</summary>
+          <div class="nav-submenu">
+            <a href="index.html#faq">FAQ</a>
+            <a href="contact/">Support</a>
+            <a href="bugs.html">Report a Bug</a>
+            <a href="feature-request.html">Request a Feature</a>
+            <a href="changenotes.html">Change Notes</a>
+          </div>
+        </details>
       </nav>
     </header>
 
@@ -104,23 +110,37 @@
         </div>
       </section>
 
-      <section class="pricing pricing--buy">
-        <div class="pricing-head">
-          <p class="eyebrow">Buy TAPE 16</p>
-          <h1>Secure checkout. Automatic serial delivery.</h1>
-          <p>
-            Use this page to buy the main TAPE 16 license. After payment, your serial is issued automatically.
+      <section class="buy-checkout">
+        <div class="buy-checkout__intro">
+          <p class="eyebrow">One-time License</p>
+          <h1>Get TAPE 16.</h1>
+          <p class="buy-checkout__lead">Secure checkout. Serial delivered automatically.</p>
+          <p class="buy-checkout__copy">
+            Own the complete 16-track tape workflow with a lifetime license and room to use it across your studio.
           </p>
+
+          <ul class="buy-license-benefits">
+            <li>Lifetime license</li>
+            <li>3 machine activations</li>
+            <li>Free updates</li>
+            <li>Instant serial delivery</li>
+          </ul>
+
+          <p class="buy-support-note">Questions before buying? Email <strong>support@emrmusicgroup.com</strong></p>
         </div>
-        <div class="pricing-grid pricing-grid--single pricing-grid--buy-page">
-          <article class="price-card price-card--license">
-            <h3>Full License</h3>
-            <p class="price"><span class="price-was">$59</span> $29 <span>USD</span></p>
-            <p>One-time purchase with the full tape workflow and activation support.</p>
-            <p class="price-note">Launch sale ending soon. Secure checkout delivers your serial after purchase.</p>
+
+        <article class="buy-payment-panel">
+          <div class="buy-payment-head">
+            <span class="buy-sale-badge">50% Off</span>
+            <p class="buy-price"><span class="price-was">$59</span> <strong>$29</strong> <span>USD</span></p>
+            <p>One-time payment. No subscription.</p>
+          </div>
+
+          <div class="buy-payment-actions">
+            <p class="buy-payment-label">Choose a payment method</p>
             <a class="btn stripe-checkout-button" id="buy-link" href="https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02">
               <span class="stripe-button-bar">
-                <span class="stripe-button-title">Checkout with stripe</span>
+                <span class="stripe-button-title">Pay with Stripe</span>
                 <span class="stripe-button-price">$29.00</span>
               </span>
               <span class="stripe-card-brands" aria-hidden="true">
@@ -133,8 +153,10 @@
             <div class="checkout-divider" id="checkout-divider" hidden><span>or</span></div>
             <div class="paypal-checkout" id="paypal-button-container" hidden></div>
             <p id="buy-status" class="serial-status" role="status" aria-live="polite"></p>
-          </article>
-        </div>
+          </div>
+
+          <p class="buy-payment-trust">Secure payment · Automatic license delivery</p>
+        </article>
       </section>
     </main>
 
@@ -161,6 +183,6 @@
         accountApiBaseUrl: "https://licenses.emrmusicgroup.com",
       };
     </script>
-    <script src="script.js?v=meta-checkout-events-1"></script>
+    <script src="script.js?v=buy-redesign-2"></script>
   </body>
 </html>

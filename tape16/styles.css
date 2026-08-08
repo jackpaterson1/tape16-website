@@ -958,6 +958,203 @@ h1 {
   width: fit-content;
 }
 
+.buy-checkout {
+  max-width: 1040px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.82fr);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background:
+    linear-gradient(135deg, rgba(255, 91, 58, 0.045), transparent 42%),
+    rgba(10, 11, 12, 0.78);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.buy-checkout__intro {
+  align-self: center;
+  padding: clamp(2rem, 5vw, 4rem);
+}
+
+.buy-checkout__intro .eyebrow {
+  margin-bottom: 0.65rem;
+}
+
+.buy-checkout__intro h1 {
+  font-size: clamp(3rem, 6.5vw, 5rem);
+}
+
+.buy-checkout__lead {
+  margin: 0.75rem 0 0;
+  color: #ff9a84;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.buy-checkout__copy {
+  max-width: 50ch;
+  margin: 0.9rem 0 0;
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.6;
+}
+
+.buy-license-benefits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.62rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.buy-license-benefits li {
+  position: relative;
+  padding: 0.76rem 0.75rem 0.76rem 2.15rem;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.022);
+  color: #d5d7dc;
+  line-height: 1.3;
+}
+
+.buy-license-benefits li::before {
+  content: "✓";
+  position: absolute;
+  top: 0.76rem;
+  left: 0.78rem;
+  color: #ff8b73;
+  font-weight: 800;
+}
+
+.buy-support-note {
+  margin: 1.1rem 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.buy-support-note strong {
+  color: var(--text);
+}
+
+.buy-payment-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: clamp(1.7rem, 4vw, 2.7rem);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012)),
+    rgba(15, 16, 18, 0.82);
+}
+
+.buy-payment-head {
+  text-align: center;
+}
+
+.buy-sale-badge {
+  display: inline-flex;
+  padding: 0.33rem 0.55rem;
+  border: 1px solid rgba(255, 139, 115, 0.48);
+  background: rgba(255, 91, 58, 0.1);
+  color: #ff9a84;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.buy-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.55rem;
+  margin: 0.7rem 0 0;
+}
+
+.buy-price .price-was {
+  color: #a56a5d;
+  font-size: 1rem;
+}
+
+.buy-price strong {
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(3.2rem, 6vw, 4.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.buy-price > span:last-child {
+  color: #ff755d;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+}
+
+.buy-payment-head > p:last-child {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.buy-payment-actions {
+  width: min(380px, 100%);
+  margin: 1.4rem auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.buy-payment-label {
+  margin: 0 0 0.75rem;
+  color: #d7d8dc;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.buy-payment-panel .stripe-checkout-button,
+.buy-payment-panel .paypal-checkout {
+  width: 100%;
+}
+
+.buy-payment-panel .stripe-checkout-button {
+  margin-top: 0;
+}
+
+.buy-payment-panel .stripe-button-bar {
+  grid-template-columns: minmax(0, 1fr) 96px;
+}
+
+.buy-payment-panel .stripe-button-title {
+  min-width: 0;
+  padding: 0.7rem;
+  font-size: 1.12rem;
+}
+
+.buy-payment-panel .stripe-button-price {
+  padding: 0.7rem 0.55rem;
+  font-size: 1.08rem;
+}
+
+.buy-payment-panel .checkout-divider {
+  width: 100%;
+}
+
+.buy-payment-trust {
+  margin: 1rem 0 0;
+  color: #9699a1;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  line-height: 1.45;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 .affiliate-page main {
   width: min(1040px, 92vw);
   padding-top: 2rem;
@@ -2984,6 +3181,34 @@ footer {
     align-items: stretch;
   }
 
+  .buy-checkout {
+    grid-template-columns: 1fr;
+    box-shadow: none;
+  }
+
+  .buy-checkout__intro {
+    padding: 1.6rem 1.25rem 1.45rem;
+    text-align: center;
+  }
+
+  .buy-checkout__intro h1 {
+    font-size: clamp(2.8rem, 14vw, 4rem);
+  }
+
+  .buy-checkout__copy {
+    margin-inline: auto;
+  }
+
+  .buy-payment-panel {
+    padding: 1.6rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 0;
+  }
+
+  .buy-price strong {
+    font-size: 3.5rem;
+  }
+
   .buy-page .pricing--buy {
     padding: 1.2rem 1rem 1rem;
   }
@@ -3100,6 +3325,16 @@ footer {
   .account-actions .btn {
     width: 100%;
     text-align: center;
+  }
+}
+
+@media (max-width: 430px) {
+  .buy-payment-panel .stripe-button-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .buy-payment-panel .stripe-button-price {
+    display: none;
   }
 }
 
