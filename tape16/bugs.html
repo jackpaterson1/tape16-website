@@ -17,7 +17,7 @@
     <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
     <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
-    <link rel="stylesheet" href="styles.css?v=launch-banner-6" />
+    <link rel="stylesheet" href="styles.css?v=nav-help-2" />
       <script async src="https://www.googletagmanager.com/gtag/js?id=GT-TQK5FZD8"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -90,16 +90,20 @@
         <span></span>
         <span></span>
       </button>
-      <nav>
-        <a href="index.html#features">Features</a>
-        <a href="index.html#workflow">Workflow</a>
-        <a href="index.html#pricing">Pricing</a>
-        <a href="affiliate.html">Affiliates</a>
+      <nav aria-label="Primary navigation">
+        <a href="index.html#account">Account</a>
         <a href="community-mods.html">Community Mods</a>
-        <a href="feature-request.html">Request Feature</a>
-        <a href="contact/">Support</a>
-        <a href="bugs.html">Bugs</a>
-        <a href="changenotes.html">Change Notes</a>
+        <a href="affiliate.html">Affiliates</a>
+        <details class="nav-menu-group">
+          <summary aria-current="page">Help</summary>
+          <div class="nav-submenu">
+            <a href="index.html#faq">FAQ</a>
+            <a href="contact/">Support</a>
+            <a href="bugs.html" aria-current="page">Report a Bug</a>
+            <a href="feature-request.html">Request a Feature</a>
+            <a href="changenotes.html">Change Notes</a>
+          </div>
+        </details>
       </nav>
     </header>
 

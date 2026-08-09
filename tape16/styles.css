@@ -195,7 +195,8 @@ html {
   color: var(--accent-alt);
 }
 
-.site-header nav a[aria-current="page"] {
+.site-header nav a[aria-current="page"],
+.nav-menu-group summary[aria-current="page"] {
   color: var(--text);
 }
 
@@ -1773,6 +1774,7 @@ h1 {
 .contact-support-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
   gap: 1rem;
 }
 
@@ -1797,17 +1799,45 @@ h1 {
   display: block;
   margin: 0 0 1.2rem;
   color: var(--text);
-  font-size: clamp(1rem, 2.3vw, 1.3rem);
+  font-size: clamp(0.95rem, 1.7vw, 1.15rem);
   font-weight: 700;
+  letter-spacing: -0.015em;
   overflow-wrap: anywhere;
 }
 
+.contact-email-card {
+  align-content: center;
+}
+
 .contact-support-hours {
+  display: grid;
+  gap: 0.2rem;
   margin: 0;
   color: var(--text) !important;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: clamp(1.45rem, 4vw, 2.1rem);
-  font-weight: 600;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: clamp(1.65rem, 3.6vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+.contact-support-hours p {
+  margin: 0;
+}
+
+.contact-support-time {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 0.35em;
+  color: var(--accent-alt);
+  font-size: 0.8em;
+  font-variant-numeric: tabular-nums;
+}
+
+.contact-support-zone {
+  margin: 0.65rem 0 0 !important;
+  font-size: 0.95rem;
 }
 
 .brisbane-clock {
@@ -1821,9 +1851,12 @@ h1 {
 
 .brisbane-clock strong {
   color: var(--text);
-  font-family: "IBM Plex Mono", monospace;
-  font-size: clamp(1.6rem, 5vw, 2.65rem);
-  line-height: 1.15;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
 }
 
 .contact-support-status {
