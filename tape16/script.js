@@ -953,11 +953,11 @@ async function configurePayPalCheckout() {
 configurePayPalCheckout();
 
 const pinnedReleaseDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.351/TAPE-16-v0.9.351-macOS.dmg";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.352/TAPE-16-v0.9.352-macOS.dmg";
 const pinnedWindowsDownloadUrl =
   "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.351/TAPE-16-v0.9.351-Windows-Setup.zip";
 const pinnedGithubReleaseUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.351";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.352";
 const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || pinnedReleaseDownloadUrl;
 const windowsDownloadUrl = configUrl(config.windowsDownloadUrl) || pinnedWindowsDownloadUrl;
 const linuxDownloadUrl = configUrl(config.linuxDownloadUrl);
