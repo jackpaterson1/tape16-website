@@ -536,6 +536,26 @@ h1 {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
 }
 
+.btn-testflight {
+  flex: 0 0 auto;
+  border-color: rgba(255, 209, 146, 0.42);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    linear-gradient(180deg, #c63622, #8f2118);
+}
+
+.testflight-badge {
+  margin-left: 0.15rem;
+  padding: 0.22rem 0.42rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 0.62rem;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .btn-guide {
   align-self: center;
   display: inline-flex;
