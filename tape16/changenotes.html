@@ -114,6 +114,55 @@
         <ul class="release-list">
           <li class="release-item">
             <div class="release-head">
+              <h3>0.9.360</h3>
+              <span>August 13, 2026</span>
+            </div>
+            <ul>
+              <li>Added MIDI Learn for plugins.</li>
+              <li>Added persistent Remote Control pairing.</li>
+              <li>Added an option to create a new tape from IN + OUT.</li>
+              <li>Greatly improved AU plugin handling by repairing and improving the remote host.</li>
+              <li>Reduced MIDI message volume to reduce input lag on DAW controllers.</li>
+              <li>Fixed multi-output instruments not routing correctly after the presets update.</li>
+              <li>Improved XLM plugin handling.</li>
+              <li>Fixed Kontakt and Native Instruments plugins triggering a plugin error when loading tapes.</li>
+              <li>Fixed child plugin windows crashing the program when Escape was pressed.</li>
+              <li>Fixed missing solo and mute bus MIDI Learn options.</li>
+            </ul>
+            <a class="release-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.360" target="_blank" rel="noreferrer">View release on GitHub</a>
+          </li>
+          <li class="release-item">
+            <div class="release-head">
+              <h3>0.9.352 Mac + Windows Patch</h3>
+              <span>August 9, 2026</span>
+            </div>
+            <ul>
+              <li>Greatly improved AU plugin handling and support for a handful of VST3 plugins by repairing the remote host on macOS.</li>
+              <li>Added persistent Remote Control on macOS.</li>
+              <li>Improved tape-loading reliability on Windows.</li>
+            </ul>
+            <a class="release-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.352" target="_blank" rel="noreferrer">View release on GitHub</a>
+          </li>
+          <li class="release-item">
+            <div class="release-head">
+              <h3>0.9.351</h3>
+              <span>August 7, 2026</span>
+            </div>
+            <ul>
+              <li>Added a new real-time track exporter.</li>
+              <li>Added autosave controls to the Plugin Manager.</li>
+              <li>Greatly improved RAM usage in larger sessions.</li>
+              <li>Improved side-menu layout and visuals.</li>
+              <li>Limited crash blocking to problematic plugins only.</li>
+              <li>Fixed long-session varispeed recording stutter.</li>
+              <li>Fixed saving on the first reopen after plugin crashes.</li>
+              <li>Fixed the sample rate defaulting to 48 kHz.</li>
+              <li>Fixed plugins being hidden through the manager on Windows.</li>
+            </ul>
+            <a class="release-link" href="https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.351" target="_blank" rel="noreferrer">View release on GitHub</a>
+          </li>
+          <li class="release-item">
+            <div class="release-head">
               <h3>0.9.342 Mac Patch</h3>
               <span>August 2, 2026</span>
             </div>
@@ -665,7 +714,7 @@
       <p>Copyright (c) 2026 TAPE 16. All rights reserved.</p>
     </footer>
 
-    <script src="config.js?v=0.9.342"></script>
+    <script src="config.js?v=0.9.360"></script>
     <script src="script.js?v=mobile-menu-1"></script>
   </body>
 </html>
