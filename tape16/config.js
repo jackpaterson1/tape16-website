@@ -1,7 +1,7 @@
 window.TAPE16_SITE_CONFIG = {
   releaseDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.360/TAPE-16-v0.9.360-macOS.dmg",
   windowsDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.360/TAPE-16-v0.9.360-Windows-Setup.zip",
-  linuxDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.341/TAPE-16-v0.9.341-Linux-Release.zip",
+  linuxDownloadUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.360/TAPE-16-v0.9.360-Linux-Release.zip",
   githubReleaseUrl: "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.360",
   // Replace this with your live checkout URL (Stripe / Gumroad / Paddle / etc).
   buyNowUrl: "https://buy.stripe.com/28E9AT4Tz7e50D6bqm1ck02",
