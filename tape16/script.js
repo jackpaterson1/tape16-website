@@ -69,6 +69,145 @@ if (siteHeader && navToggle && siteNav) {
   });
 }
 
+function initializeYoutubeTestimonials() {
+  const root = document.querySelector(".youtube-testimonials");
+  if (!root) return;
+
+  const field = root.querySelector(".youtube-testimonials__field");
+  const pauseButton = root.querySelector(".youtube-testimonials__pause");
+  if (!field || !pauseButton) return;
+
+  const videos = {
+    official: "https://www.youtube.com/watch?v=i4SQbAUNSsE",
+    demonic: "https://www.youtube.com/watch?v=Y7Hm3g2m66k",
+    feezo: "https://www.youtube.com/watch?v=l27K8XEbgz8",
+    twin: "https://www.youtube.com/watch?v=bwLmy1gktHs",
+    jeej: "https://www.youtube.com/watch?v=Ur-HzVmPnZI",
+    greg: "https://www.youtube.com/watch?v=xwcc-qKRiNM",
+    compare: "https://www.youtube.com/watch?v=UJkRTIOGuxg",
+    questions: "https://www.youtube.com/watch?v=Y-SXRIO2sZg",
+    crow: "https://www.youtube.com/watch?v=g4UO0QJf9fo",
+    trev: "https://www.youtube.com/watch?v=9EuWs5NwNVg",
+    tales: "https://www.youtube.com/watch?v=f282IEMjKXg",
+  };
+
+  const comments = [
+    ["Just bought it and recorded my first song within 10 minutes... I love Tape16!", videos.official],
+    ["This has become one of my favorite music applications. I use this on a daily basis.", videos.official],
+    ["Just downloaded the free trial, OUTSTANDING", videos.official],
+    ["Bought it and already love it! great idea!", videos.official],
+    ["Full song recorded and mixed on TAPE 16 in Los Angeles at Forward Motion Studios.", videos.tales],
+    ["Just downloaded the demo. I love it. The saturation, wow, flutter etc sound great.", videos.official],
+    ["Purchased this yesterday. Been enjoying playing with this software. I just laid down a few acoustic tracks.", videos.official],
+    ["Awesome DAW. That tape saturation sounds sweet and better than most tape plugins I've tried.", videos.official],
+    ["I'm enjoying this! I love Ableton and this isn't meant to be a replacement but it's a pleasant change up.", videos.official],
+    ["Picked it up, and found it to be a thoughtful design.", videos.questions],
+    ["Picked up from your last video. This is exactly the DAW I've been wanting.", videos.questions],
+    ["No horizontal scrolling — unthinkable — I like it.", videos.tales],
+    ["I'm having fun trying this out", videos.questions],
+    ["Actually it excellent just got it it’s very close to the reel thing", videos.questions],
+    ["Love tape-16 makes music sound like its back in the day", videos.questions],
+    ["I bought this straight away... I am really enjoying using it. It sounds great.", videos.demonic],
+    ["Got it yesterday, it’s great!", videos.demonic],
+    ["You convinced me, and it was totally worth it.", videos.demonic],
+    ["I absolutely love this. I started fooling around with it last night.", videos.demonic],
+    ["It’s easily worth the entry fee. This is so much fun to use... the latency is super low and sounds great.", videos.demonic],
+    ["I bought it. Like it. I wanted an analog workflow.", videos.demonic],
+    ["I instantly downloaded it after watching the video, and it's amazing.", videos.feezo],
+    ["Love this DAW.", videos.feezo],
+    ["For me the core creation in Tape 16 works. It's simple, to the point, without the extra options or noise.", videos.feezo],
+    ["I downloaded this the day he released it and like it a lot.", videos.twin],
+    ["I downloaded the product and I have to say it’s well thought out and designed... I really like the workflow.", videos.twin],
+    ["Love this DAW, now my main workflow", videos.twin],
+    ["just got it it is good", videos.twin],
+    ["I like this, love the limitation and the way it opens up ideas.", videos.crow],
+    ["Me doing live recording on Youtube to Tape 16. Extremely love it!!!", videos.jeej],
+    ["This is quickly becoming my jam. Love having to use ears rather than eyes to create", videos.jeej],
+    ["Love Tape 16 — it’s easy on the mind, it doesn't stress.", videos.jeej],
+    ["I used it for the first time and really loved the feeling of what making music when I was younger felt like.", videos.greg],
+    ["I use it more after I finish a track, but I still enjoy creating with it too. The hybrid approach just works best for me.", videos.greg],
+    ["Did my 1st tune today with it, fun to use", videos.greg],
+    ["I just finished a more than decent track with this thing. A lot of fun and so freeing.", videos.greg],
+    ["Its actually quite good. I was sceptical but it does seem a simple way without the stress.", videos.greg],
+    ["For me the core creation in Tape 16 works. It's simple to the point without the extra options or noise.", videos.greg],
+    ["Tape 16 is it for me. It gets updated almost every Friday and the developer is super responsive.", videos.compare],
+    ["I’ve been using Tape 16 for tracking... Tape 16 just feels like home for me.", videos.compare],
+    ["I've got Tape 16 and just love the workflow with outboard gear and the weekly upgrades.", videos.compare],
+    ["Using it myself, I love the simplicity of the UI... concentrating on composition and performance is very liberating.", videos.crow],
+    ["I find this DAW fantastic. This concept is so quick, easy and performance-centric.", videos.crow],
+    ["It's great fun, reminds me of being 15 again in 1984. I find it fun, which is enough for me.", videos.crow],
+    ["I have been playing with it. I love that it slows me down, makes me think and be more intentional.", videos.trev],
+    ["Just downloaded it. Super cool. I need those limitations.", videos.trev],
+    ["I've been using it myself for a couple weeks. It has been pretty stable on the Mac.", videos.trev],
+    ["I bought it as soon as I found out it's available. Tape 16 makes me feel home again.", videos.tales],
+    ["I've been using it for the last few days and it's a whole lot of fun.", videos.tales],
+    ["This is like coming home since I lost my 388. As a drummer, thank you for the remote, icing on the cake!", videos.tales],
+  ];
+
+  const rowSettings = [
+    { duration: 116, reverse: false },
+    { duration: 128, reverse: true },
+    { duration: 122, reverse: false },
+  ];
+
+  const makeCard = ([quote, url], duplicate = false) => {
+    const card = document.createElement("a");
+    card.className = "youtube-testimonials__card";
+    card.href = url;
+    card.target = "_blank";
+    card.rel = "noopener noreferrer";
+    card.style.width = `${Math.max(242, Math.min(360, 208 + quote.length * 1.45))}px`;
+
+    if (duplicate) {
+      card.setAttribute("aria-hidden", "true");
+      card.tabIndex = -1;
+    } else {
+      card.setAttribute("aria-label", `${quote} — open source video`);
+    }
+
+    const quoteText = document.createElement("span");
+    quoteText.className = "youtube-testimonials__quote";
+    quoteText.textContent = `“${quote}”`;
+
+    const source = document.createElement("span");
+    source.className = "youtube-testimonials__source";
+    source.textContent = "YouTube ↗";
+
+    card.append(quoteText, source);
+    return card;
+  };
+
+  rowSettings.forEach((settings, rowIndex) => {
+    const row = document.createElement("div");
+    row.className = "youtube-testimonials__row";
+    row.dataset.direction = settings.reverse ? "reverse" : "forward";
+    row.style.setProperty("--testimonial-duration", `${settings.duration}s`);
+
+    const rowComments = comments.filter((_, index) => index % rowSettings.length === rowIndex);
+    const originalGroup = document.createElement("div");
+    originalGroup.className = "youtube-testimonials__group";
+    const duplicateGroup = document.createElement("div");
+    duplicateGroup.className = "youtube-testimonials__group";
+    duplicateGroup.setAttribute("aria-hidden", "true");
+
+    rowComments.forEach((comment) => {
+      originalGroup.append(makeCard(comment));
+      duplicateGroup.append(makeCard(comment, true));
+    });
+
+    row.append(originalGroup, duplicateGroup);
+    field.append(row);
+  });
+
+  pauseButton.addEventListener("click", () => {
+    const paused = root.classList.toggle("is-paused");
+    pauseButton.setAttribute("aria-pressed", String(paused));
+    pauseButton.innerHTML = paused ? "▶&nbsp;&nbsp;Resume" : "Ⅱ&nbsp;&nbsp;Pause";
+  });
+}
+
+initializeYoutubeTestimonials();
+
 const config = window.TAPE16_SITE_CONFIG || {};
 const buyLink = document.getElementById("buy-link");
 const demoLink = document.getElementById("demo-link");
