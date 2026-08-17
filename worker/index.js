@@ -1246,9 +1246,23 @@ async function sendSerialEmail({ env, to, serial, orderId, ctx }) {
     const html = buildSerialHtml(serial, orderId);
     const text = [
       "Thanks for purchasing TAPE 16.",
+      "This is your requested license-delivery email.",
       "",
       `Serial: ${serial}`,
       `Order ID: ${orderId}`,
+      "License: Lifetime, up to 3 machines",
+      "",
+      "Download TAPE 16:",
+      "https://emrmusicgroup.com/tape16/download.html",
+      "",
+      "To activate:",
+      "1. Download and open TAPE 16.",
+      "2. Select Activate.",
+      "3. Enter the serial number above.",
+      "",
+      "Need help? https://emrmusicgroup.com/tape16/contact/",
+      "",
+      "You received this transactional email because you purchased TAPE 16.",
     ].join("\n");
 
     const response = await fetch("https://api.resend.com/emails", {
@@ -1260,7 +1274,7 @@ async function sendSerialEmail({ env, to, serial, orderId, ctx }) {
       body: JSON.stringify({
         from: env.RESEND_FROM,
         to: [toEmail],
-        subject: "Your TAPE 16 Serial Number",
+        subject: "Your TAPE 16 License and Serial Number",
         html,
         text,
       }),
@@ -1283,12 +1297,101 @@ async function sendSerialEmail({ env, to, serial, orderId, ctx }) {
 
 function buildSerialHtml(serial, orderId) {
   return `
-    <div style="font-family:Arial,sans-serif;line-height:1.5;color:#101420">
-      <h2 style="margin:0 0 12px;">Thanks for purchasing TAPE 16</h2>
-      <p style="margin:0 0 12px;">Your serial number:</p>
-      <p style="margin:0 0 16px;font-size:20px;font-weight:700;letter-spacing:0.08em;">${escapeHtml(serial)}</p>
-      <p style="margin:0 0 8px;">Order ID: <code>${escapeHtml(orderId)}</code></p>
-    </div>
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Your TAPE 16 License and Serial Number</title>
+      </head>
+      <body style="margin:0;padding:0;background-color:#e7e8eb;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#e7e8eb" style="width:100%;margin:0;background-color:#e7e8eb;">
+          <tr>
+            <td align="center" style="padding:24px 12px;">
+              <table role="presentation" width="640" cellspacing="0" cellpadding="0" border="0" bgcolor="#080809" style="width:100%;max-width:640px;background-color:#080809;color:#f4f2ed;font-family:Arial,Helvetica,sans-serif;">
+                <tr>
+                  <td height="7" bgcolor="#ef5738" style="height:7px;background-color:#ef5738;font-size:0;line-height:0;">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td style="padding:24px 32px;border-bottom:1px solid #242427;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="color:#f4f2ed;font-size:18px;font-weight:700;letter-spacing:1.5px;">TAPE <span style="color:#ef5738;">16</span></td>
+                        <td align="right" style="color:#ff7255;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;">License delivery</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:40px 32px 34px;">
+                    <p style="margin:0 0 14px;color:#ff7255;font-size:10px;letter-spacing:1.7px;text-transform:uppercase;">Purchase complete</p>
+                    <h1 style="margin:0;color:#f4f2ed;font-size:44px;font-weight:400;line-height:1.02;letter-spacing:-2px;">Your TAPE 16<br>license is ready.</h1>
+                    <p style="margin:20px 0 0;color:#b9bcc2;font-size:16px;line-height:1.55;">Thanks for purchasing TAPE 16. This is your requested license-delivery email.</p>
+
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#101012" style="width:100%;margin-top:28px;border:1px solid #5f2d25;border-left:4px solid #ef5738;background-color:#101012;">
+                      <tr>
+                        <td style="padding:20px 22px;">
+                          <p style="margin:0 0 8px;color:#ff7255;font-size:10px;letter-spacing:1.6px;text-transform:uppercase;">Your TAPE 16 serial</p>
+                          <p style="margin:0;color:#f4f2ed;font-family:'Courier New',Courier,monospace;font-size:24px;font-weight:700;line-height:1.35;letter-spacing:2px;word-break:break-all;">${escapeHtml(serial)}</p>
+                          <p style="margin:8px 0 0;color:#85878c;font-size:11px;line-height:1.45;">Keep this serial private. You will enter it inside TAPE 16.</p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top:14px;">
+                      <tr>
+                        <td bgcolor="#ef5738" style="background-color:#ef5738;">
+                          <a href="https://emrmusicgroup.com/tape16/download.html" style="display:inline-block;padding:15px 22px;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;">Download TAPE 16 &rarr;</a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;margin-top:28px;border-top:1px solid #242427;border-bottom:1px solid #242427;">
+                      <tr>
+                        <td width="50%" valign="top" style="width:50%;padding:15px 12px 15px 0;">
+                          <p style="margin:0;color:#ff7255;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;">Order ID</p>
+                          <p style="margin:7px 0 0;color:#d8d8da;font-family:'Courier New',Courier,monospace;font-size:12px;line-height:1.45;word-break:break-all;">${escapeHtml(orderId)}</p>
+                        </td>
+                        <td width="50%" valign="top" style="width:50%;padding:15px 0 15px 20px;border-left:1px solid #242427;">
+                          <p style="margin:0;color:#ff7255;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;">License</p>
+                          <p style="margin:7px 0 0;color:#d8d8da;font-family:'Courier New',Courier,monospace;font-size:12px;line-height:1.45;">Lifetime &middot; 3 machines</p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <h2 style="margin:28px 0 14px;color:#f4f2ed;font-size:20px;font-weight:700;line-height:1.25;">Get recording</h2>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#0e0e10" style="width:100%;background-color:#0e0e10;border:1px solid #242427;">
+                      <tr>
+                        <td width="42" valign="top" style="padding:14px 0 14px 14px;color:#ef5738;font-family:'Courier New',Courier,monospace;font-size:11px;">01</td>
+                        <td style="padding:14px;color:#b9bcc2;font-size:12px;line-height:1.5;"><strong style="color:#f4f2ed;">Download.</strong> Choose the installer for your platform.</td>
+                      </tr>
+                      <tr>
+                        <td width="42" valign="top" style="padding:14px 0 14px 14px;border-top:1px solid #242427;color:#ef5738;font-family:'Courier New',Courier,monospace;font-size:11px;">02</td>
+                        <td style="padding:14px;border-top:1px solid #242427;color:#b9bcc2;font-size:12px;line-height:1.5;"><strong style="color:#f4f2ed;">Launch.</strong> Open TAPE 16 and select Activate.</td>
+                      </tr>
+                      <tr>
+                        <td width="42" valign="top" style="padding:14px 0 14px 14px;border-top:1px solid #242427;color:#ef5738;font-family:'Courier New',Courier,monospace;font-size:11px;">03</td>
+                        <td style="padding:14px;border-top:1px solid #242427;color:#b9bcc2;font-size:12px;line-height:1.5;"><strong style="color:#f4f2ed;">Enter serial.</strong> Paste the serial above to unlock your license.</td>
+                      </tr>
+                    </table>
+
+                    <p style="margin:22px 0 0;color:#8f9196;font-size:12px;line-height:1.55;">Need a hand? <a href="https://emrmusicgroup.com/tape16/contact/" style="color:#ff7255;">Contact support</a> and include your order ID.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td bgcolor="#050506" style="padding:24px 32px;border-top:1px solid #242427;background-color:#050506;">
+                    <p style="margin:0;color:#ef5738;font-size:12px;font-weight:700;letter-spacing:1.4px;">TAPE 16</p>
+                    <p style="margin:6px 0 0;color:#d3d3d5;font-size:12px;line-height:1.45;">License delivery from EMR Music Group</p>
+                    <p style="margin:8px 0 0;color:#6f7176;font-size:10px;line-height:1.5;">You received this transactional email because you purchased TAPE 16.</p>
+                    <p style="margin:4px 0 0;color:#6f7176;font-size:10px;line-height:1.5;">JB Paterson &middot; EMR Music Group &middot; emrmusicgroup.com</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
   `;
 }
 

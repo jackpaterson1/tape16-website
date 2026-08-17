@@ -302,11 +302,11 @@ main > section {
 }
 
 .hero {
-  padding: 1.4rem;
+  padding: clamp(1.8rem, 4vw, 2.75rem);
   display: grid;
-  grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
-  gap: 1rem;
-  align-items: start;
+  grid-template-columns: minmax(0, 0.9fr) minmax(300px, 1.1fr);
+  gap: clamp(1.8rem, 4vw, 3rem);
+  align-items: center;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 0;
   background:
@@ -322,6 +322,43 @@ main > section {
   padding-top: 0;
   display: flex;
   flex-direction: column;
+}
+
+.hero-sale {
+  width: fit-content;
+  margin-bottom: 1.35rem;
+  display: inline-flex;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid #e85638;
+  border-radius: 3px;
+  color: #ffffff;
+  font-size: 0.68rem;
+  line-height: 1;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.hero-sale strong,
+.hero-sale span {
+  padding: 0.68rem 0.78rem 0.62rem;
+}
+
+.hero-sale strong {
+  background: #e85638;
+}
+
+.hero-sale span {
+  color: #ff927b;
+  font-weight: 700;
+}
+
+.hero h1 {
+  max-width: none;
+  font-size: clamp(3rem, 6vw, 4.8rem);
+  font-weight: 500;
+  line-height: 0.96;
+  letter-spacing: -0.045em;
 }
 
 .hero-kicker {
@@ -398,6 +435,56 @@ h1 {
   margin-top: 0.8rem;
   font-size: 1.08rem;
   line-height: 1.7;
+}
+
+.hero-product-actions {
+  margin-top: 1.55rem;
+  gap: 0.7rem;
+}
+
+.hero-product-actions .btn {
+  min-height: 46px;
+  padding: 0.82rem 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+}
+
+.hero-product-actions .hero-buy {
+  min-width: 160px;
+  gap: 0.38rem;
+  border-color: transparent;
+  background: #e85638;
+  color: #ffffff;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+.hero-buy strong {
+  font: inherit;
+  font-weight: 700;
+}
+
+.hero-buy span {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.78rem;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+.hero-product-actions .hero-demo {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.hero-meta {
+  margin-top: 1.1rem;
+  display: flex;
+  gap: 0.75rem 1.1rem;
+  flex-wrap: wrap;
+  color: #77787c;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .hero-demo-copy {
@@ -1188,6 +1275,305 @@ h1 {
 .price-card .btn {
   margin-top: auto;
   width: fit-content;
+}
+
+.download-page main {
+  width: min(1120px, 94vw);
+  padding-top: clamp(1.5rem, 4vw, 3rem);
+}
+
+.download-shell {
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background:
+    linear-gradient(135deg, rgba(232, 86, 56, 0.06), transparent 36%),
+    rgba(9, 10, 11, 0.84);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+}
+
+.download-head {
+  padding: clamp(1.6rem, 4vw, 3rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+.download-head .eyebrow {
+  margin-bottom: 0.7rem;
+}
+
+.download-head h1 {
+  max-width: 12ch;
+  font-size: clamp(2.8rem, 7vw, 5.6rem);
+  font-weight: 500;
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+}
+
+.download-head > div:first-child > p:last-child {
+  max-width: 54ch;
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.download-build {
+  min-width: 188px;
+  padding: 1rem 1.05rem;
+  display: grid;
+  gap: 0.24rem;
+  border-left: 2px solid #e85638;
+  background: rgba(255, 255, 255, 0.028);
+}
+
+.download-build span,
+.download-build small {
+  color: #85878c;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.download-build strong {
+  color: #ff7255;
+  font-size: 1.1rem;
+}
+
+.download-platforms {
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.download-platform {
+  min-width: 0;
+  min-height: 246px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    #0d0e10;
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.download-platform:hover {
+  border-color: rgba(255, 114, 85, 0.42);
+  transform: translateY(-2px);
+}
+
+.download-platform--ios {
+  background:
+    linear-gradient(180deg, rgba(232, 86, 56, 0.07), rgba(255, 255, 255, 0.012)),
+    #0d0e10;
+}
+
+.download-platform__head {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.download-platform__icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.download-platform__icon img {
+  width: 20px;
+  height: 20px;
+  display: block;
+  object-fit: contain;
+}
+
+.download-platform__head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.download-platform__head div > span {
+  display: block;
+  margin-top: 0.16rem;
+  color: #777a80;
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.download-platform > p {
+  margin: 1.05rem 0 1.2rem;
+  color: #aeb1b7;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.download-platform .btn {
+  width: 100%;
+  min-height: 46px;
+  margin-top: auto;
+  padding: 0.72rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.download-platform .btn-ghost {
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background: rgba(255, 255, 255, 0.035);
+  color: #ffffff !important;
+  box-shadow: none;
+}
+
+.download-platform .btn-primary {
+  border-color: transparent;
+  background: #e85638;
+  color: #ffffff;
+}
+
+.download-utility {
+  min-height: 74px;
+  padding: 1rem clamp(1rem, 2.5vw, 1.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+.download-utility p {
+  margin: 0;
+  color: #8f9298;
+  font-size: 0.85rem;
+}
+
+.download-utility p strong {
+  color: var(--text);
+}
+
+.download-utility a {
+  flex: 0 0 auto;
+  color: #ff7255;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.download-next {
+  margin-top: 1rem;
+  padding: clamp(1.3rem, 3vw, 2rem);
+  display: grid;
+  grid-template-columns: minmax(190px, 0.75fr) minmax(0, 1.25fr);
+  align-items: center;
+  gap: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(12, 13, 15, 0.62);
+}
+
+.download-next .eyebrow {
+  margin-bottom: 0.45rem;
+}
+
+.download-next h2 {
+  font-size: clamp(1.65rem, 3.4vw, 2.35rem);
+  font-weight: 500;
+}
+
+.download-next nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.download-next nav a {
+  min-width: 0;
+  padding: 0.95rem 1rem;
+  display: grid;
+  gap: 0.24rem;
+  border-left: 2px solid rgba(255, 114, 85, 0.5);
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.download-next nav span {
+  color: #81848a;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.download-next nav strong {
+  overflow-wrap: anywhere;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 980px) {
+  .download-platforms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .download-platform {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 620px) {
+  .download-page main {
+    padding-top: 1rem;
+  }
+
+  .download-head {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 1.35rem;
+  }
+
+  .download-head h1 {
+    font-size: clamp(2.65rem, 14vw, 3.7rem);
+  }
+
+  .download-build {
+    width: 100%;
+  }
+
+  .download-platforms {
+    grid-template-columns: 1fr;
+  }
+
+  .download-platform {
+    min-height: 0;
+  }
+
+  .download-utility,
+  .download-next {
+    align-items: flex-start;
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .download-utility a {
+    flex: 0 1 auto;
+  }
+
+  .download-next nav {
+    grid-template-columns: 1fr;
+  }
 }
 
 .buy-checkout {
@@ -3382,6 +3768,23 @@ footer {
     padding: 1.25rem;
     border-radius: 0;
     gap: 1rem;
+  }
+
+  .hero h1 {
+    max-width: 11ch;
+    font-size: clamp(2.65rem, 12vw, 3.15rem);
+  }
+
+  .hero-sale {
+    margin-bottom: 1.1rem;
+  }
+
+  .hero-product-actions .btn {
+    flex: 1 1 160px;
+  }
+
+  .hero-meta {
+    margin-top: 1rem;
   }
 
   h1 {

@@ -69,6 +69,74 @@ if (siteHeader && navToggle && siteNav) {
   });
 }
 
+function initializeRotatingHeroHeadline() {
+  const headline = document.querySelector("[data-rotating-headline]");
+  if (!headline) return;
+
+  const options = [
+    ["Record more.", "Edit less."],
+    ["Less fixing.", "More feeling."],
+    ["Trust the take.", "Finish the song."],
+    ["Make a record.", "Not a revision."],
+    ["Fewer options.", "Better decisions."],
+    ["Don’t chase perfect.", "Capture something real."],
+    ["A tape machine.", "Without the maintenance."],
+    ["Analog discipline.", "Modern recording."],
+    ["Capture. Commit.", "Keep creating."],
+    ["Think like tape.", "Work at digital speed."],
+  ];
+
+  let index = 0;
+  try {
+    const savedIndex = Number.parseInt(window.sessionStorage.getItem("tape16HeadlineIndex"), 10);
+    index = Number.isInteger(savedIndex) ? (savedIndex + 1) % options.length : 0;
+    window.sessionStorage.setItem("tape16HeadlineIndex", String(index));
+  } catch (error) {
+    index = Math.floor(Math.random() * options.length);
+  }
+
+  const [firstLine, secondLine] = options[index];
+  headline.replaceChildren(
+    document.createTextNode(firstLine),
+    document.createElement("br"),
+    document.createTextNode(secondLine),
+  );
+}
+
+initializeRotatingHeroHeadline();
+
+function initializePlatformDownloadHighlight() {
+  const platformCards = Array.from(document.querySelectorAll("[data-download-platform]"));
+  if (platformCards.length === 0) return;
+
+  const userAgent = navigator.userAgent || "";
+  const platformName = navigator.userAgentData?.platform || navigator.platform || "";
+  const isTouchMac = /Mac/i.test(platformName) && Number(navigator.maxTouchPoints || 0) > 1;
+  let detectedPlatform = "";
+
+  if (/iPad|iPhone|iPod/i.test(userAgent) || isTouchMac) {
+    detectedPlatform = "ios";
+  } else if (/Win/i.test(platformName) || /Windows/i.test(userAgent)) {
+    detectedPlatform = "windows";
+  } else if (/Mac/i.test(platformName) || /Macintosh/i.test(userAgent)) {
+    detectedPlatform = "macos";
+  } else if (/Linux/i.test(platformName) || /Linux/i.test(userAgent)) {
+    detectedPlatform = "linux";
+  }
+
+  platformCards.forEach((card) => {
+    const button = card.querySelector(".btn");
+    if (!button) return;
+
+    const matchesDevice = card.dataset.downloadPlatform === detectedPlatform;
+    card.classList.toggle("is-detected-platform", matchesDevice);
+    button.classList.toggle("btn-primary", matchesDevice);
+    button.classList.toggle("btn-ghost", !matchesDevice);
+  });
+}
+
+initializePlatformDownloadHighlight();
+
 function initializeYoutubeTestimonials() {
   const root = document.querySelector(".youtube-testimonials");
   if (!root) return;
