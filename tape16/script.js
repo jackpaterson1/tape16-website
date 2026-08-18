@@ -629,6 +629,32 @@ function trackMetaCheckoutEvent(eventName, paymentMethod) {
   }
 }
 
+function bindMetaStartTrialTracking(linkEl) {
+  if (!linkEl || linkEl.dataset.boundMetaStartTrial === "1") return;
+
+  linkEl.addEventListener("click", () => {
+    const destination = linkEl.href || "";
+    if (!destination || destination === "#" || linkEl.dataset.missingDownload === "1") return;
+    if (typeof window.fbq !== "function") return;
+
+    try {
+      window.fbq("track", "StartTrial", {
+        content_ids: ["tape16_7_day_demo"],
+        content_name: "TAPE 16 7-Day Demo",
+        content_type: "product",
+        value: 0.0,
+        currency: "USD",
+        predicted_ltv: 29.0,
+        platform: linkEl.dataset.metaStartTrial || "desktop",
+      });
+    } catch (error) {
+      // Never let analytics prevent an installer download.
+    }
+  });
+
+  linkEl.dataset.boundMetaStartTrial = "1";
+}
+
 function bindDownloadClickTracking(linkEl, buttonName) {
   if (!linkEl || linkEl.dataset.boundAnalyticsClick === "1") return;
   linkEl.addEventListener("click", () => {
@@ -1230,6 +1256,7 @@ startPromoteKitTracking();
 bindDownloadClickTracking(directDownloadMacLink, "Direct Download Mac");
 bindDownloadClickTracking(directDownloadWindowsLink, "Direct Download Windows");
 bindDownloadClickTracking(directDownloadReleaseLink, "Direct Downloads");
+document.querySelectorAll("[data-meta-start-trial]").forEach(bindMetaStartTrialTracking);
 
 function setSerialStatus(message, isError) {
   if (!serialStatus) return;
