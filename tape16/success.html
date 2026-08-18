@@ -30,6 +30,41 @@
   "https://connect.facebook.net/en_US/fbevents.js");
   fbq("init", "1292961342163447");
   fbq("track", "PageView");
+
+  // Only record a purchase after returning from a completed checkout. Keep a
+  // short-lived flag so refreshing this page does not report the same sale again.
+  (function trackCompletedPurchase() {
+    var checkoutState = new URLSearchParams(window.location.search).get("checkout");
+    if (checkoutState !== "success") return;
+
+    var storageKey = "tape16.metaPurchaseTrackedAt";
+    var dedupeWindowMs = 30 * 60 * 1000;
+    var alreadyTracked = false;
+
+    try {
+      var trackedAt = Number(window.sessionStorage.getItem(storageKey) || 0);
+      alreadyTracked = trackedAt > 0 && Date.now() - trackedAt < dedupeWindowMs;
+    } catch (error) {
+      // Tracking can still proceed when storage is unavailable in a privacy mode.
+    }
+
+    if (alreadyTracked) return;
+
+    fbq("track", "Purchase", {
+      content_ids: ["tape16_full_license"],
+      content_name: "TAPE 16 Full License",
+      content_type: "product",
+      value: 29.00,
+      currency: "USD",
+      num_items: 1
+    });
+
+    try {
+      window.sessionStorage.setItem(storageKey, String(Date.now()));
+    } catch (error) {
+      // The purchase event has already been queued, so storage failure is harmless.
+    }
+  })();
   </script>
   <noscript><img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=1292961342163447&ev=PageView&noscript=1"
