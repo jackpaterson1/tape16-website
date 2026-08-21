@@ -30,7 +30,7 @@
       content="TAPE 16 is a tape DAW and tape machine DAW with a reel to reel style workflow for modern music production."
     />
     <meta name="twitter:image" content="hero-image.png" />
-    <link rel="stylesheet" href="styles.css?v=hero-product-preview-3" />
+    <link rel="stylesheet" href="styles.css?v=account-card-1" />
     <link rel="stylesheet" href="checkout-buttons-stacked.css?v=stripe-button-5" />
       <script type="application/ld+json">
       {
@@ -536,30 +536,36 @@
         </div>
       </section>
       <section class="account" id="account">
-        <h2>License Deactivation</h2>
-        <p class="account-warning">Activate your serial inside the TAPE 16 app.</p>
-        <p>This page is only for viewing active machines and deactivating a license when you no longer have access to that computer.</p>
-        <p>Sign in with your serial, order ID, and purchase email to manage existing activations.</p>
-        <form id="account-login-form" class="serial-form">
-          <label>
-            Serial Number
-            <input id="account-serial" name="serial" type="text" required placeholder="T16-XXXXXX-XXXXXX-XXXXXX" />
-          </label>
-          <label>
-            Order ID
-            <input id="account-order-id" name="orderId" type="text" required placeholder="e.g. order_123" />
-          </label>
-          <label>
-            Purchase Email
-            <input id="account-email" name="email" type="email" required placeholder="you@email.com" />
-          </label>
-          <div class="account-actions">
-            <button class="btn btn-primary" type="submit" id="account-login-btn">Sign In</button>
+        <div class="account-intro">
+          <p class="eyebrow account-eyebrow">License tools</p>
+          <h2>License Deactivation</h2>
+          <p class="account-warning">Activate your serial inside the TAPE 16 app.</p>
+          <p>This page is only for viewing active machines and deactivating a license when you no longer have access to that computer.</p>
+        </div>
+
+        <div class="account-login-card">
+          <p class="account-login-label">Account access</p>
+          <h3>Manage active machines</h3>
+          <p class="account-login-copy">Sign in with your serial and purchase email.</p>
+          <form id="account-login-form" class="serial-form">
+            <label>
+              Serial Number
+              <input id="account-serial" name="serial" type="text" required autocomplete="off" spellcheck="false" placeholder="T16-XXXXXX-XXXXXX-XXXXXX" />
+            </label>
+            <label>
+              Purchase Email
+              <input id="account-email" name="email" type="email" required autocomplete="email" placeholder="you@email.com" />
+            </label>
+            <div class="account-actions">
+              <button class="btn btn-primary" type="submit" id="account-login-btn">Sign In</button>
+            </div>
+          </form>
+          <div class="account-session-actions" id="account-session-actions" hidden>
             <button class="btn btn-ghost" type="button" id="account-refresh-btn">Refresh</button>
             <button class="btn btn-ghost" type="button" id="account-logout-btn">Sign Out</button>
           </div>
-        </form>
-        <p id="account-status" class="serial-status" role="status" aria-live="polite"></p>
+          <p id="account-status" class="serial-status" role="status" aria-live="polite"></p>
+        </div>
 
         <article id="account-panel" class="account-panel" hidden>
           <p class="account-summary" id="account-summary"></p>
@@ -599,6 +605,6 @@
         latestReleaseApiUrl: "https://api.github.com/repos/jackpaterson1/TAPE-16-Public-Releases/releases/latest",
       };
     </script>
-    <script src="script.js?v=hero-product-preview-1"></script>
+    <script src="script.js?v=account-card-1"></script>
   </body>
 </html>

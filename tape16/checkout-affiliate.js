@@ -2004,7 +2004,6 @@ async function loginAccount(credentials) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         serial: credentials.serial,
-        orderId: credentials.orderId,
         email: credentials.email,
       }),
     });
@@ -2015,7 +2014,6 @@ async function loginAccount(credentials) {
     const expiresInSeconds = Number(body.expiresInSeconds || 0);
     const session = {
       serial: credentials.serial,
-      orderId: credentials.orderId,
       email: credentials.email,
       token: body.token,
       expiresAt: Date.now() + Math.max(60, expiresInSeconds) * 1000,
@@ -2024,7 +2022,7 @@ async function loginAccount(credentials) {
     await fetchAccountActivations(session, { silent: true });
     setAccountStatus("Signed in successfully.", false);
   } catch (error) {
-    setAccountStatus("Sign in failed. Check serial/order/email and try again.", true);
+    setAccountStatus("Sign in failed. Check your serial and purchase email, then try again.", true);
   } finally {
     setAccountLoading(false);
   }
@@ -2067,14 +2065,13 @@ if (accountLoginForm) {
     event.preventDefault();
     const data = new FormData(accountLoginForm);
     const serial = normalizeSerial(data.get("serial"));
-    const orderId = String(data.get("orderId") || "").trim();
     const email = String(data.get("email") || "").trim().toLowerCase();
-    if (!serial || !orderId || !email) {
-      setAccountStatus("Enter serial, order ID, and purchase email.", true);
+    if (!serial || !email) {
+      setAccountStatus("Enter your serial and purchase email.", true);
       return;
     }
     saveRedditMatch({ email });
-    await loginAccount({ serial, orderId, email });
+    await loginAccount({ serial, email });
   });
 }
 
