@@ -69,42 +69,6 @@ if (siteHeader && navToggle && siteNav) {
   });
 }
 
-function initializeRotatingHeroHeadline() {
-  const headline = document.querySelector("[data-rotating-headline]");
-  if (!headline) return;
-
-  const options = [
-    ["Record more.", "Edit less."],
-    ["Less fixing.", "More feeling."],
-    ["Trust the take.", "Finish the song."],
-    ["Make a record.", "Not a revision."],
-    ["Fewer options.", "Better decisions."],
-    ["Don’t chase perfect.", "Capture something real."],
-    ["A tape machine.", "Without the maintenance."],
-    ["Analog discipline.", "Modern recording."],
-    ["Capture. Commit.", "Keep creating."],
-    ["Think like tape.", "Work at digital speed."],
-  ];
-
-  let index = 0;
-  try {
-    const savedIndex = Number.parseInt(window.sessionStorage.getItem("tape16HeadlineIndex"), 10);
-    index = Number.isInteger(savedIndex) ? (savedIndex + 1) % options.length : 0;
-    window.sessionStorage.setItem("tape16HeadlineIndex", String(index));
-  } catch (error) {
-    index = Math.floor(Math.random() * options.length);
-  }
-
-  const [firstLine, secondLine] = options[index];
-  headline.replaceChildren(
-    document.createTextNode(firstLine),
-    document.createElement("br"),
-    document.createTextNode(secondLine),
-  );
-}
-
-initializeRotatingHeroHeadline();
-
 function initializePlatformDownloadHighlight() {
   const platformCards = Array.from(document.querySelectorAll("[data-download-platform]"));
   if (platformCards.length === 0) return;
