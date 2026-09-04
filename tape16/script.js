@@ -1153,7 +1153,7 @@ configurePayPalCheckout();
 const pinnedReleaseDownloadUrl =
   "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.380/TAPE-16-v0.9.380-macOS.dmg";
 const pinnedWindowsDownloadUrl =
-  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.380/TAPE-16-v0.9.380-Windows-Setup.exe";
+  "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/download/0.9.380/TAPE-16-v0.9.380-Windows-Setup.zip";
 const pinnedGithubReleaseUrl =
   "https://github.com/jackpaterson1/TAPE-16-Public-Releases/releases/tag/0.9.380";
 const releaseDownloadUrl = configUrl(config.releaseDownloadUrl) || pinnedReleaseDownloadUrl;
