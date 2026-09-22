@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,follow" />
+    <meta name="theme-color" content="#171918" />
+    <meta name="description" content="View and manage active machines for your TAPE 16 licence." />
+    <title>TAPE 16 Account | EMR Music Group</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="stylesheet" href="styles.css?v=account-page-1" />
+    <link rel="stylesheet" href="../assets/emr.css?v=machine-6" />
+    <script src="../assets/emr.js?v=catalogue-3" defer></script>
+  </head>
+  <body class="emr-web emr-legacy account-page">
+    <a class="emr-skip" href="#main">Skip to content</a>
+    <header class="emr-header"><div class="emr-header-inner">
+      <a class="emr-brand" href="../index.html" aria-label="EMR Music Group home"><img class="emr-logo" src="../assets/emr-logo.png" alt="EMR Music Group" width="3000" height="1577"></a>
+      <button class="emr-menu" aria-expanded="false" aria-controls="emr-navigation">Menu</button>
+      <nav class="emr-nav" id="emr-navigation" aria-label="Main navigation"><a href="index.html">TAPE 16</a><a href="../tape24/index.html">TAPE 24</a><a href="../support.html">Support</a><a href="account.html" aria-current="page">Account</a></nav>
+    </div></header>
+    <div class="product-nav"><div class="product-nav-inner"><strong>TAPE 16</strong><nav aria-label="TAPE 16 navigation"><a href="index.html#features">Features</a><a href="community-mods.html">Community Mods</a><a href="download.html">Downloads</a><a href="buy.html">Buy · $29 USD</a><a href="index.html#faq">Questions</a></nav></div></div>
+
+    <main id="main">
+      <section class="account account-standalone" id="account" aria-labelledby="account-title">
+        <div class="account-intro">
+          <p class="eyebrow account-eyebrow">TAPE 16 account</p>
+          <h1 id="account-title">Manage active machines.</h1>
+          <p class="account-warning">Activate your serial inside the TAPE 16 app.</p>
+          <p>Use this page to view active machines or deactivate a licence when you no longer have access to that computer.</p>
+        </div>
+
+        <div class="account-login-card">
+          <p class="account-login-label">Account access</p>
+          <h2>Sign in to TAPE 16</h2>
+          <p class="account-login-copy">Enter your serial number and purchase email.</p>
+          <form id="account-login-form" class="serial-form">
+            <label>
+              Serial Number
+              <input id="account-serial" name="serial" type="text" required autocomplete="off" spellcheck="false" placeholder="T16-XXXXXX-XXXXXX-XXXXXX" />
+            </label>
+            <label>
+              Purchase Email
+              <input id="account-email" name="email" type="email" required autocomplete="email" placeholder="you@email.com" />
+            </label>
+            <div class="account-actions">
+              <button class="btn btn-primary" type="submit" id="account-login-btn">Sign In</button>
+            </div>
+          </form>
+          <div class="account-session-actions" id="account-session-actions" hidden>
+            <button class="btn btn-ghost" type="button" id="account-refresh-btn">Refresh</button>
+            <button class="btn btn-ghost" type="button" id="account-logout-btn">Sign Out</button>
+          </div>
+          <p id="account-status" class="serial-status" role="status" aria-live="polite"></p>
+        </div>
+
+        <article id="account-panel" class="account-panel" hidden>
+          <p class="account-summary" id="account-summary"></p>
+          <div id="account-activations" class="activation-list"></div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="emr-footer"><div class="emr-footer-inner"><div><a class="emr-brand" href="../index.html"><img class="emr-logo" src="../assets/emr-logo.png" alt="EMR Music Group" width="3000" height="1577"></a></div><nav class="emr-footer-links" aria-label="Footer"><a href="index.html">TAPE 16</a><a href="../tape24/index.html">TAPE 24</a><a href="../support.html">Support</a><a href="affiliate.html">Affiliates</a><a href="bugs.html">Report a bug</a><a href="../privacy.html">Privacy</a></nav></div><div class="emr-footer-bottom"><span>© 2026 EMR Music Group</span></div></footer>
+
+    <script src="config.js?v=account-page-1"></script>
+    <script src="script.js?v=account-page-1"></script>
+  </body>
+</html>

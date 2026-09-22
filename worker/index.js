@@ -1383,7 +1383,7 @@ function buildSerialHtml(serial, orderId) {
                     <p style="margin:0;color:#ef5738;font-size:12px;font-weight:700;letter-spacing:1.4px;">TAPE 16</p>
                     <p style="margin:6px 0 0;color:#d3d3d5;font-size:12px;line-height:1.45;">License delivery from EMR Music Group</p>
                     <p style="margin:8px 0 0;color:#6f7176;font-size:10px;line-height:1.5;">You received this transactional email because you purchased TAPE 16.</p>
-                    <p style="margin:4px 0 0;color:#6f7176;font-size:10px;line-height:1.5;">JB Paterson &middot; EMR Music Group &middot; emrmusicgroup.com</p>
+                    <p style="margin:4px 0 0;color:#6f7176;font-size:10px;line-height:1.5;">EMR Music Group &middot; emrmusicgroup.com</p>
                   </td>
                 </tr>
               </table>

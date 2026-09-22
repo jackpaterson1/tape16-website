@@ -1,52 +1,15 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TAPE 16</title>
-    <meta http-equiv="refresh" content="0; url=https://emrmusicgroup.com/tape16/" />
-    <style>
-      :root { color-scheme: dark; }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        font-family: Arial, Helvetica, sans-serif;
-        background:
-          radial-gradient(circle at 20% 10%, rgba(228, 189, 114, 0.16) 0%, transparent 30%),
-          radial-gradient(circle at 80% 20%, rgba(200, 106, 49, 0.18) 0%, transparent 30%),
-          linear-gradient(160deg, #221710 0%, #1a120d 55%, #120c09 100%);
-        color: #f4e8d7;
-      }
-      .card {
-        border: 1px solid rgba(240, 207, 160, 0.24);
-        border-radius: 0;
-        padding: 28px;
-        background: rgba(45, 30, 22, 0.75);
-        text-align: center;
-        max-width: 420px;
-        box-shadow: 0 20px 45px rgba(19, 11, 7, 0.46);
-      }
-      h1 {
-        margin: 0 0 12px;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 1.8rem;
-        letter-spacing: -0.02em;
-        line-height: 1.05;
-      }
-      p { margin: 0 0 18px; color: #dbc29a; line-height: 1.65; }
-      a {
-        display: inline-block;
-        padding: 12px 16px;
-        border-radius: 999px;
-        background: linear-gradient(180deg, #e29a57, #bf6228);
-        color: #1f1209;
-        text-decoration: none;
-        font-weight: 700;
-        border: 1px solid rgba(255, 225, 181, 0.28);
-      }
-    </style>
+    <title>EMR Music Group: TAPE Recording Software</title>
+    <meta name="description" content="Meet TAPE 16 and TAPE 24. Reel-to-reel recording software by EMR Music Group. Find your tape machine, compare products, and get recording." />
+    <meta name="theme-color" content="#171918" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon-emr.svg" />
+    <link rel="stylesheet" href="assets/emr.css?v=machine-2" />
+    <link rel="stylesheet" href="assets/home.css?v=machine-2" />
+    <script src="assets/emr.js?v=catalogue-2" defer></script>
   <!-- Reddit Pixel -->
   <script>
   !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js?pixel_id=a2_in5atqp7amcu",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -90,11 +53,43 @@
   <!-- End Meta Pixel Code -->
 
 </head>
-  <body>
-    <main class="card">
-      <h1>TAPE 16 Website</h1>
-      <p>You are being redirected.</p>
-      <a href="https://emrmusicgroup.com/tape16/">Go To TAPE 16</a>
+  <body class="emr-web emr-home">
+    <a class="emr-skip" href="#main">Skip to content</a>
+    <header class="emr-header">
+      <div class="emr-header-inner">
+        <a class="emr-brand" href="./index.html" aria-label="EMR Music Group home"><img class="emr-logo" src="assets/emr-logo.png" alt="EMR Music Group" width="3000" height="1577"></a>
+        <button class="emr-menu" aria-expanded="false" aria-controls="emr-navigation">Menu</button>
+        <nav class="emr-nav" id="emr-navigation" aria-label="Main navigation">
+          <a href="support.html">Support</a><a href="tape16/account.html">Account</a>
+        </nav>
+      </div>
+    </header>
+    <main class="machine-picker" id="main">
+      <header class="machine-picker-intro">
+        <h1>Find your machine.</h1>
+        <p>Two tape-inspired recording workflows. Choose the one that suits the way you make music.</p>
+      </header>
+      <section class="machine-grid" aria-label="Choose a TAPE recording machine">
+        <a class="machine-card machine-card--16" href="tape16/index.html">
+          <div class="machine-visual"><video autoplay muted loop playsinline preload="metadata" poster="assets/tape16-poster.jpg" aria-label="TAPE 16 playing a multitrack session"><source src="assets/tape16-loop.mp4?v=hero-video-3" type="video/mp4"></video></div>
+          <div class="machine-content">
+            <div class="machine-title"><div><span>Focused recorder</span><h2>TAPE 16</h2></div><p>$29 <small>USD</small> <s>$59</s></p></div>
+            <p class="machine-summary">Sixteen tracks, a fixed layout, and takes you commit to. The limitations are part of the experience.</p>
+            <ul><li>16-track recording</li><li>Punch in and overwrite</li><li>Tape character</li><li>Third-party plugins</li></ul>
+            <span class="machine-cta">Choose TAPE 16 <b aria-hidden="true">→</b></span>
+          </div>
+        </a>
+        <a class="machine-card machine-card--24" href="tape24/index.html">
+          <div class="machine-visual"><video autoplay muted loop playsinline preload="metadata" poster="tape24/assets/tape24-poster.jpg" aria-label="TAPE 24 playing a multitrack session"><source src="tape24/assets/tape24-loop.mp4?v=hero-video-3" type="video/mp4"></video></div>
+          <div class="machine-content">
+            <div class="machine-title"><div><span>Expanded recorder</span><h2>TAPE 24</h2></div><p class="machine-availability">Available soon</p></div>
+            <p class="machine-summary">The TAPE approach with more tools within reach and additional ways to shape your recordings.</p>
+            <ul><li>24-track recording</li><li>Built-in EQ and compression</li><li>Automation</li><li>Additional plugins</li></ul>
+            <span class="machine-cta">Choose TAPE 24 <b aria-hidden="true">→</b></span>
+          </div>
+        </a>
+      </section>
     </main>
+    <footer class="picker-footer"><span>© 2026 EMR Music Group</span><nav aria-label="Footer"><a href="support.html">Support</a><a href="tape16/account.html">Account</a><a href="privacy.html">Privacy</a></nav></footer>
   </body>
 </html>

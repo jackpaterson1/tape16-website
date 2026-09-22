@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#171918" />
+    <meta name="description" content="Contact EMR Music Group for TAPE 16 and TAPE 24 product, licensing, activation and download support." />
+    <title>Support | EMR Music Group</title>
+    <link rel="canonical" href="https://emrmusicgroup.com/support.html" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="assets/favicon-emr.svg" />
+    <link rel="stylesheet" href="tape16/styles.css?v=contact-universal-1" />
+    <link rel="stylesheet" href="assets/emr.css?v=machine-7" />
+    <script src="assets/emr.js?v=catalogue-3" defer></script>
+  </head>
+  <body class="emr-web emr-legacy support-page">
+    <a class="emr-skip" href="#main">Skip to content</a>
+    <header class="emr-header"><div class="emr-header-inner">
+      <a class="emr-brand" href="index.html" aria-label="EMR Music Group home"><img class="emr-logo" src="assets/emr-logo.png" alt="EMR Music Group" width="3000" height="1577"></a>
+      <button class="emr-menu" aria-expanded="false" aria-controls="emr-navigation">Menu</button>
+      <nav class="emr-nav" id="emr-navigation" aria-label="Main navigation"><a href="tape16/index.html">TAPE 16</a><a href="tape24/index.html">TAPE 24</a><a href="support.html" aria-current="page">Support</a><a href="tape16/account.html">Account</a></nav>
+    </div></header>
+
+    <main id="main">
+      <section class="bug-report contact-support" aria-labelledby="support-title">
+        <p class="eyebrow">EMR Music Group support</p>
+        <h1 id="support-title">Contact support.</h1>
+        <p class="contact-support-intro">For TAPE 16 or TAPE 24 licensing, activation, downloads and product help, email our support inbox.</p>
+
+        <div class="contact-support-grid">
+          <article class="contact-support-card contact-email-card">
+            <p class="contact-support-label">Email</p>
+            <a class="contact-support-email" href="mailto:support@emrmusicgroup.com?subject=TAPE%20Support">support@emrmusicgroup.com</a>
+            <a class="btn btn-primary" href="mailto:support@emrmusicgroup.com?subject=TAPE%20Support">Email Support</a>
+          </article>
+
+          <article class="contact-support-card contact-clock-card">
+            <p class="contact-support-label">Support hours</p>
+            <div class="contact-support-hours">
+              <p>Monday to Friday</p>
+              <p class="contact-support-time"><span>9:00 am</span><span aria-hidden="true">to</span><span>5:00 pm</span></p>
+            </div>
+            <p class="contact-support-zone">Brisbane time (AEST)</p>
+            <div class="brisbane-clock" aria-live="off">
+              <span>Current time in Brisbane</span>
+              <strong id="brisbane-time">--:--:--</strong>
+              <span id="brisbane-date">Loading Brisbane time...</span>
+            </div>
+            <p class="contact-support-status" id="support-hours-status" role="status" aria-live="polite">Checking support hours...</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="emr-footer"><div class="emr-footer-inner"><div><a class="emr-brand" href="index.html"><img class="emr-logo" src="assets/emr-logo.png" alt="EMR Music Group" width="3000" height="1577"></a></div><nav class="emr-footer-links" aria-label="Footer"><a href="tape16/index.html">TAPE 16</a><a href="tape24/index.html">TAPE 24</a><a href="support.html" aria-current="page">Support</a><a href="tape16/account.html">Account</a><a href="privacy.html">Privacy</a></nav></div><div class="emr-footer-bottom"><span>© 2026 EMR Music Group</span></div></footer>
+
+    <script>
+      (() => {
+        const timeElement = document.getElementById("brisbane-time");
+        const dateElement = document.getElementById("brisbane-date");
+        const statusElement = document.getElementById("support-hours-status");
+        if (!timeElement || !dateElement || !statusElement) return;
+        const timeFormatter = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Brisbane", hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true });
+        const dateFormatter = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Brisbane", weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        const hoursFormatter = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Brisbane", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+        const weekdayFormatter = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Brisbane", weekday: "short" });
+        const updateBrisbaneClock = () => {
+          const now = new Date();
+          timeElement.textContent = timeFormatter.format(now);
+          dateElement.textContent = dateFormatter.format(now);
+          const parts = Object.fromEntries(hoursFormatter.formatToParts(now).map((part) => [part.type, part.value]));
+          const minutes = Number(parts.hour) * 60 + Number(parts.minute);
+          const weekday = weekdayFormatter.format(now);
+          const supportIsActive = ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(weekday) && minutes >= 9 * 60 && minutes < 17 * 60;
+          statusElement.textContent = supportIsActive ? "Support hours are active now." : "Currently outside support hours.";
+          statusElement.dataset.active = supportIsActive ? "true" : "false";
+        };
+        updateBrisbaneClock();
+        window.setInterval(updateBrisbaneClock, 1000);
+      })();
+    </script>
+  </body>
+</html>
