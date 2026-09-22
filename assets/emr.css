@@ -151,6 +151,7 @@ body.emr-web { margin: 0; background: var(--paper); color: var(--ink); font: 15p
 .product-specs > div:last-child { border: 0; }
 .product-specs b { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
 .product-specs span { font-size: 11px; color: var(--secondary); }
+.home-downloads .download-platforms { margin: 0 0 48px; padding: 0; }
 .product24-banner { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; min-width: 0; padding: 44px 38px 24px; margin: 0; }
 .product24-number { padding: 20px 20px 42px; }
 .product24-number img { display: block; width: 100%; height: auto; filter: brightness(0) invert(1); opacity: .85; }
@@ -158,10 +159,16 @@ body.emr-web { margin: 0; background: var(--paper); color: var(--ink); font: 15p
 .studio-tool-list span { padding: 12px 0; border-top: 1px solid var(--rule); }
 .tape24-feature-stories { border-bottom: 1px solid var(--rule); }
 .tape24-feature-story { display: grid; grid-template-columns: .72fr 1.28fr; gap: 70px; padding: 34px 0; border-top: 1px solid var(--rule); }
+.tape24-feature-story--channel { grid-template-columns: minmax(230px,.7fr) minmax(220px,.65fr) minmax(360px,1.1fr); gap: 40px; padding-block: 40px; }
+.tape24-feature-story--automation { grid-template-columns: minmax(230px,.7fr) minmax(360px,1.1fr) minmax(200px,.6fr); gap: 40px; padding-block: 40px; }
 .tape24-feature-story header { padding-top: 2px; }
 .tape24-feature-story .catalogue-label { color: var(--red); font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
 .tape24-feature-story h3 { margin: 5px 0 0; font-size: clamp(26px,3vw,36px); line-height: 1.15; font-weight: 550; letter-spacing: -.035em; }
 .tape24-feature-lead { max-width: 62ch; margin: 0 0 25px; color: var(--ink); font-size: 17px; line-height: 1.65; }
+.channel-strip-media { width: 100%; max-width: 270px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.automation-media { width: 100%; max-width: 220px; }
+.channel-strip-media figure, .automation-media figure { min-width: 0; margin: 0; padding: 4px; overflow: hidden; border: 1px solid var(--rule); border-radius: 5px; background: var(--panel); }
+.channel-strip-media video, .automation-media video { display: block; width: 100%; height: auto; }
 .tape24-feature-points { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
 .tape24-feature-points > div { padding-top: 17px; border-top: 1px solid var(--rule); }
 .tape24-feature-points h4, .tape24-capability-grid h4 { margin: 0 0 8px; color: var(--ink); font-size: 14px; font-weight: 600; }
@@ -359,6 +366,8 @@ body.emr-web { margin: 0; background: var(--paper); color: var(--ink); font: 15p
   .emr-nav { gap: 20px; }
   .instrument { gap: 28px; }
   .product-intro-row { gap: 38px; }
+  .tape24-feature-story--channel { grid-template-columns: .65fr 200px 1fr; gap: 28px; }
+  .tape24-feature-story--automation { grid-template-columns: .65fr 1fr 200px; gap: 28px; }
   .emr-web .product-headline { font-size: 42px; }
   .emr-web.emr-legacy .download-platforms { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
@@ -381,6 +390,9 @@ body.emr-web { margin: 0; background: var(--paper); color: var(--ink); font: 15p
   .compare-heading { gap: 30px; }
   .product-nav-inner { flex-direction: column; align-items: start; gap: 0; padding-top: 8px; }
   .product-nav nav { width: 100%; }
+  .tape24-feature-story--channel, .tape24-feature-story--automation { grid-template-columns: 1fr; gap: 20px; }
+  .channel-strip-media { max-width: 240px; }
+  .automation-media { max-width: 200px; }
   .studio-product-hero { margin: 28px 0 34px; }
   .product-intro { padding: 0 0 25px; }
   .product-intro-row { grid-template-columns: 1fr; gap: 24px; }
@@ -434,12 +446,23 @@ body.emr-web { margin: 0; background: var(--paper); color: var(--ink); font: 15p
   .simple-faq { gap: 18px; }
   .emr-web.emr-legacy .feature-grid { grid-template-columns: 1fr; gap: 0; }
   .emr-web.emr-legacy .download-platforms, .emr-web.emr-legacy .download-head { grid-template-columns: 1fr; }
+  .emr-web.emr-legacy .home-downloads .download-platforms { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; padding: 0; }
+  .emr-web.emr-legacy .home-downloads .download-platform { min-height: 90px; padding: 10px 12px; display: flex; flex-direction: column; align-items: stretch; justify-content: space-between; gap: 8px; }
+  .emr-web.emr-legacy .home-downloads .download-platform__head { gap: 0; }
+  .emr-web.emr-legacy .home-downloads .download-platform__icon,
+  .emr-web.emr-legacy .home-downloads .download-platform__head div > span,
+  .emr-web.emr-legacy .home-downloads .download-platform > p,
+  .emr-web.emr-legacy .home-downloads .download-logo-icon { display: none; }
+  .emr-web.emr-legacy .home-downloads .download-platform__head h2 { font-size: 13px; }
+  .emr-web.emr-legacy .home-downloads .download-platform .btn { width: 100%; min-height: 32px; margin: 0; padding: 6px 8px; font-size: 11px; white-space: nowrap; }
   .emr-web.emr-legacy .contact-support { padding-top: 32px; }
   .emr-web.emr-legacy .buy-checkout__intro, .emr-web.emr-legacy .buy-payment-panel { padding: 25px; }
   .emr-web.emr-legacy .youtube-testimonials__intro, .emr-web.emr-legacy .youtube-testimonials__footer { padding: 24px; }
 }
 @media (max-width: 440px) {
   .tape24-feature-points, .tape24-capability-grid { grid-template-columns: 1fr; }
+  .emr-web.emr-legacy .home-downloads .download-platform { padding: 9px 8px; }
+  .emr-web.emr-legacy .home-downloads .download-platform .btn { padding-inline: 4px; font-size: 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
