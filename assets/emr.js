@@ -13,6 +13,22 @@
   });
 
   const header = document.querySelector('.emr-header');
+  const pageName = window.location.pathname.split('/').pop() || 'index.html';
+  const isTape16Page = /\/tape16\//.test(window.location.pathname);
+  const promoExcludedPages = new Set(['account.html', 'success.html', 'cancel.html']);
+  if (header && isTape16Page && !promoExcludedPages.has(pageName) && !document.querySelector('.emr-promo')) {
+    const promo = document.createElement('aside');
+    promo.className = 'emr-promo';
+    promo.setAttribute('role', 'note');
+    promo.setAttribute('aria-label', 'TAPE 16 launch price');
+
+    const promoLink = document.createElement('a');
+    promoLink.className = 'emr-promo-inner';
+    promoLink.href = new URL('buy.html', window.location.href).href;
+    promoLink.innerHTML = '<span class="emr-promo-kicker">50% off</span><span class="emr-promo-copy"><strong>TAPE 16 launch price:</strong> lifetime licence <b>$29 USD</b> <s>$59</s></span><span class="emr-promo-action">Get TAPE 16</span>';
+    promo.appendChild(promoLink);
+    header.insertAdjacentElement('afterend', promo);
+  }
   const toggle = header?.querySelector('.emr-menu');
   const navigation = header?.querySelector('.emr-nav');
   function closeMenu() {
