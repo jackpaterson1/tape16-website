@@ -135,7 +135,7 @@ function initializeYoutubeTestimonials() {
     ["I'm enjoying this! I love Ableton and this isn't meant to be a replacement but it's a pleasant change up.", videos.official],
     ["Picked it up, and found it to be a thoughtful design.", videos.questions],
     ["Picked up from your last video. This is exactly the DAW I've been wanting.", videos.questions],
-    ["No horizontal scrolling — unthinkable — I like it.", videos.tales],
+    ["No horizontal scrolling. Unthinkable. I like it.", videos.tales],
     ["I'm having fun trying this out", videos.questions],
     ["Actually it excellent just got it it’s very close to the reel thing", videos.questions],
     ["Love tape-16 makes music sound like its back in the day", videos.questions],
@@ -155,7 +155,7 @@ function initializeYoutubeTestimonials() {
     ["I like this, love the limitation and the way it opens up ideas.", videos.crow],
     ["Me doing live recording on Youtube to Tape 16. Extremely love it!!!", videos.jeej],
     ["This is quickly becoming my jam. Love having to use ears rather than eyes to create", videos.jeej],
-    ["Love Tape 16 — it’s easy on the mind, it doesn't stress.", videos.jeej],
+    ["Love Tape 16, it’s easy on the mind, it doesn't stress.", videos.jeej],
     ["I used it for the first time and really loved the feeling of what making music when I was younger felt like.", videos.greg],
     ["I use it more after I finish a track, but I still enjoy creating with it too. The hybrid approach just works best for me.", videos.greg],
     ["Did my 1st tune today with it, fun to use", videos.greg],
@@ -194,7 +194,7 @@ function initializeYoutubeTestimonials() {
       card.setAttribute("aria-hidden", "true");
       card.tabIndex = -1;
     } else {
-      card.setAttribute("aria-label", `${quote} — open source video`);
+      card.setAttribute("aria-label", `${quote} (open source video)`);
     }
 
     const quoteText = document.createElement("span");
