@@ -50,6 +50,16 @@ body.emr-web { margin: 0; background: var(--paper); color: var(--ink); font: 15p
 .emr-promo-copy s { margin-left: 4px; color: rgba(255,255,255,.62); text-decoration-thickness: 1px; }
 .emr-promo-action { background: #171918; border-color: #171918; transition: background .16s ease,color .16s ease; }
 .emr-promo-inner:hover .emr-promo-action { background: #fff; color: #171918; }
+.emr-buybar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1050; background: rgba(23,25,24,.96); border-top: 1px solid var(--rule); box-shadow: 0 -8px 24px rgba(0,0,0,.35); backdrop-filter: blur(8px); transform: translateY(110%); visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s; padding-bottom: env(safe-area-inset-bottom); }
+.emr-buybar.is-visible { transform: none; visibility: visible; transition: transform .22s ease; }
+.emr-buybar-inner { width: min(1120px,92%); min-height: 60px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.emr-buybar-copy { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 8px; color: var(--secondary); font-size: 14px; }
+.emr-buybar-copy strong { color: var(--ink); letter-spacing: .04em; }
+.emr-buybar-copy s { color: var(--secondary); }
+.emr-buybar-copy b { color: var(--ink); font-size: 16px; }
+.emr-buybar-note { font-size: 12px; }
+.emr-buybar-action { flex: 0 0 auto; padding: 11px 22px; border-radius: 4px; background: var(--red-fill); color: #fff !important; font-size: 14px; font-weight: 700; text-decoration: none; transition: background .16s ease; }
+.emr-buybar-action:hover { background: var(--red); }
 .emr-web main, .emr-web main.emr-main { width: min(1120px,92%); margin: auto; padding: 0 0 64px; }
 .emr-web h1, .emr-web h2, .emr-web h3 { font-family: inherit; text-wrap: pretty; }
 .catalogue-label { color: var(--secondary); font-family: inherit; font-size: 13px; font-weight: 500; line-height: 1.5; text-transform: none; letter-spacing: 0; margin: 0 0 10px; }
@@ -487,4 +497,14 @@ body.emr-web { margin: 0; background: var(--paper); color: var(--ink); font: 15p
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .emr-web *, .emr-web *::before, .emr-web *::after { animation: none !important; transition: none !important; }
+}
+body.has-buybar { padding-bottom: 64px; }
+@media (max-width: 600px) {
+  .emr-buybar-inner { min-height: 56px; gap: 10px; }
+  .emr-buybar-note { display: none; }
+  .emr-buybar-copy { font-size: 13px; }
+  .emr-buybar-action { padding: 10px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .emr-buybar, .emr-buybar.is-visible { transition: none; }
 }

@@ -25,9 +25,26 @@
     const promoLink = document.createElement('a');
     promoLink.className = 'emr-promo-inner';
     promoLink.href = new URL('buy.html', window.location.href).href;
-    promoLink.innerHTML = '<span class="emr-promo-kicker">50% off</span><span class="emr-promo-copy"><strong>TAPE 16 launch price:</strong> lifetime licence <b>$29 USD</b> <s>$59</s></span><span class="emr-promo-action">Get TAPE 16</span>';
+    promoLink.innerHTML = '<span class="emr-promo-kicker">50% off</span><span class="emr-promo-copy"><strong>TAPE 16 launch price:</strong> lifetime license <b>$29 USD</b> <s>$59</s></span><span class="emr-promo-action">Get TAPE 16</span>';
     promo.appendChild(promoLink);
     header.insertAdjacentElement('afterend', promo);
+  }
+  // Sticky buy bar: shows once the hero scrolls away, hides while the real
+  // pricing section is on screen so it never covers the checkout.
+  const hero = document.querySelector('.product-intro');
+  const pricing = document.getElementById('pricing');
+  if (isTape16Page && hero && pricing && 'IntersectionObserver' in window) {
+    const bar = document.createElement('aside');
+    bar.className = 'emr-buybar';
+    bar.setAttribute('aria-label', 'Buy TAPE 16');
+    bar.innerHTML = '<div class="emr-buybar-inner"><span class="emr-buybar-copy"><strong>TAPE 16</strong><span class="emr-buybar-sep" aria-hidden="true">·</span><s>$59</s> <b>$29 USD</b><span class="emr-buybar-note">Lifetime license + consistent updates</span></span><a class="emr-buybar-action" href="#pricing">Buy now</a></div>';
+    document.body.appendChild(bar);
+    document.body.classList.add('has-buybar');
+    let heroVisible = true;
+    let pricingVisible = false;
+    const update = () => bar.classList.toggle('is-visible', !heroVisible && !pricingVisible);
+    new IntersectionObserver(([entry]) => { heroVisible = entry.isIntersecting; update(); }).observe(hero);
+    new IntersectionObserver(([entry]) => { pricingVisible = entry.isIntersecting; update(); }).observe(pricing);
   }
   const toggle = header?.querySelector('.emr-menu');
   const navigation = header?.querySelector('.emr-nav');
