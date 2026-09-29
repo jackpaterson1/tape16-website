@@ -509,12 +509,18 @@ body.has-buybar { padding-bottom: 64px; }
   .emr-buybar, .emr-buybar.is-visible { transition: none; }
 }
 /* Platform purchase notes (iOS/iPadOS sold separately via the App Store). */
-.emr-web .emr-platform-note { text-align: left; margin: 10px 0 16px; padding: 9px 12px; border-left: 3px solid var(--red); background: rgba(176,68,77,.1); color: var(--ink); font-size: .8rem; line-height: 1.5; }
+.emr-web .emr-platform-note { text-align: left; margin: 10px 0 0; padding: 9px 12px; border-left: 3px solid var(--red); background: rgba(176,68,77,.1); color: var(--ink); font-size: .8rem; line-height: 1.5; }
 .emr-web .emr-platform-note strong { color: var(--ink); font-weight: 700; }
 .emr-web .emr-platform-note--callout { margin: 1.4rem 0 0; padding: 14px 16px; font-size: .92rem; color: var(--secondary); }
 .emr-web .emr-platform-note--callout strong { display: block; margin-bottom: 4px; font-size: 1rem; }
+.emr-web .emr-ios-copy strong { display: inline-block; margin-top: 8px; padding: 3px 9px; border: 1px solid rgba(214,92,102,.65); border-radius: 3px; background: rgba(176,68,77,.18); color: #ffb3a8; font-size: .8rem; font-weight: 700; line-height: 1.4; letter-spacing: .01em; }
 @media (max-width: 600px) {
-  /* Compact download cards hide their copy; keep the short App Store note. */
-  .emr-web.emr-legacy .home-downloads .download-platform > .emr-platform-note { display: block; margin: 0; padding: 4px 6px; border-left-width: 2px; font-size: 10px; line-height: 1.3; }
-  .emr-web.emr-legacy .home-downloads .emr-platform-note__more { display: none; }
+  /* Compact download cards hide their copy; keep only the App Store line. */
+  .emr-web.emr-legacy .home-downloads .download-platform > .emr-ios-copy { display: block; margin: 0; font-size: 10px; line-height: 1.3; }
+  .emr-web.emr-legacy .home-downloads .emr-ios-copy strong { margin-top: 2px; padding: 2px 6px; font-size: 10px; }
+  .emr-web.emr-legacy .home-downloads .emr-ios-copy__beta { display: none; }
 }
+/* Hero buy button: outlined partner to the trial button. */
+.emr-web .hero-buy { gap: 8px; color: var(--ink); border-color: #8c3a43; }
+.emr-web .hero-buy:hover { color: #fff; }
+.emr-web .hero-buy .hero-price-was { color: var(--secondary); }
