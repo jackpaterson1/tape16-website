@@ -2803,15 +2803,12 @@ h1 {
 
 .mod-card-description {
   margin: 0.55rem 0 0;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  max-height: calc(1.55em * 3);
   overflow: hidden;
 }
 
 .mod-card.is-description-expanded .mod-card-description {
-  display: block;
-  -webkit-line-clamp: unset;
+  max-height: none;
   overflow: visible;
 }
 
@@ -2987,16 +2984,61 @@ h1 {
 }
 
 .theme-description {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  margin: 1em 0;
+  color: var(--muted);
+  line-height: 1.65;
+  max-height: calc(1.65em * 3);
   overflow: hidden;
 }
 
 .theme-card.is-description-expanded .theme-description {
-  display: block;
-  -webkit-line-clamp: unset;
+  max-height: none;
   overflow: visible;
+}
+
+.community-description p,
+.community-description ul,
+.community-description ol {
+  margin: 0;
+}
+
+/* Block spacing only once expanded, so the collapsed preview cuts on a whole line. */
+.is-description-expanded .community-description p,
+.is-description-expanded .community-description ul,
+.is-description-expanded .community-description ol {
+  margin-bottom: 0.6em;
+}
+
+.community-description > :last-child {
+  margin-bottom: 0;
+}
+
+.community-description ul,
+.community-description ol {
+  padding-left: 1.3em;
+}
+
+.community-description code {
+  padding: 0.05em 0.3em;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.9em;
+}
+
+.community-description a {
+  color: var(--accent-alt);
+}
+
+.description-counter {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.description-counter.is-near-limit {
+  color: var(--accent-alt);
 }
 
 .theme-description-toggle {

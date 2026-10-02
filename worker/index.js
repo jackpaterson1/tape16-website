@@ -818,7 +818,7 @@ async function handleSubmitCommunityItem(request, type, origin, env) {
   const creatorName = cleanString(form.get("creator") || form.get("creatorName"));
   const name = cleanString(form.get(kind.nameField) || form.get("name"));
   const appVersion = cleanString(form.get("appVersion"));
-  const description = cleanString(form.get("description")).slice(0, 1600);
+  const description = cleanString(form.get("description")).replace(/\r\n?/g, "\n").slice(0, 1600);
   const tags = normalizeCommunityTags(form.get("tags"));
   const packageFile = readUploadFile(form, kind.fileField, "file", "package");
   const previewFile = readUploadFile(form, "previewImage", "preview", "image");
@@ -971,7 +971,7 @@ async function handleUpdateCommunityItem(request, type, slugOrId, origin, env) {
   const name = cleanString(payload[kind.nameField] || payload.name);
   const creatorName = cleanString(payload.creator || payload.creatorName);
   const appVersion = cleanString(payload.appVersion);
-  const description = cleanString(payload.description).slice(0, 1600);
+  const description = cleanString(payload.description).replace(/\r\n?/g, "\n").slice(0, 1600);
   const tags = JSON.stringify(normalizeCommunityTags(payload.tags));
   if (!name || !creatorName) {
     return json({ ok: false, error: "Creator name and item name are required" }, 400, origin, env);

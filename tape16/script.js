@@ -793,6 +793,85 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+const COMMUNITY_DESCRIPTION_MAX = 1600;
+
+// Basic, safe Markdown for community descriptions. The text is escaped first,
+// so the only tags in the output are the ones added here.
+function renderDescriptionMarkdown(value) {
+  const lines = escapeHtml(String(value).replace(/\u0000/g, "").replace(/\r\n?/g, "\n")).split("\n");
+  const blocks = [];
+  let paragraph = [];
+  let list = null;
+
+  const inline = (text) => {
+    // Code spans and link URLs are set aside so emphasis can't reach inside them.
+    const held = [];
+    const hold = (html) => `\u0000${held.push(html) - 1}\u0000`;
+    return text
+      .replace(/`([^`]+)`/g, (_, code) => hold(`<code>${code}</code>`))
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_, label, url) =>
+        `${hold(`<a href="${url}" target="_blank" rel="noopener noreferrer nofollow">`)}${label}${hold("</a>")}`)
+      .replace(/\*\*([^*]+)\*\*|__([^_]+)__/g, (_, a, b) => `<strong>${a || b}</strong>`)
+      .replace(/(^|[^*\w])\*([^*\s][^*]*)\*(?!\w)/g, "$1<em>$2</em>")
+      .replace(/(^|[^_\w])_([^_\s][^_]*)_(?!\w)/g, "$1<em>$2</em>")
+      .replace(/\u0000(\d+)\u0000/g, (_, index) => held[Number(index)]);
+  };
+  const flushParagraph = () => {
+    if (paragraph.length) blocks.push(`<p>${paragraph.map(inline).join("<br />")}</p>`);
+    paragraph = [];
+  };
+  const flushList = () => {
+    if (list) blocks.push(`<${list.tag}>${list.items.map((item) => `<li>${inline(item)}</li>`).join("")}</${list.tag}>`);
+    list = null;
+  };
+
+  lines.forEach((raw) => {
+    const line = raw.trim();
+    const bullet = line.match(/^[-*+]\s+(.*)$/);
+    const numbered = line.match(/^\d+[.)]\s+(.*)$/);
+    const heading = line.match(/^#{1,6}\s+(.*)$/);
+    if (!line) {
+      flushParagraph();
+      flushList();
+    } else if (bullet || numbered) {
+      flushParagraph();
+      const tag = bullet ? "ul" : "ol";
+      if (list && list.tag !== tag) flushList();
+      if (!list) list = { tag, items: [] };
+      list.items.push((bullet || numbered)[1]);
+    } else if (heading) {
+      flushParagraph();
+      flushList();
+      blocks.push(`<p class="description-heading"><strong>${inline(heading[1])}</strong></p>`);
+    } else {
+      flushList();
+      paragraph.push(line);
+    }
+  });
+  flushParagraph();
+  flushList();
+  return blocks.join("");
+}
+
+function bindDescriptionCounter(textarea) {
+  if (!textarea || textarea.dataset.counterBound === "true") return;
+  textarea.dataset.counterBound = "true";
+  textarea.maxLength = COMMUNITY_DESCRIPTION_MAX;
+  const counter = document.createElement("span");
+  counter.className = "description-counter";
+  counter.setAttribute("aria-live", "polite");
+  const update = () => {
+    const length = textarea.value.replace(/\r\n?/g, "\n").length;
+    counter.textContent = `${length} / ${COMMUNITY_DESCRIPTION_MAX} characters. Basic Markdown supported.`;
+    counter.classList.toggle("is-near-limit", length >= COMMUNITY_DESCRIPTION_MAX - 100);
+  };
+  textarea.insertAdjacentElement("afterend", counter);
+  textarea.addEventListener("input", update);
+  update();
+}
+
+document.querySelectorAll("#community-upload-description, #theme-description").forEach(bindDescriptionCounter);
+
 function renderBuildLabel(label) {
   if (!currentBuildLabel) return;
   const text = String(label || "").trim();
@@ -1907,7 +1986,7 @@ function themeManageItemHtml(item) {
         </label>
         <label class="theme-manage-full">
           Description
-          <textarea name="description" rows="2">${escapeHtml(item.description || "")}</textarea>
+          <textarea name="description" rows="2" maxlength="1600">${escapeHtml(item.description || "")}</textarea>
         </label>
         <div class="theme-manage-field-actions">
           <button class="btn btn-primary" type="button" data-theme-manage-save disabled>Saved</button>
@@ -2231,7 +2310,7 @@ function themeCardHtml(item) {
           <p>By ${escapeHtml(item.creatorName || "Unknown creator")}</p>
         </div>
       </div>
-      <p class="theme-description" data-theme-description>${escapeHtml(item.description || "No description supplied.")}</p>
+      <div class="theme-description community-description" data-theme-description>${item.description ? renderDescriptionMarkdown(item.description) : "<p>No description supplied.</p>"}</div>
       <button class="theme-description-toggle" type="button" data-theme-description-toggle hidden>See more...</button>
       <div class="theme-meta">
         ${meta.map((value) => `<span>${escapeHtml(value)}</span>`).join("")}
@@ -2359,7 +2438,7 @@ function modBrowserCardHtml(item) {
         <p class="mod-card-kicker">${escapeHtml(config.label)}</p>
         <h3>${escapeHtml(item.name || "Untitled Upload")}</h3>
         <p class="mod-card-creator">By ${escapeHtml(item.creatorName || "Unknown creator")}</p>
-        <p class="mod-card-description" data-theme-description>${escapeHtml(item.description || "No description supplied.")}</p>
+        <div class="mod-card-description community-description" data-theme-description>${item.description ? renderDescriptionMarkdown(item.description) : "<p>No description supplied.</p>"}</div>
         <button class="theme-description-toggle" type="button" data-theme-description-toggle hidden>See more...</button>
         <div class="mod-card-meta">
           ${meta.map((value) => `<span>${escapeHtml(value)}</span>`).join("")}
